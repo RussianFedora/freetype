@@ -3,7 +3,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.0.3
-Release: 6
+Release: 7
 License: GPL
 Group: System Environment/Libraries
 URL: http://freetype.sourceforge.net
@@ -18,39 +18,34 @@ Buildroot: %{_tmppath}/%{name}-%{version}-root
 %description
 The FreeType engine is a free and portable TrueType font rendering
 engine, developed to provide TrueType support for a variety of
-platforms and environments. FreeType is a library which can open and
-manages font files as well as efficiently load, hint and render
+platforms and environments. FreeType is a library that can open and
+manage font files, as well as efficiently load, hint, and render
 individual glyphs. FreeType is not a font server or a complete
 text-rendering library.
 
-
 %package utils
-Summary: A collection of FreeType utilities.
-Group: System Environment/Libraries
+Summary: Utilities for manipulating and examining TrueType fonts.
+Group: Applications/Publishing
 Requires: %{name} = %{version}-%{release}
 
 %description utils
-The FreeType engine is a free and portable TrueType font rendering
-engine, developed to provide TrueType support for a variety of
-platforms and environments. FreeType is a library which can open and
-manages font files as well as efficiently load, hint and render
-individual glyphs. FreeType is not a font server or a complete
-text-rendering library.
-
+This package contains several utilities that allow you to view and
+manipulate TrueType fonts. They are mainly useful for debugging and
+testing purposes and are not required for using the FreeType library.
 
 %package devel
-Summary: FreeType development libraries and header files
+Summary: Header files and static library for development with FreeType.
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 
 %description devel
-The FreeType engine is a free and portable TrueType font rendering
-engine, developed to provide TrueType support for a variety of
-platforms and environments. FreeType is a library which can open and
-manages font files as well as efficiently load, hint and render
-individual glyphs. FreeType is not a font server or a complete
-text-rendering library.
+The freetype-devel package contains the header files and static
+library needed to develop or compile applications which use the
+FreeType TrueType font rendering library.
 
+Install freetype-devel if you want to develop FreeType
+applications. If you simply want to run existing applications, you
+will not need this package.
 
 %prep
 %setup -q -b 1 -a 3 -a 4
@@ -80,6 +75,8 @@ install -m 755 ttmkfdir2/.libs/ttmkfdir $RPM_BUILD_ROOT%{_bindir}
 mkdir -p $RPM_BUILD_ROOT/%{_prefix}/include/freetype1
 mv $RPM_BUILD_ROOT/%{_prefix}/include/freetype $RPM_BUILD_ROOT/%{_prefix}/include/freetype1
 
+%find_lang %{name}
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -87,16 +84,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %postun -p /sbin/ldconfig
 
-%files
+%files -f %{name}.lang
 %defattr(-,root,root)
 %{_bindir}/ttmkfdir
 %{_libdir}/libttf.so.*
 %{_libdir}/libfreetype.so.*
-%lang(de) %{_datadir}/locale/de/*
-%lang(fr) %{_datadir}/locale/fr/*
-%lang(cs) %{_datadir}/locale/cs/*
-%lang(nl) %{_datadir}/locale/nl/*
-%lang(es) %{_datadir}/locale/es/*
 %doc %{ft1}/README %{ft1}/announce docs
 
 %files utils
@@ -124,6 +116,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/freetype-config
 
 %changelog
+* Wed Aug 15 2001 Mike A. Harris <mharris@redhat.com> 2.0.3-7
+- Changed package to use {findlang} macro to fix bug (#50676)
+
 * Sun Jul 15 2001 Mike A. Harris <mharris@redhat.com> 2.0.3-6
 - Changed freetype-devel to group Development/Libraries (#47625)
 
