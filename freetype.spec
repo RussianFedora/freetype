@@ -1,31 +1,41 @@
-%define ft1 freetype-pre1.4
-# ttmkfdir, its patches, etc. are no longer used in post RHL 7.2 rawhide,
-# however the sources, etc are still included here so people can easily
-# rebuild freetype 2.0.6 and later in RHL 7.2 by setting with_ttmkfdir to 1
-# ONLY SET TO "1" for RHL 7.2 or less
-%define Build_7x        0
+# Disables freetype 1 and 2 bytecode interpreter.  Setting to 0 enables
+# the bytecode interpreter in both freetype 1 and 2.
+%define without_bytecode_interpreter    1
 
-%if %{Build_7x}
-%define with_ttmkfdir   1
-%else
+%define ft1 freetype-pre1.4
+
+# ttmkfdir shipped as part of freetype packaging in Red Hat Linux 6.2,
+# 7.0, 7.1, 7.2, but was moved to XFree86 packaging in Red Hat Linux 7.3
+# and later at the request of Ximian.  Set the following appropriately for
+# The RHL release freetype is being built for.
 %define with_ttmkfdir   0
-%endif
 
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
-Version: 2.0.9
-Release: 2
+Version: 2.1.2
+Release: 5
 License: GPL
 Group: System Environment/Libraries
 URL: http://www.freetype.org
-Source: freetype-%{version}.tar.bz2
-# This spec stupidity is because freetype 2.0.8 doesn't have updated docs.
+Source:  freetype-%{version}.tar.bz2
 Source1: ftdocs-%{version}.tar.bz2
 Source2: ft2demos-%{version}.tar.bz2
 Source3: %{ft1}.tar.bz2
 Source100: ttmkfdir2.tar.bz2
 
-Patch20:  freetype-2.0.8-compat.patch
+Patch0:   freetype-1.4-libtool.patch
+Patch20:  freetype-2.1.1-enable-ft2-bci.patch
+Patch21:  freetype-1.4-disable-ft1-bci.patch
+# Fix bug in PS hinter
+patch22:  freetype-2.1.1-primaryhints.patch
+# Adds FT_Set_Hint_Flags
+patch23:  freetype-2.1.2-slighthint.patch
+# Support the Type1 BlueFuzz value
+patch24:  freetype-2.1.2-bluefuzz.patch
+# Another PS hinter bug fix
+patch25:  freetype-2.1.2-stdw.patch
+# Fix from CVS for outline transformation
+patch26:  freetype-2.1.2-transform.patch
 Patch100: ttmkfdir-libtool.patch
 Patch101: ttmkfdir-foundrynames.patch
 Patch102: ttmkfdir-gcc31.patch
@@ -90,7 +100,19 @@ text-rendering library.
 %setup -q -b 1 -a 2 -a 3
 %endif
 
-%patch20  -p0 -b .compat
+%patch0   -p0 -b .ft1-libtool
+
+%if ! %{without_bytecode_interpreter}
+%patch20  -p0 -b .enable-ft2-bci
+%else
+%patch21  -p0 -b .disable-ft1-bci
+%endif
+
+%patch22 -p1 -b .primaryhints
+%patch23 -p1 -b .slighthint
+%patch24 -p1 -b .bluefuzz
+%patch25 -p1 -b .stdw
+%patch26 -p1 -b .transform
 
 %if %{with_ttmkfdir}
 %patch100 -p1 -b .libtool
@@ -121,7 +143,7 @@ make -C ttmkfdir2 DEBUG="$RPM_OPT_FLAGS"
 
 # Build freetype 2 demos
 pushd ft2demos-%{version}
-make X11_PATH="/usr/X11R6" TOP=".."
+make X11_PATH="/usr/X11R6" TOP_DIR=".."
 popd
 
 %install
@@ -205,6 +227,39 @@ exit 0
 %{_bindir}/freetype-config
 
 %changelog
+* Tue Jul 23 2002 Owen Taylor <otaylor@redhat.com>
+- Fix from CVS for transformations (#68964)
+
+* Tue Jul  9 2002 Owen Taylor <otaylor@redhat.com>
+- Add another bugfix for the postscript hinter
+
+* Mon Jul  8 2002 Owen Taylor <otaylor@redhat.com>
+- Add support for BlueFuzz private dict value, fixing rendering 
+  glitch for Luxi Mono.
+
+* Wed Jul  3 2002 Owen Taylor <otaylor@redhat.com>
+- Add an experimental FT_Set_Hint_Flags() call
+
+* Mon Jul  1 2002 Owen Taylor <otaylor@redhat.com>
+- Update to 2.1.2
+- Add a patch fixing freetype PS hinter bug
+
+* Fri Jun 21 2002 Mike A. Harris <mharris@redhat.com> 2.1.1-2
+- Added ft rpm build time conditionalizations upon user requests
+
+* Tue Jun 11 2002 Owen Taylor <otaylor@redhat.com> 2.1.1-1
+- Version 2.1.1
+
+* Mon Jun 10 2002 Owen Taylor <otaylor@redhat.com>
+- Add a fix for PCF character maps
+
+* Sun May 26 2002 Tim Powers <timp@redhat.com>
+- automated rebuild
+
+* Fri May 17 2002 Mike A. Harris <mharris@redhat.com> 2.1.0-2
+- Updated freetype to version 2.1.0
+- Added libtool fix for freetype 1.4 (#64631)
+
 * Wed Mar 27 2002 Nalin Dahyabhai <nalin@redhat.com> 2.0.9-2
 - use "libtool install" instead of "install" to install some binaries (#62005)
 
