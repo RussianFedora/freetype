@@ -11,7 +11,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.1.7
-Release: 3
+Release: 4
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -23,11 +23,14 @@ Source3: %{ft1}.tar.bz2
 # Fix build of freetype-1.4 with gcc 3.3
 Patch3: freetype-1.4-ac25.patch
 Patch4: freetype-1.4-gcc33.patch
+# Patch from freetype CVS to fix handling of eexec
+# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=117743
+Patch5:  freetype-2.1.7-eexec.patch
 Patch20:  freetype-2.1.3-enable-ft2-bci.patch
 Patch21:  freetype-1.4-disable-ft1-bci.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root
-BuildRequires: automake14 autoconf >= 2.59 libtool symlinks
+BuildRequires: automake14 autoconf >= 2.59 libtool symlinks zlib-devel
 
 %description
 The FreeType engine is a free and portable TrueType font rendering
@@ -71,6 +74,7 @@ text-rendering library.
 Summary: FreeType development libraries and header files
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
+Requires: zlib-devel
 
 %description devel
 The FreeType engine is a free and portable TrueType font rendering
@@ -99,6 +103,8 @@ popd
 %patch20  -p0 -b .enable-ft2-bci
 %endif
 
+%patch5 -p1 -b .eexec
+
 # Need to update libtool to get deplibs right for x86_64
 pushd builds/unix
 libtoolize --force
@@ -113,6 +119,9 @@ autoconf
 popd
 
 %build
+# Work around code generation problem with strict-aliasing
+# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=118021
+#
 export CFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
 export CXXFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
 
@@ -253,10 +262,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Mon Apr 19 2004 Owen Taylor <otaylor@redhat.com> 2.1.7-4
+- Add patch from freetype CVS to fix problem with eexec (#117743)
+- Add freetype-devel to buildrequires and -devel requires
+  (Maxim Dzumanenko, #111108)
+
 * Wed Mar 10 2004 Mike A. Harris <mharris@redhat.com> 2.1.7-3
 - Added -fno-strict-aliasing to CFLAGS and CXXFLAGS to try to fix SEGV and
   SIGILL crashes in mkfontscale which have been traced into freetype and seem
-  to be caused by aliasing issues in freetype macros
+  to be caused by aliasing issues in freetype macros (#118021)
 
 * Tue Mar 02 2004 Elliot Lee <sopwith@redhat.com> 2.1.7-2.1
 - rebuilt
