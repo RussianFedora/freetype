@@ -11,7 +11,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.1.7
-Release: 4
+Release: 5
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -262,6 +262,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Tue Jun 15 2004 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
 * Mon Apr 19 2004 Owen Taylor <otaylor@redhat.com> 2.1.7-4
 - Add patch from freetype CVS to fix problem with eexec (#117743)
 - Add freetype-devel to buildrequires and -devel requires
