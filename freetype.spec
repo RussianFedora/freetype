@@ -3,7 +3,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.0.3
-Release: 7
+Release: 8
 License: GPL
 Group: System Environment/Libraries
 URL: http://freetype.sourceforge.net
@@ -116,6 +116,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/freetype-config
 
 %changelog
+* Wed Sep 12 2001 Tim Powers <timp@redhat.com>
+- rebuild with new gcc and binutils
+
 * Wed Aug 15 2001 Mike A. Harris <mharris@redhat.com> 2.0.3-7
 - Changed package to use {findlang} macro to fix bug (#50676)
 
