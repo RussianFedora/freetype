@@ -1,69 +1,128 @@
 %define ft1 freetype-pre1.4
+# ttmkfdir, its patches, etc. are no longer used in post RHL 7.2 rawhide,
+# however the sources, etc are still included here so people can easily
+# rebuild freetype 2.0.6 and later in RHL 7.2 by setting with_ttmkfdir to 1
+# ONLY SET TO "1" for RHL 7.2 or less
+%define Build_7x        0
+
+%if %{Build_7x}
+%define with_ttmkfdir   1
+%else
+%define with_ttmkfdir   0
+%endif
 
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
-Version: 2.0.3
-Release: 8
+Version: 2.0.9
+Release: 1
 License: GPL
 Group: System Environment/Libraries
-URL: http://freetype.sourceforge.net
+URL: http://www.freetype.org
 Source: freetype-%{version}.tar.bz2
-Source1: ftdocs-2.0.3.tar.bz2
+# This spec stupidity is because freetype 2.0.8 doesn't have updated docs.
+Source1: ftdocs-%{version}.tar.bz2
+Source2: ft2demos-%{version}.tar.bz2
 Source3: %{ft1}.tar.bz2
-Source4: ttmkfdir2.tar.bz2
-Patch0: ttmkfdir-libtool.patch
-Patch1: ttmkfdir-foundrynames.patch
+Source100: ttmkfdir2.tar.bz2
+
+Patch20:  freetype-2.0.8-compat.patch
+Patch100: ttmkfdir-libtool.patch
+Patch101: ttmkfdir-foundrynames.patch
+Patch102: ttmkfdir-gcc31.patch
+Patch103: ttmkfdir-iso10646.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-root
 
 %description
 The FreeType engine is a free and portable TrueType font rendering
 engine, developed to provide TrueType support for a variety of
-platforms and environments. FreeType is a library that can open and
-manage font files, as well as efficiently load, hint, and render
+platforms and environments. FreeType is a library which can open and
+manages font files as well as efficiently load, hint and render
 individual glyphs. FreeType is not a font server or a complete
 text-rendering library.
 
+
 %package utils
-Summary: Utilities for manipulating and examining TrueType fonts.
-Group: Applications/Publishing
+Summary: A collection of FreeType utilities.
+Group: System Environment/Libraries
 Requires: %{name} = %{version}-%{release}
 
 %description utils
-This package contains several utilities that allow you to view and
-manipulate TrueType fonts. They are mainly useful for debugging and
-testing purposes and are not required for using the FreeType library.
+The FreeType engine is a free and portable TrueType font rendering
+engine, developed to provide TrueType support for a variety of
+platforms and environments. FreeType is a library which can open and
+manages font files as well as efficiently load, hint and render
+individual glyphs. FreeType is not a font server or a complete
+text-rendering library.
+
+
+%package demos
+Summary: A collection of FreeType demos.
+Group: System Environment/Libraries
+Requires: %{name} = %{version}-%{release}
+
+%description demos
+The FreeType engine is a free and portable TrueType font rendering
+engine, developed to provide TrueType support for a variety of
+platforms and environments. FreeType is a library which can open and
+manages font files as well as efficiently load, hint and render
+individual glyphs. FreeType is not a font server or a complete
+text-rendering library.
+
 
 %package devel
-Summary: Header files and static library for development with FreeType.
+Summary: FreeType development libraries and header files
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 
 %description devel
-The freetype-devel package contains the header files and static
-library needed to develop or compile applications which use the
-FreeType TrueType font rendering library.
+The FreeType engine is a free and portable TrueType font rendering
+engine, developed to provide TrueType support for a variety of
+platforms and environments. FreeType is a library which can open and
+manages font files as well as efficiently load, hint and render
+individual glyphs. FreeType is not a font server or a complete
+text-rendering library.
 
-Install freetype-devel if you want to develop FreeType
-applications. If you simply want to run existing applications, you
-will not need this package.
 
 %prep
-%setup -q -b 1 -a 3 -a 4
-%patch0 -p1 -b .libtool
-%patch1 -p1 -b .foundrynames
+%if %{with_ttmkfdir}
+%setup -q -b 1 -a 2 -a 3 -a 100
+%else
+%setup -q -b 1 -a 2 -a 3
+%endif
+
+%patch20  -p0 -b .compat
+
+%if %{with_ttmkfdir}
+%patch100 -p1 -b .libtool
+%patch101 -p1 -b .foundrynames
+%patch102 -p0 -b .gcc31
+%patch103 -p1 -b .iso10646
+%endif
 
 %build
+# Build Freetype 2
 export CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
 make setup CFG="--prefix=/usr"
 make
+
+# Build Freetype 1.4
 cd %{ft1}
 %configure --disable-debug \
            --enable-static --enable-shared \
            --with-locale-dir=%{_datadir}/locale
 make
 cd ..
+
+%if %{with_ttmkfdir}
+# Build ttmkfdir
 make -C ttmkfdir2 clean
-make -C ttmkfdir2 #DEBUG="$RPM_OPT_FLAGS"
+make -C ttmkfdir2 DEBUG="$RPM_OPT_FLAGS"
+%endif
+
+# Build freetype 2 demos
+pushd ft2demos-%{version}
+make X11_PATH="/usr/X11R6" TOP=".."
+popd
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -71,14 +130,30 @@ cd %{ft1}
 %makeinstall gnulocaledir=$RPM_BUILD_ROOT/%{_datadir}/locale
 cd ..
 %makeinstall gnulocaledir=$RPM_BUILD_ROOT/%{_datadir}/locale
+
+%if %{with_ttmkfdir}
 install -m 755 ttmkfdir2/.libs/ttmkfdir $RPM_BUILD_ROOT%{_bindir}
+%endif
+
 mkdir -p $RPM_BUILD_ROOT/%{_prefix}/include/freetype1
 mv $RPM_BUILD_ROOT/%{_prefix}/include/freetype $RPM_BUILD_ROOT/%{_prefix}/include/freetype1
+
+# Install freetype 2 demos
+for ftdemo in ftdump ftlint ftmemchk ftmulti ftstring fttimer ftview ;do
+    install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/usr/bin
+done
 
 %find_lang %{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%triggerpostun -- freetype < 2.0.5-3
+# ttmkfdir updated - as of 2.0.5-3, on upgrades we need xfs to regenerate things to get the iso10646-1 encoding listed.
+for I in /usr/share/fonts/*/TrueType /usr/X11R6/lib/X11/fonts/TrueType; do
+	[ -f $I/fonts.scale ] && [ -f $I/fonts.dir ] && touch $I/fonts.scale
+done
+exit 0
 
 %post -p /sbin/ldconfig
 
@@ -86,19 +161,33 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f %{name}.lang
 %defattr(-,root,root)
+%if %{with_ttmkfdir}
 %{_bindir}/ttmkfdir
+%endif
 %{_libdir}/libttf.so.*
 %{_libdir}/libfreetype.so.*
 %doc %{ft1}/README %{ft1}/announce docs
 
 %files utils
 %defattr(-,root,root)
-%{_bindir}/ftdump
+# 2.0.4 version included in demos package now
+#%{_bindir}/ftdump
 %{_bindir}/fterror
-%{_bindir}/ftlint
+# 2.0.4 version included in demos package now
+#%{_bindir}/ftlint
 %{_bindir}/ftmetric
 %{_bindir}/ftsbit
 %{_bindir}/ftstrpnm
+
+%files demos
+%defattr(-,root,root)
+%{_bindir}/ftdump
+%{_bindir}/ftlint
+%{_bindir}/ftmemchk
+%{_bindir}/ftmulti
+%{_bindir}/ftstring
+%{_bindir}/fttimer
+%{_bindir}/ftview
 
 %files devel
 %defattr(-,root,root)
@@ -116,8 +205,57 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/freetype-config
 
 %changelog
-* Wed Sep 12 2001 Tim Powers <timp@redhat.com>
-- rebuild with new gcc and binutils
+* Mon Mar 11 2002 Mike A. Harris <mharris@redhat.com> 2.0.9-1
+- Updated to freetype 2.0.9
+
+* Sun Feb 24 2002 Mike A. Harris <mharris@redhat.com> 2.0.8-4
+- Added proper docs+demos source for 2.0.8.
+
+* Sat Feb 23 2002 Mike A. Harris <mharris@redhat.com> 2.0.8-3
+- Added compat patch so 2.x works more like 1.x
+- Rebuilt with new build toolchain
+
+* Fri Feb 22 2002 Mike A. Harris <mharris@redhat.com> 2.0.8-2
+- Updated to freetype 2.0.8, however docs and demos are stuck at 2.0.7
+  on the freetype website.  Munged specfile to deal with the problem by using
+  {oldversion} instead of version where appropriate.  <sigh>
+
+* Sat Feb  2 2002 Tim Powers <timp@redhat.com> 2.0.6-3
+- bumping release so that we don't collide with another build of
+  freetype, make sure to change the release requirement in the XFree86
+  package
+
+* Fri Feb  1 2002 Mike A. Harris <mharris@redhat.com> 2.0.6-2
+- Made ttmkfdir inclusion conditional, and set up a define to include
+  ttmkfdir in RHL 7.x builds, since ttmkfdir is now moving to the new
+  XFree86-font-utils package.
+
+* Wed Jan 16 2002 Mike A. Harris <mharris@redhat.com> 2.0.6-1
+- Updated freetype to version 2.0.6
+
+* Wed Jan 09 2002 Tim Powers <timp@redhat.com> 2.0.5-4
+- automated rebuild
+
+* Fri Nov 30 2001 Elliot Lee <sopwith@redhat.com> 2.0.5-3
+- Fix bug #56901 (ttmkfdir needed to list Unicode encoding when generating
+  font list). (ttmkfdir-iso10646.patch)
+- Use _smp_mflags macro everywhere relevant. (freetype-pre1.4-make.patch)
+- Undo fix for #24253, assume compiler was fixed.
+
+* Mon Nov 12 2001 Bernhard Rosenkraenzer <bero@redhat.com> 2.0.5-2
+- Fix build with gcc 3.1 (#56079)
+
+* Sun Nov 11 2001 Mike A. Harris <mharris@redhat.com> 2.0.5-1
+- Updated freetype to version 2.0.5
+
+* Sat Sep 22 2001 Mike A. Harris <mharris@redhat.com> 2.0.4-2
+- Added new subpackage freetype-demos, added demos to build
+- Disabled ftdump, ftlint in utils package favoring the newer utils in
+  demos package.
+
+* Tue Sep 11 2001 Mike A. Harris <mharris@redhat.com> 2.0.4-1
+- Updated source to 2.0.4
+- Added freetype demo's back into src.rpm, but not building yet.
 
 * Wed Aug 15 2001 Mike A. Harris <mharris@redhat.com> 2.0.3-7
 - Changed package to use {findlang} macro to fix bug (#50676)
