@@ -14,7 +14,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.0.9
-Release: 1
+Release: 2
 License: GPL
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -132,7 +132,7 @@ cd ..
 %makeinstall gnulocaledir=$RPM_BUILD_ROOT/%{_datadir}/locale
 
 %if %{with_ttmkfdir}
-install -m 755 ttmkfdir2/.libs/ttmkfdir $RPM_BUILD_ROOT%{_bindir}
+libtool install -m 755 ttmkfdir2/ttmkfdir $RPM_BUILD_ROOT%{_bindir}
 %endif
 
 mkdir -p $RPM_BUILD_ROOT/%{_prefix}/include/freetype1
@@ -140,7 +140,7 @@ mv $RPM_BUILD_ROOT/%{_prefix}/include/freetype $RPM_BUILD_ROOT/%{_prefix}/includ
 
 # Install freetype 2 demos
 for ftdemo in ftdump ftlint ftmemchk ftmulti ftstring fttimer ftview ;do
-    install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/usr/bin
+    libtool install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/usr/bin
 done
 
 %find_lang %{name}
@@ -205,6 +205,9 @@ exit 0
 %{_bindir}/freetype-config
 
 %changelog
+* Wed Mar 27 2002 Nalin Dahyabhai <nalin@redhat.com> 2.0.9-2
+- use "libtool install" instead of "install" to install some binaries (#62005)
+
 * Mon Mar 11 2002 Mike A. Harris <mharris@redhat.com> 2.0.9-1
 - Updated to freetype 2.0.9
 
