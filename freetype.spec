@@ -1,7 +1,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.0.1
-Release: 4
+Release: 5
 License: BSD-like
 Group: System Environment/Libraries
 Source: freetype-%{version}.tar.bz2
@@ -117,6 +117,9 @@ rm -rf $RPM_BUILD_ROOT #$RPM_BUILD_DIR/%{name}-%{version}
 %{_bindir}/freetype-config
 
 %changelog
+* Fri Apr 27 2001 Bill Nottingham <notting@redhat.com>
+- rebuild for C++ exception handling on ia64
+
 * Sat Jan 20 2001 Bernhard Rosenkraenzer <bero@redhat.com>
 - Build ttmkfdir with -O0, workaround for Bug #24253
 
