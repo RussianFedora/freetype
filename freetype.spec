@@ -11,7 +11,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.1.9
-Release: 1
+Release: 2
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -263,6 +263,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Fri Mar  4 2005 David Zeuthen <davidz@redhat.com> - 2.1.9-2
+- Rebuild
+
 * Wed Aug  4 2004 Owen Taylor <otaylor@redhat.com> - 2.1.9-1
 - Upgrade to 2.1.9
 - Since we are just using automake for aclocal, use it unversioned,
