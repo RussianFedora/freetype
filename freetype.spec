@@ -11,7 +11,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.1.7
-Release: 1
+Release: 3
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -113,9 +113,11 @@ autoconf
 popd
 
 %build
+export CFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
+export CXXFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
+
 # Build Freetype 2
 {
-  export CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
   %configure
   make %{?_smp_mflags}
 }
@@ -251,6 +253,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Wed Mar 10 2004 Mike A. Harris <mharris@redhat.com> 2.1.7-3
+- Added -fno-strict-aliasing to CFLAGS and CXXFLAGS to try to fix SEGV and
+  SIGILL crashes in mkfontscale which have been traced into freetype and seem
+  to be caused by aliasing issues in freetype macros
+
+* Tue Mar 02 2004 Elliot Lee <sopwith@redhat.com> 2.1.7-2.1
+- rebuilt
+
+* Fri Feb 13 2004 Elliot Lee <sopwith@redhat.com> 2.1.7-2
+- rebuilt
+
 * Fri Jan 23 2004 Owen Taylor <otaylor@redhat.com> 2.1.7-1
 - Upgrade to 2.1.7
 
