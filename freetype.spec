@@ -10,8 +10,8 @@
 
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
-Version: 2.1.4
-Release: 5
+Version: 2.1.7
+Release: 1
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -23,13 +23,11 @@ Source3: %{ft1}.tar.bz2
 # Fix build of freetype-1.4 with gcc 3.3
 Patch3: freetype-1.4-ac25.patch
 Patch4: freetype-1.4-gcc33.patch
-# Fix bug with non-format-0 hdmx tables
-Patch5: freetype-2.1.4-freehdmx.patch
 Patch20:  freetype-2.1.3-enable-ft2-bci.patch
 Patch21:  freetype-1.4-disable-ft1-bci.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root
-BuildRequires: automake14 autoconf libtool symlinks
+BuildRequires: automake14 autoconf >= 2.59 libtool symlinks
 
 %description
 The FreeType engine is a free and portable TrueType font rendering
@@ -85,8 +83,6 @@ text-rendering library.
 
 %prep
 %setup -q -b 1 -a 2 -a 3
-
-%patch5   -p1 -b .freehdmx
 
 %if %{with_freetype1}
 pushd %{ft1}
@@ -204,7 +200,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libfreetype.so.*
 %doc ChangeLog README
 %if %{with_freetype1}
-# FIXME: This isn't getting created at build time for some reason.
 %{_libdir}/libttf.so.*
 %doc %{ft1}/README %{ft1}/announce docs
 %endif
@@ -247,15 +242,18 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with_freetype1}
 %{_libdir}/libttf.a
 %{_libdir}/libttf.la
-# FIXME: This isn't getting created at build time for some reason.
 %{_libdir}/libttf.so
 %endif
 %{_libdir}/libfreetype.a
 %{_libdir}/libfreetype.la
 %{_libdir}/libfreetype.so
 %{_bindir}/freetype-config
+%{_libdir}/pkgconfig/
 
 %changelog
+* Fri Jan 23 2004 Owen Taylor <otaylor@redhat.com> 2.1.7-1
+- Upgrade to 2.1.7
+
 * Tue Sep 23 2003 Florian La Roche <Florian.LaRoche@redhat.de>
 - allow compiling without the demos as that requires XFree86
   (this allows bootstrapping XFree86 on new archs)
