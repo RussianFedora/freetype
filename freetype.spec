@@ -6,11 +6,13 @@
 
 %define ft1 freetype-pre1.4
 
+%{!?with_xfree86:%define with_xfree86 1}
+
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
-Version: 2.1.3
-Release: 6
-License: GPL
+Version: 2.1.4
+Release: 5
+License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
 Source:  freetype-%{version}.tar.bz2
@@ -18,15 +20,16 @@ Source1: ftdocs-%{version}.tar.bz2
 Source2: ft2demos-%{version}.tar.bz2
 Source3: %{ft1}.tar.bz2
 
-Patch0:   freetype-1.4-libtool.patch
-# Implement FREETYPE_LOAD_TARGET_LIGHT
-Patch1:  freetype-lighthint.patch
-# Fix bug with corrupted fonts and recursive composite glyphs
-Patch2:  freetype-composite-recurse.patch
+# Fix build of freetype-1.4 with gcc 3.3
+Patch3: freetype-1.4-ac25.patch
+Patch4: freetype-1.4-gcc33.patch
+# Fix bug with non-format-0 hdmx tables
+Patch5: freetype-2.1.4-freehdmx.patch
 Patch20:  freetype-2.1.3-enable-ft2-bci.patch
 Patch21:  freetype-1.4-disable-ft1-bci.patch
-Buildroot: %{_tmppath}/%{name}-%{version}-root
 
+Buildroot: %{_tmppath}/%{name}-%{version}-root
+BuildRequires: automake14 autoconf libtool symlinks
 
 %description
 The FreeType engine is a free and portable TrueType font rendering
@@ -83,25 +86,42 @@ text-rendering library.
 %prep
 %setup -q -b 1 -a 2 -a 3
 
-%patch0   -p0 -b .ft1-libtool
-%patch1   -p0 -b .lighthint
-%patch2   -p0 -b .composite-recurse
+%patch5   -p1 -b .freehdmx
+
+%if %{with_freetype1}
+pushd %{ft1}
+%patch3   -p1 -b .ac25
+%patch4   -p1 -b .gcc33
+
+%if %{without_bytecode_interpreter}
+%patch21  -p1 -b .disable-ft1-bci
+%endif
+popd
+%endif
 
 %if ! %{without_bytecode_interpreter}
 %patch20  -p0 -b .enable-ft2-bci
 %endif
 
-%if %( [ %{without_bytecode_interpreter} -eq 1 -a %{with_freetype1} -eq 1 ] && echo 1 || echo 0 )
-echo PATCHING PATCH 21
-%patch21  -p0 -b .disable-ft1-bci
-%endif
+# Need to update libtool to get deplibs right for x86_64
+pushd builds/unix
+libtoolize --force
+aclocal-1.4
+autoconf
+popd
+
+pushd %{ft1}
+libtoolize --force
+aclocal-1.4
+autoconf
+popd
 
 %build
 # Build Freetype 2
 {
   export CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
   %configure
-  make
+  make %{?_smp_mflags}
 }
 
 %if %{with_freetype1}
@@ -111,16 +131,25 @@ echo PATCHING PATCH 21
   %configure --disable-debug --enable-static --enable-shared \
              --with-locale-dir=%{_datadir}/locale
   make X11_LIB=/usr/X11R6/%{_lib}
+
+  # Absolute symlinks in the debug output break debuginfo, 
+  # so use 'symlinks' to relativize and shorten; takes
+  # two passes because 'symlinks' is stupid.
+  symlinks -r -c . > /dev/null
+  symlinks -r -s -c . > /dev/null
+
   popd
 }
 %endif
 
+%if %{with_xfree86}
 # Build freetype 2 demos
 {
   pushd ft2demos-%{version}
   make X11_LIB=/usr/X11R6/%{_lib} X11_PATH="/usr/X11R6" TOP_DIR=".."
   popd
 }
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -143,13 +172,14 @@ mkdir -p $RPM_BUILD_ROOT/%{_includedir}/freetype1
 mv $RPM_BUILD_ROOT/%{_includedir}/freetype $RPM_BUILD_ROOT/%{_includedir}/freetype1
 %endif
 
+%if %{with_xfree86}
 # Install freetype 2 demos
 {
   for ftdemo in ftdump ftlint ftmemchk ftmulti ftstring fttimer ftview ;do
       libtool install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
-# This isn't working right now, I have no idea why.
+%endif
 %find_lang %{name}
 
 %clean
@@ -170,11 +200,9 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %files -f %{name}.lang
-# This isn't working right now, I have no idea why.
-# -f %{name}.lang
 %defattr(-,root,root)
 %{_libdir}/libfreetype.so.*
-%doc ChangeLog README README.UNX
+%doc ChangeLog README
 %if %{with_freetype1}
 # FIXME: This isn't getting created at build time for some reason.
 %{_libdir}/libttf.so.*
@@ -198,11 +226,13 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %{_bindir}/ftdump
 %{_bindir}/ftlint
+%if %{with_xfree86}
 %{_bindir}/ftmemchk
 %{_bindir}/ftmulti
 %{_bindir}/ftstring
 %{_bindir}/fttimer
 %{_bindir}/ftview
+%endif
 
 %files devel
 %defattr(-,root,root)
@@ -226,6 +256,40 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/freetype-config
 
 %changelog
+* Tue Sep 23 2003 Florian La Roche <Florian.LaRoche@redhat.de>
+- allow compiling without the demos as that requires XFree86
+  (this allows bootstrapping XFree86 on new archs)
+
+* Fri Aug  8 2003 Elliot Lee <sopwith@redhat.com> 2.1.4-4.1
+- Rebuilt
+
+* Tue Jul  8 2003 Owen Taylor <otaylor@redhat.com> 2.1.4-4.0
+- Bump for rebuild
+
+* Wed Jun 25 2003 Owen Taylor <otaylor@redhat.com> 2.1.4-3
+- Fix crash with non-format-0 hdmx tables (found by David Woodhouse)
+
+* Mon Jun  9 2003 Owen Taylor <otaylor@redhat.com> 2.1.4-1
+- Version 2.1.4
+- Relibtoolize to get deplibs right for x86_64
+- Use autoconf-2.5x for freetype-1.4 to fix libtool-1.5 compat problem (#91781)
+- Relativize absolute symlinks to fix the -debuginfo package 
+  (#83521, Mike Harris)
+
+* Wed Jun 04 2003 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
+* Thu May 22 2003 Jeremy Katz <katzj@redhat.com> 2.1.3-9
+- fix build with gcc 3.3
+
+* Tue Feb 25 2003 Owen Taylor <otaylor@redhat.com>
+- Add a memleak fix for the gzip backend from Federic Crozat
+
+* Thu Feb 13 2003 Elliot Lee <sopwith@redhat.com> 2.1.3-7
+- Run libtoolize/aclocal/autoconf so that libtool knows to generate shared libraries 
+  on ppc64.
+- Use _smp_mflags (for freetype 2.x only)
+
 * Tue Feb  4 2003 Owen Taylor <otaylor@redhat.com>
 - Switch to using %%configure (should fix #82330)
 
