@@ -2,18 +2,14 @@
 # the bytecode interpreter in both freetype 1 and 2.
 %define without_bytecode_interpreter    1
 
-%define ft1 freetype-pre1.4
+%define with_freetype1	1
 
-# ttmkfdir shipped as part of freetype packaging in Red Hat Linux 6.2,
-# 7.0, 7.1, 7.2, but was moved to XFree86 packaging in Red Hat Linux 7.3
-# and later at the request of Ximian.  Set the following appropriately for
-# The RHL release freetype is being built for.
-%define with_ttmkfdir   0
+%define ft1 freetype-pre1.4
 
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
-Version: 2.1.2
-Release: 7
+Version: 2.1.3
+Release: 6
 License: GPL
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -21,30 +17,16 @@ Source:  freetype-%{version}.tar.bz2
 Source1: ftdocs-%{version}.tar.bz2
 Source2: ft2demos-%{version}.tar.bz2
 Source3: %{ft1}.tar.bz2
-Source100: ttmkfdir2.tar.bz2
 
 Patch0:   freetype-1.4-libtool.patch
-Patch20:  freetype-2.1.1-enable-ft2-bci.patch
+# Implement FREETYPE_LOAD_TARGET_LIGHT
+Patch1:  freetype-lighthint.patch
+# Fix bug with corrupted fonts and recursive composite glyphs
+Patch2:  freetype-composite-recurse.patch
+Patch20:  freetype-2.1.3-enable-ft2-bci.patch
 Patch21:  freetype-1.4-disable-ft1-bci.patch
-# Fix bug in PS hinter
-patch22:  freetype-2.1.1-primaryhints.patch
-# Adds FT_Set_Hint_Flags
-patch23:  freetype-2.1.2-slighthint.patch
-# Support the Type1 BlueFuzz value
-patch24:  freetype-2.1.2-bluefuzz.patch
-# Another PS hinter bug fix
-patch25:  freetype-2.1.2-stdw.patch
-# Fix from CVS for outline transformation
-patch26:  freetype-2.1.2-transform.patch
-# Backport of autohinter improvements from CVS
-patch27:  freetype-2.1.2-autohint.patch
-# Fix metrics for PCF fonts
-patch28:  freetype-2.1.2-leftright.patch
-Patch100: ttmkfdir-libtool.patch
-Patch101: ttmkfdir-foundrynames.patch
-Patch102: ttmkfdir-gcc31.patch
-Patch103: ttmkfdir-iso10646.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-root
+
 
 %description
 The FreeType engine is a free and portable TrueType font rendering
@@ -55,6 +37,7 @@ individual glyphs. FreeType is not a font server or a complete
 text-rendering library.
 
 
+%if %{with_freetype1}
 %package utils
 Summary: A collection of FreeType utilities.
 Group: System Environment/Libraries
@@ -67,7 +50,7 @@ platforms and environments. FreeType is a library which can open and
 manages font files as well as efficiently load, hint and render
 individual glyphs. FreeType is not a font server or a complete
 text-rendering library.
-
+%endif
 
 %package demos
 Summary: A collection of FreeType demos.
@@ -98,114 +81,118 @@ text-rendering library.
 
 
 %prep
-%if %{with_ttmkfdir}
-%setup -q -b 1 -a 2 -a 3 -a 100
-%else
 %setup -q -b 1 -a 2 -a 3
-%endif
 
 %patch0   -p0 -b .ft1-libtool
+%patch1   -p0 -b .lighthint
+%patch2   -p0 -b .composite-recurse
 
 %if ! %{without_bytecode_interpreter}
 %patch20  -p0 -b .enable-ft2-bci
-%else
-%patch21  -p0 -b .disable-ft1-bci
 %endif
 
-%patch22 -p1 -b .primaryhints
-%patch23 -p1 -b .slighthint
-%patch24 -p1 -b .bluefuzz
-%patch25 -p1 -b .stdw
-%patch26 -p1 -b .transform
-%patch27 -p1 -b .autohint
-%patch28 -p1 -b .leftright
-
-%if %{with_ttmkfdir}
-%patch100 -p1 -b .libtool
-%patch101 -p1 -b .foundrynames
-%patch102 -p0 -b .gcc31
-%patch103 -p1 -b .iso10646
+%if %( [ %{without_bytecode_interpreter} -eq 1 -a %{with_freetype1} -eq 1 ] && echo 1 || echo 0 )
+echo PATCHING PATCH 21
+%patch21  -p0 -b .disable-ft1-bci
 %endif
 
 %build
 # Build Freetype 2
-export CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
-make setup CFG="--prefix=/usr"
-make
+{
+  export CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
+  %configure
+  make
+}
 
+%if %{with_freetype1}
 # Build Freetype 1.4
-cd %{ft1}
-%configure --disable-debug \
-           --enable-static --enable-shared \
-           --with-locale-dir=%{_datadir}/locale
-make
-cd ..
-
-%if %{with_ttmkfdir}
-# Build ttmkfdir
-make -C ttmkfdir2 clean
-make -C ttmkfdir2 DEBUG="$RPM_OPT_FLAGS"
+{
+  pushd %{ft1}
+  %configure --disable-debug --enable-static --enable-shared \
+             --with-locale-dir=%{_datadir}/locale
+  make X11_LIB=/usr/X11R6/%{_lib}
+  popd
+}
 %endif
 
 # Build freetype 2 demos
-pushd ft2demos-%{version}
-make X11_PATH="/usr/X11R6" TOP_DIR=".."
-popd
+{
+  pushd ft2demos-%{version}
+  make X11_LIB=/usr/X11R6/%{_lib} X11_PATH="/usr/X11R6" TOP_DIR=".."
+  popd
+}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-cd %{ft1}
-%makeinstall gnulocaledir=$RPM_BUILD_ROOT/%{_datadir}/locale
-cd ..
-%makeinstall gnulocaledir=$RPM_BUILD_ROOT/%{_datadir}/locale
 
-%if %{with_ttmkfdir}
-libtool install -m 755 ttmkfdir2/ttmkfdir $RPM_BUILD_ROOT%{_bindir}
+
+# Install Freetype 2
+%makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
+
+%if %{with_freetype1}
+# Install Freetype 1
+{
+  pushd %{ft1}
+  %makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
+  libtool --finish $RPM_BUILD_ROOT%{_libdir}
+  popd
+}
+%endif
+%if %{with_freetype1}
+mkdir -p $RPM_BUILD_ROOT/%{_includedir}/freetype1
+mv $RPM_BUILD_ROOT/%{_includedir}/freetype $RPM_BUILD_ROOT/%{_includedir}/freetype1
 %endif
 
-mkdir -p $RPM_BUILD_ROOT/%{_prefix}/include/freetype1
-mv $RPM_BUILD_ROOT/%{_prefix}/include/freetype $RPM_BUILD_ROOT/%{_prefix}/include/freetype1
-
 # Install freetype 2 demos
-for ftdemo in ftdump ftlint ftmemchk ftmulti ftstring fttimer ftview ;do
-    libtool install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/usr/bin
-done
-
+{
+  for ftdemo in ftdump ftlint ftmemchk ftmulti ftstring fttimer ftview ;do
+      libtool install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
+  done
+}
+# This isn't working right now, I have no idea why.
 %find_lang %{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %triggerpostun -- freetype < 2.0.5-3
-# ttmkfdir updated - as of 2.0.5-3, on upgrades we need xfs to regenerate things to get the iso10646-1 encoding listed.
-for I in /usr/share/fonts/*/TrueType /usr/X11R6/lib/X11/fonts/TrueType; do
-	[ -f $I/fonts.scale ] && [ -f $I/fonts.dir ] && touch $I/fonts.scale
-done
-exit 0
+{
+  # ttmkfdir updated - as of 2.0.5-3, on upgrades we need xfs to regenerate
+  # things to get the iso10646-1 encoding listed.
+  for I in %{_datadir}/fonts/*/TrueType /usr/X11R6/lib/X11/fonts/TrueType; do
+      [ -d $I ] && [ -f $I/fonts.scale ] && [ -f $I/fonts.dir ] && touch $I/fonts.scale
+  done
+  exit 0
+}
 
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
 %files -f %{name}.lang
+# This isn't working right now, I have no idea why.
+# -f %{name}.lang
 %defattr(-,root,root)
-%if %{with_ttmkfdir}
-%{_bindir}/ttmkfdir
-%endif
-%{_libdir}/libttf.so.*
 %{_libdir}/libfreetype.so.*
+%doc ChangeLog README README.UNX
+%if %{with_freetype1}
+# FIXME: This isn't getting created at build time for some reason.
+%{_libdir}/libttf.so.*
 %doc %{ft1}/README %{ft1}/announce docs
+%endif
 
+%if %{with_freetype1}
 %files utils
 %defattr(-,root,root)
 # 2.0.4 version included in demos package now
 #%{_bindir}/ftdump
-%{_bindir}/fterror
 # 2.0.4 version included in demos package now
 #%{_bindir}/ftlint
+%{_bindir}/fterror
 %{_bindir}/ftmetric
 %{_bindir}/ftsbit
 %{_bindir}/ftstrpnm
+%endif
 
 %files demos
 %defattr(-,root,root)
@@ -219,20 +206,65 @@ exit 0
 
 %files devel
 %defattr(-,root,root)
+%if %{with_freetype1}
 %dir %{_includedir}/freetype1
-%dir %{_includedir}/freetype2
 %{_includedir}/freetype1/*
+%endif
+%dir %{_includedir}/freetype2
+%{_datadir}/aclocal/freetype2.m4
 %{_includedir}/freetype2/*
 %{_includedir}/*.h
+%if %{with_freetype1}
 %{_libdir}/libttf.a
 %{_libdir}/libttf.la
+# FIXME: This isn't getting created at build time for some reason.
 %{_libdir}/libttf.so
+%endif
 %{_libdir}/libfreetype.a
 %{_libdir}/libfreetype.la
 %{_libdir}/libfreetype.so
 %{_bindir}/freetype-config
 
 %changelog
+* Tue Feb  4 2003 Owen Taylor <otaylor@redhat.com>
+- Switch to using %%configure (should fix #82330)
+
+* Wed Jan 22 2003 Tim Powers <timp@redhat.com>
+- rebuilt
+
+* Mon Jan  6 2003 Owen Taylor <otaylor@redhat.com> 2.1.3-4
+- Make FreeType robust against corrupt fonts with recursive composite 
+  glyphs (#74782, James Antill)
+
+* Thu Jan  2 2003 Owen Taylor <otaylor@redhat.com> 2.1.3-3
+- Add a patch to implement FT_LOAD_TARGET_LIGHT
+- Fix up freetype-1.4-libtool.patch 
+
+* Sat Dec 12 2002 Mike A. Harris <mharris@redhat.com> 2.1.3-2
+- Update to freetype 2.1.3
+- Removed ttmkfdir sources and patches, as they have been moved from the
+  freetype packaging to XFree86 packaging, and now to the ttmkfdir package
+- Removed patches that are now included in 2.1.3:
+  freetype-2.1.1-primaryhints.patch, freetype-2.1.2-slighthint.patch,
+  freetype-2.1.2-bluefuzz.patch, freetype-2.1.2-stdw.patch,
+  freetype-2.1.2-transform.patch, freetype-2.1.2-autohint.patch,
+  freetype-2.1.2-leftright.patch
+- Conditionalized inclusion of freetype 1.4 library.
+
+* Wed Dec 04 2002 Florian La Roche <Florian.LaRoche@redhat.de>
+- disable perl, it is not used at all
+
+* Tue Dec 03 2002 Elliot Lee <sopwith@redhat.com> 2.1.2-11
+- Instead of removing unpackaged file, include it in the package.
+
+* Sat Nov 30 2002 Mike A. Harris <mharris@redhat.com> 2.1.2-10
+- Attempted to fix lib64 issue in freetype-demos build with X11_LINKLIBS
+- Cleaned up various _foodir macros throughtout specfile
+- Removed with_ttmkfdir build option as it is way obsolete
+
+* Fri Nov 29 2002 Tim Powers <timp@redhat.com> 2.1.2-8
+- remove unpackaged files from the buildroot
+
 * Wed Aug 28 2002 Owen Taylor <otaylor@redhat.com>
 - Fix a bug with PCF metrics
 
