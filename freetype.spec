@@ -1,17 +1,19 @@
+%define ft1 freetype-pre1.4
+
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
-Version: 2.0.1
-Release: 5
-License: BSD-like
+Version: 2.0.3
+Release: 6
+License: GPL
 Group: System Environment/Libraries
+URL: http://freetype.sourceforge.net
 Source: freetype-%{version}.tar.bz2
-%define ft1 freetype-pre1.4
-Source1: %{ft1}.tar.bz2
-Source2: ttmkfdir2.tar.bz2
+Source1: ftdocs-2.0.3.tar.bz2
+Source3: %{ft1}.tar.bz2
+Source4: ttmkfdir2.tar.bz2
 Patch0: ttmkfdir-libtool.patch
 Patch1: ttmkfdir-foundrynames.patch
-Buildroot: %{_tmppath}/%{name}-root
-URL: http://freetype.sourceforge.net
+Buildroot: %{_tmppath}/%{name}-%{version}-root
 
 %description
 The FreeType engine is a free and portable TrueType font rendering
@@ -23,8 +25,9 @@ text-rendering library.
 
 
 %package utils
-Summary: A free and portable TrueType font rendering engine.
+Summary: A collection of FreeType utilities.
 Group: System Environment/Libraries
+Requires: %{name} = %{version}-%{release}
 
 %description utils
 The FreeType engine is a free and portable TrueType font rendering
@@ -36,8 +39,9 @@ text-rendering library.
 
 
 %package devel
-Summary: A free and portable TrueType font rendering engine.
-Group: System Environment/Libraries
+Summary: FreeType development libraries and header files
+Group: Development/Libraries
+Requires: %{name} = %{version}-%{release}
 
 %description devel
 The FreeType engine is a free and portable TrueType font rendering
@@ -49,7 +53,7 @@ text-rendering library.
 
 
 %prep
-%setup -q -a 1 -a 2
+%setup -q -b 1 -a 3 -a 4
 %patch0 -p1 -b .libtool
 %patch1 -p1 -b .foundrynames
 
@@ -59,8 +63,8 @@ make setup CFG="--prefix=/usr"
 make
 cd %{ft1}
 %configure --disable-debug \
-	--enable-static --enable-shared \
-	--with-locale-dir=%{_datadir}/locale
+           --enable-static --enable-shared \
+           --with-locale-dir=%{_datadir}/locale
 make
 cd ..
 make -C ttmkfdir2 clean
@@ -69,13 +73,15 @@ make -C ttmkfdir2 #DEBUG="$RPM_OPT_FLAGS"
 %install
 rm -rf $RPM_BUILD_ROOT
 cd %{ft1}
-%makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
+%makeinstall gnulocaledir=$RPM_BUILD_ROOT/%{_datadir}/locale
 cd ..
-%makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
+%makeinstall gnulocaledir=$RPM_BUILD_ROOT/%{_datadir}/locale
 install -m 755 ttmkfdir2/.libs/ttmkfdir $RPM_BUILD_ROOT%{_bindir}
+mkdir -p $RPM_BUILD_ROOT/%{_prefix}/include/freetype1
+mv $RPM_BUILD_ROOT/%{_prefix}/include/freetype $RPM_BUILD_ROOT/%{_prefix}/include/freetype1
 
 %clean
-rm -rf $RPM_BUILD_ROOT #$RPM_BUILD_DIR/%{name}-%{version}
+rm -rf $RPM_BUILD_ROOT
 
 %post -p /sbin/ldconfig
 
@@ -104,19 +110,42 @@ rm -rf $RPM_BUILD_ROOT #$RPM_BUILD_DIR/%{name}-%{version}
 
 %files devel
 %defattr(-,root,root)
-%dir %{_includedir}/freetype
+%dir %{_includedir}/freetype1
 %dir %{_includedir}/freetype2
-%{_includedir}/freetype/*
+%{_includedir}/freetype1/*
 %{_includedir}/freetype2/*
+%{_includedir}/*.h
+%{_libdir}/libttf.a
 %{_libdir}/libttf.la
 %{_libdir}/libttf.so
-%{_libdir}/libttf.a
 %{_libdir}/libfreetype.a
 %{_libdir}/libfreetype.la
 %{_libdir}/libfreetype.so
 %{_bindir}/freetype-config
 
 %changelog
+* Sun Jul 15 2001 Mike A. Harris <mharris@redhat.com> 2.0.3-6
+- Changed freetype-devel to group Development/Libraries (#47625)
+
+* Mon Jul  9 2001 Bernhard Rosenkraenzer <bero@redhat.com> 2.0.3-5
+- Fix up FT1 headers to please Qt 3.0.0 beta 2
+
+* Sun Jun 24 2001 Bernhard Rosenkraenzer <bero@redhat.com> 2.0.3-4
+- Add ft2build.h to -devel package, since it's included by all other
+  freetype headers, the package is useless without it
+
+* Thu Jun 21 2001 Nalin Dahyabhai <nalin@redhat.com> 2.0.3-3
+- Change "Requires: freetype = name/ver" to "freetype = version/release",
+  and move the requirements to the subpackages.
+
+* Mon Jun 18 2001 Mike A. Harris <mharris@redhat.com> 2.0.3-2
+- Added "Requires: freetype = name/ver"
+
+* Tue Jun 12 2001 Mike A. Harris <mharris@redhat.com> 2.0.3-1
+- Updated to Freetype 2.0.3, minor specfile tweaks.
+- Freetype2 docs are is in a separate tarball now. Integrated it.
+- Built in new environment.
+
 * Fri Apr 27 2001 Bill Nottingham <notting@redhat.com>
 - rebuild for C++ exception handling on ia64
 
@@ -153,7 +182,7 @@ rm -rf $RPM_BUILD_ROOT #$RPM_BUILD_DIR/%{name}-%{version}
 * Wed Jan 12 2000 Preston Brown <pbrown@redhat.com>
 - make ttmkfdir replace spaces in family names with underscores (#7613)
 
-* Tue Jan 11 2000 Bernhard Rosenkränzer <bero@redhat.com>
+* Tue Jan 11 2000 Bernhard Rosenkraenzer <bero@redhat.com>
 - 1.3.1
 - handle RPM_OPT_FLAGS
 
