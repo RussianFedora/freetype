@@ -13,7 +13,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.1.2
-Release: 5
+Release: 6
 License: GPL
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -36,6 +36,8 @@ patch24:  freetype-2.1.2-bluefuzz.patch
 patch25:  freetype-2.1.2-stdw.patch
 # Fix from CVS for outline transformation
 patch26:  freetype-2.1.2-transform.patch
+# Backport of autohinter improvements from CVS
+patch27:  freetype-2.1.2-autohint.patch
 Patch100: ttmkfdir-libtool.patch
 Patch101: ttmkfdir-foundrynames.patch
 Patch102: ttmkfdir-gcc31.patch
@@ -113,6 +115,7 @@ text-rendering library.
 %patch24 -p1 -b .bluefuzz
 %patch25 -p1 -b .stdw
 %patch26 -p1 -b .transform
+%patch27 -p1 -b .autohint
 
 %if %{with_ttmkfdir}
 %patch100 -p1 -b .libtool
@@ -227,6 +230,9 @@ exit 0
 %{_bindir}/freetype-config
 
 %changelog
+* Fri Aug  9 2002 Owen Taylor <otaylor@redhat.com>
+- Backport autohinter improvements from CVS
+
 * Tue Jul 23 2002 Owen Taylor <otaylor@redhat.com>
 - Fix from CVS for transformations (#68964)
 
