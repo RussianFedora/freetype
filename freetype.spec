@@ -13,7 +13,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.1.2
-Release: 6
+Release: 7
 License: GPL
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -38,6 +38,8 @@ patch25:  freetype-2.1.2-stdw.patch
 patch26:  freetype-2.1.2-transform.patch
 # Backport of autohinter improvements from CVS
 patch27:  freetype-2.1.2-autohint.patch
+# Fix metrics for PCF fonts
+patch28:  freetype-2.1.2-leftright.patch
 Patch100: ttmkfdir-libtool.patch
 Patch101: ttmkfdir-foundrynames.patch
 Patch102: ttmkfdir-gcc31.patch
@@ -116,6 +118,7 @@ text-rendering library.
 %patch25 -p1 -b .stdw
 %patch26 -p1 -b .transform
 %patch27 -p1 -b .autohint
+%patch28 -p1 -b .leftright
 
 %if %{with_ttmkfdir}
 %patch100 -p1 -b .libtool
@@ -230,6 +233,9 @@ exit 0
 %{_bindir}/freetype-config
 
 %changelog
+* Wed Aug 28 2002 Owen Taylor <otaylor@redhat.com>
+- Fix a bug with PCF metrics
+
 * Fri Aug  9 2002 Owen Taylor <otaylor@redhat.com>
 - Backport autohinter improvements from CVS
 
