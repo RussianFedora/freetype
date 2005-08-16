@@ -11,7 +11,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.1.9
-Release: 3
+Release: 4
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -27,6 +27,7 @@ Patch4: freetype-1.4-gcc33.patch
 Patch5: ft2demos-2.1.9-mathlib.patch
 Patch20:  freetype-2.1.3-enable-ft2-bci.patch
 Patch21:  freetype-1.4-disable-ft1-bci.patch
+Patch30:  freetype-2.1.9-lib64-fix.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root
 BuildRequires: automake autoconf >= 2.59 libtool symlinks zlib-devel xorg-x11-devel
@@ -118,6 +119,10 @@ libtoolize --force
 aclocal
 autoconf
 popd
+
+# freetype-config --libs gives you a nasty --rpath in the output on 64
+# bit platforms because it doesn't know about /usr/lib64.
+%patch30 -p1 -b .lib64-fix
 
 %build
 # Work around code generation problem with strict-aliasing
@@ -263,6 +268,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Tue Aug 16 2005 Kristian Høgsberg <krh@redhat.com> 2.1.9-4
+- Fix freetype-config on 64 bit platforms.
+
 * Thu Jul 07 2005 Karsten Hopp <karsten@redhat.de> 2.1.9-3
 - BuildRequires xorg-x11-devel
 
