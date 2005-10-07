@@ -10,13 +10,13 @@
 
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
-Version: 2.1.9
-Release: 4
+Version: 2.1.10
+Release: 1
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
 Source:  freetype-%{version}.tar.bz2
-Source1: ftdocs-%{version}.tar.bz2
+Source1: freetype-doc-%{version}.tar.bz2
 Source2: ft2demos-%{version}.tar.bz2
 Source3: %{ft1}.tar.bz2
 
@@ -27,7 +27,19 @@ Patch4: freetype-1.4-gcc33.patch
 Patch5: ft2demos-2.1.9-mathlib.patch
 Patch20:  freetype-2.1.3-enable-ft2-bci.patch
 Patch21:  freetype-1.4-disable-ft1-bci.patch
-Patch30:  freetype-2.1.9-lib64-fix.patch
+
+# CVS bug fixes, mostly for embolding
+Patch40:  freetype-2.1.10-cvsfixes.patch
+# put back internal API, used by xorg 
+Patch41:  freetype-2.1.10-xorgfix.patch
+# fix autofit render setup
+Patch42:  freetype-2.1.10-fixautofit.patch
+# fix memleak
+Patch43:  freetype-2.1.10-memleak.patch
+# fix kerning wrongly disabled
+Patch44:  freetype-2.1.10-fixkerning.patch
+# fix bad anti-aliasing 
+Patch45:  freetype-2.1.10-fixaliasing.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root
 BuildRequires: automake autoconf >= 2.59 libtool symlinks zlib-devel xorg-x11-devel
@@ -120,9 +132,14 @@ aclocal
 autoconf
 popd
 
-# freetype-config --libs gives you a nasty --rpath in the output on 64
-# bit platforms because it doesn't know about /usr/lib64.
-%patch30 -p1 -b .lib64-fix
+# Assorted fixes for 2.1.10 (thanks to Frederic Crozat)
+%patch40 -p1 -b .cvsfixes
+%patch41 -p1 -b .xorgfix
+%patch42 -p1 -b .fixautofit
+%patch43 -p1 -b .memleak
+%patch44 -p1 -b .fixkerning
+%patch45 -p1 -b .fixaliasing
+
 
 %build
 # Work around code generation problem with strict-aliasing
@@ -268,6 +285,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Fri Oct  7 2005 Matthias Clasen  <mclasen@redhat.com> 2.1.10-1
+- Update to 2.1.10
+- Add necessary fixes
+
 * Tue Aug 16 2005 Kristian Høgsberg <krh@redhat.com> 2.1.9-4
 - Fix freetype-config on 64 bit platforms.
 
