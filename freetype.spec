@@ -11,7 +11,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.1.10
-Release: 1
+Release: 2
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -25,7 +25,7 @@ Patch3: freetype-1.4-ac25.patch
 Patch4: freetype-1.4-gcc33.patch
 # Add -lm when linking X demos
 Patch5: ft2demos-2.1.9-mathlib.patch
-Patch20:  freetype-2.1.3-enable-ft2-bci.patch
+Patch20:  freetype-2.1.10-enable-ft2-bci.patch
 Patch21:  freetype-1.4-disable-ft1-bci.patch
 
 # CVS bug fixes, mostly for embolding
@@ -116,7 +116,7 @@ pushd ft2demos-%{version}
 popd
 
 %if ! %{without_bytecode_interpreter}
-%patch20  -p0 -b .enable-ft2-bci
+%patch20  -p1 -b .enable-ft2-bci
 %endif
 
 # Need to update libtool to get deplibs right for x86_64
@@ -285,6 +285,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Wed Oct 12 2005 Jason Vas Dias <jvdias@redhat.com> 2.1.10-2
+- fix 'without_bytecode_interpreter 0' build: freetype-2.1.10-enable-ft2-bci.patch
+
 * Fri Oct  7 2005 Matthias Clasen  <mclasen@redhat.com> 2.1.10-1
 - Update to 2.1.10
 - Add necessary fixes
