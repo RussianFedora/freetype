@@ -11,7 +11,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.1.10
-Release: 2
+Release: 3
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -42,7 +42,7 @@ Patch44:  freetype-2.1.10-fixkerning.patch
 Patch45:  freetype-2.1.10-fixaliasing.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root
-BuildRequires: automake autoconf >= 2.59 libtool symlinks zlib-devel xorg-x11-devel
+BuildRequires: automake autoconf >= 2.59 libtool symlinks zlib-devel xorg-x11-devel gettext
 
 %description
 The FreeType engine is a free and portable TrueType font rendering
@@ -285,6 +285,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Fri Oct 21 2005 Matthias Clasen  <mclasen@redhat.com> 2.1.10-3
+- BuildRequire gettext 
+
 * Wed Oct 12 2005 Jason Vas Dias <jvdias@redhat.com> 2.1.10-2
 - fix 'without_bytecode_interpreter 0' build: freetype-2.1.10-enable-ft2-bci.patch
 
