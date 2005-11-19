@@ -11,7 +11,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.1.10
-Release: 4
+Release: 5
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -161,7 +161,7 @@ export CXXFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
   pushd %{ft1}
   %configure --disable-debug --enable-static --enable-shared \
              --with-locale-dir=%{_datadir}/locale
-  make X11_LIB=/usr/X11R6/%{_lib}
+  make
 
   # Absolute symlinks in the debug output break debuginfo, 
   # so use 'symlinks' to relativize and shorten; takes
@@ -177,7 +177,7 @@ export CXXFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
 # Build freetype 2 demos
 {
   pushd ft2demos-%{version}
-  make X11_LIB=/usr/X11R6/%{_lib} X11_PATH="/usr/X11R6" TOP_DIR=".."
+  make TOP_DIR=".."
   popd
 }
 %endif
@@ -220,7 +220,7 @@ rm -rf $RPM_BUILD_ROOT
 {
   # ttmkfdir updated - as of 2.0.5-3, on upgrades we need xfs to regenerate
   # things to get the iso10646-1 encoding listed.
-  for I in %{_datadir}/fonts/*/TrueType /usr/X11R6/lib/X11/fonts/TrueType; do
+  for I in %{_datadir}/fonts/*/TrueType /usr/share/X11/fonts/TTF; do
       [ -d $I ] && [ -f $I/fonts.scale ] && [ -f $I/fonts.dir ] && touch $I/fonts.scale
   done
   exit 0
@@ -286,6 +286,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Fri Nov 18 2005 Bill Nottingham  <notting@redhat.com> 2.1.10-5
+- Remove references to obsolete /usr/X11R6 paths
+
 * Tue Nov  1 2005 Matthias Clasen  <mclasen@redhat.com> 2.1.10-4
 - Switch requires to modular X
 
