@@ -11,7 +11,7 @@
 Summary: A free and portable TrueType font rendering engine.
 Name: freetype
 Version: 2.1.10
-Release: 5.2
+Release: 5.2.1
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -286,6 +286,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 2.1.10-5.2.1
+- bump again for double-long bug on ppc(64)
+
 * Tue Feb 07 2006 Jesse Keating <jkeating@redhat.com> - 2.1.10-5.2
 - rebuilt for new gcc4.1 snapshot and glibc changes
 
