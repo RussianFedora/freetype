@@ -106,13 +106,11 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with_xfree86}
 # Install freetype 2 demos
 {
-  for ftdemo in ftbench ftchkwd ftdump ftgamma ftlint ftmemchk ftmulti ftstring fttimer 
-		ftvalid ftview ;do
-      libtool install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
+  for ftdemo in ftbench ftchkwd ftdump ftgamma ftlint ftmemchk ftmulti ftstring fttimer ftvalid ftview ; do
+      libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
 %endif
-%find_lang %{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -131,7 +129,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %postun -p /sbin/ldconfig
 
-%files -f %{name}.lang
+%files
 %defattr(-,root,root)
 %{_libdir}/libfreetype.so.*
 %doc ChangeLog README
