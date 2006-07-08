@@ -1,73 +1,39 @@
-# Disables freetype 1 and 2 bytecode interpreter.  Setting to 0 enables
-# the bytecode interpreter in both freetype 1 and 2.
+# Disables patented bytecode interpreter.  Setting to 0 enables
+# the bytecode interpreter.
 %define without_bytecode_interpreter    1
-
-%define with_freetype1	1
-
-%define ft1 freetype-pre1.4
 
 %{!?with_xfree86:%define with_xfree86 1}
 
-Summary: A free and portable TrueType font rendering engine.
+Summary: A free and portable font rendering engine.
 Name: freetype
-Version: 2.1.10
-Release: 6
+Version: 2.2.1
+Release: 1
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
 Source:  freetype-%{version}.tar.bz2
 Source1: freetype-doc-%{version}.tar.bz2
 Source2: ft2demos-%{version}.tar.bz2
-Source3: %{ft1}.tar.bz2
 
-# Fix build of freetype-1.4 with gcc 3.3
-Patch3: freetype-1.4-ac25.patch
-Patch4: freetype-1.4-gcc33.patch
 # Add -lm when linking X demos
 Patch5: ft2demos-2.1.9-mathlib.patch
 Patch20:  freetype-2.1.10-enable-ft2-bci.patch
-Patch21:  freetype-1.4-disable-ft1-bci.patch
 
-# CVS bug fixes, mostly for embolding
-Patch40:  freetype-2.1.10-cvsfixes.patch
-# put back internal API, used by xorg 
-Patch41:  freetype-2.1.10-xorgfix.patch
-# fix autofit render setup
-Patch42:  freetype-2.1.10-fixautofit.patch
-# fix memleak
-Patch43:  freetype-2.1.10-memleak.patch
-# fix kerning wrongly disabled
-Patch44:  freetype-2.1.10-fixkerning.patch
-# fix bad anti-aliasing 
-Patch45:  freetype-2.1.10-fixaliasing.patch
+# Enable otvalid and gxvalid modules
+Patch46:  freetype-2.2.1-enable-valid.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root
 BuildRequires: automake autoconf >= 2.59 libtool symlinks zlib-devel gettext
 BuildRequires: libX11-devel, libICE-devel, libSM-devel
 
 %description
-The FreeType engine is a free and portable TrueType font rendering
-engine, developed to provide TrueType support for a variety of
+The FreeType engine is a free and portable font rendering
+engine, developed to provide advanced font support for a variety of
 platforms and environments. FreeType is a library which can open and
 manages font files as well as efficiently load, hint and render
 individual glyphs. FreeType is not a font server or a complete
 text-rendering library.
 
-
-%if %{with_freetype1}
-%package utils
-Summary: A collection of FreeType utilities.
-Group: System Environment/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description utils
-The FreeType engine is a free and portable TrueType font rendering
-engine, developed to provide TrueType support for a variety of
-platforms and environments. FreeType is a library which can open and
-manages font files as well as efficiently load, hint and render
-individual glyphs. FreeType is not a font server or a complete
-text-rendering library.
-%endif
 
 %package demos
 Summary: A collection of FreeType demos.
@@ -75,12 +41,10 @@ Group: System Environment/Libraries
 Requires: %{name} = %{version}-%{release}
 
 %description demos
-The FreeType engine is a free and portable TrueType font rendering
-engine, developed to provide TrueType support for a variety of
-platforms and environments. FreeType is a library which can open and
-manages font files as well as efficiently load, hint and render
-individual glyphs. FreeType is not a font server or a complete
-text-rendering library.
+The FreeType engine is a free and portable font rendering
+engine, developed to provide advanced font support for a variety of
+platforms and environments.  The demos package includes a set of useful
+small utilities showing various capabilities of the FreeType library.
 
 
 %package devel
@@ -90,27 +54,15 @@ Requires: %{name} = %{version}-%{release}
 Requires: zlib-devel
 
 %description devel
-The FreeType engine is a free and portable TrueType font rendering
-engine, developed to provide TrueType support for a variety of
-platforms and environments. FreeType is a library which can open and
-manages font files as well as efficiently load, hint and render
-individual glyphs. FreeType is not a font server or a complete
-text-rendering library.
+The freetype-devel package includes the static libraries and header files
+for the FreeType font rendering engine.
+
+Install freetype-devel if you want to develop programs which will use
+FreeType.
 
 
 %prep
-%setup -q -b 1 -a 2 -a 3
-
-%if %{with_freetype1}
-pushd %{ft1}
-%patch3   -p1 -b .ac25
-%patch4   -p1 -b .gcc33
-
-%if %{without_bytecode_interpreter}
-%patch21  -p1 -b .disable-ft1-bci
-%endif
-popd
-%endif
+%setup -q -b 1 -a 2
 
 pushd ft2demos-%{version}
 %patch5 -p1 -b .mathlib
@@ -120,27 +72,7 @@ popd
 %patch20  -p1 -b .enable-ft2-bci
 %endif
 
-# Need to update libtool to get deplibs right for x86_64
-pushd builds/unix
-libtoolize --force
-aclocal
-autoconf
-popd
-
-pushd %{ft1}
-libtoolize --force
-aclocal
-autoconf
-popd
-
-# Assorted fixes for 2.1.10 (thanks to Frederic Crozat)
-%patch40 -p1 -b .cvsfixes
-%patch41 -p1 -b .xorgfix
-%patch42 -p1 -b .fixautofit
-%patch43 -p1 -b .memleak
-%patch44 -p1 -b .fixkerning
-%patch45 -p1 -b .fixaliasing
-
+%patch46  -p1 -b .enable-valid
 
 %build
 # Work around code generation problem with strict-aliasing
@@ -154,24 +86,6 @@ export CXXFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
   %configure
   make %{?_smp_mflags}
 }
-
-%if %{with_freetype1}
-# Build Freetype 1.4
-{
-  pushd %{ft1}
-  %configure --disable-debug --enable-static --enable-shared \
-             --with-locale-dir=%{_datadir}/locale
-  make
-
-  # Absolute symlinks in the debug output break debuginfo, 
-  # so use 'symlinks' to relativize and shorten; takes
-  # two passes because 'symlinks' is stupid.
-  symlinks -r -c . > /dev/null
-  symlinks -r -s -c . > /dev/null
-
-  popd
-}
-%endif
 
 %if %{with_xfree86}
 # Build freetype 2 demos
@@ -189,24 +103,11 @@ rm -rf $RPM_BUILD_ROOT
 # Install Freetype 2
 %makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
 
-%if %{with_freetype1}
-# Install Freetype 1
-{
-  pushd %{ft1}
-  %makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
-  libtool --finish $RPM_BUILD_ROOT%{_libdir}
-  popd
-}
-%endif
-%if %{with_freetype1}
-mkdir -p $RPM_BUILD_ROOT/%{_includedir}/freetype1
-mv $RPM_BUILD_ROOT/%{_includedir}/freetype $RPM_BUILD_ROOT/%{_includedir}/freetype1
-%endif
-
 %if %{with_xfree86}
 # Install freetype 2 demos
 {
-  for ftdemo in ftdump ftlint ftmemchk ftmulti ftstring fttimer ftview ;do
+  for ftdemo in ftbench ftchkwd ftdump ftgamma ftlint ftmemchk ftmulti ftstring fttimer 
+		ftvalid ftview ;do
       libtool install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
@@ -234,30 +135,17 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %{_libdir}/libfreetype.so.*
 %doc ChangeLog README
-%if %{with_freetype1}
-%{_libdir}/libttf.so.*
-%doc %{ft1}/README %{ft1}/announce docs
-%endif
-
-%if %{with_freetype1}
-%files utils
-%defattr(-,root,root)
-# 2.0.4 version included in demos package now
-#%{_bindir}/ftdump
-# 2.0.4 version included in demos package now
-#%{_bindir}/ftlint
-%{_bindir}/fterror
-%{_bindir}/ftmetric
-%{_bindir}/ftsbit
-%{_bindir}/ftstrpnm
-%endif
 
 %files demos
 %defattr(-,root,root)
+%{_bindir}/ftbench
+%{_bindir}/ftchkwd
 %{_bindir}/ftdump
 %{_bindir}/ftlint
-%if %{with_xfree86}
 %{_bindir}/ftmemchk
+%{_bindir}/ftvalid
+%if %{with_xfree86}
+%{_bindir}/ftgamma
 %{_bindir}/ftmulti
 %{_bindir}/ftstring
 %{_bindir}/fttimer
@@ -266,19 +154,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(-,root,root)
-%if %{with_freetype1}
-%dir %{_includedir}/freetype1
-%{_includedir}/freetype1/*
-%endif
 %dir %{_includedir}/freetype2
 %{_datadir}/aclocal/freetype2.m4
 %{_includedir}/freetype2/*
 %{_includedir}/*.h
-%if %{with_freetype1}
-%{_libdir}/libttf.a
-%{_libdir}/libttf.la
-%{_libdir}/libttf.so
-%endif
 %{_libdir}/libfreetype.a
 %{_libdir}/libfreetype.la
 %{_libdir}/libfreetype.so
@@ -286,6 +165,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Fri Jul 07 2006 Behdad Esfahbod <besfahbo@redhat.com> 2.2.1-1
+- Update to 2.2.1
+- Remove FreeType 1, to move to extras
+- Install new demos ftbench, ftchkwd, ftgamma, and ftvalid
+- Enable modules gxvalid and otvalid
+
 * Wed May 17 2006 Karsten Hopp <karsten@redhat.de> 2.1.10-6
 - add buildrequires libICE-devel, libSM-devel
 
