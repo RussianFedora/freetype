@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine.
 Name: freetype
 Version: 2.2.1
-Release: 1
+Release: 2
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -23,8 +23,6 @@ Patch20:  freetype-2.1.10-enable-ft2-bci.patch
 Patch46:  freetype-2.2.1-enable-valid.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root
-BuildRequires: automake autoconf >= 2.59 libtool symlinks zlib-devel gettext
-BuildRequires: libX11-devel, libICE-devel, libSM-devel
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -107,7 +105,7 @@ rm -rf $RPM_BUILD_ROOT
 # Install freetype 2 demos
 {
   for ftdemo in ftbench ftchkwd ftdump ftgamma ftlint ftmemchk ftmulti ftstring fttimer ftvalid ftview ; do
-      libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
+      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
 %endif
@@ -163,6 +161,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Fri Jul 07 2006 Behdad Esfahbod <besfahbo@redhat.com> 2.2.1-2
+- Remove unused BuildRequires
+
 * Fri Jul 07 2006 Behdad Esfahbod <besfahbo@redhat.com> 2.2.1-1
 - Update to 2.2.1
 - Remove FreeType 1, to move to extras
