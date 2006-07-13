@@ -4,7 +4,7 @@
 
 %{!?with_xfree86:%define with_xfree86 1}
 
-Summary: A free and portable font rendering engine.
+Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.2.1
 Release: 2.1
