@@ -34,7 +34,7 @@ text-rendering library.
 
 
 %package demos
-Summary: A collection of FreeType demos.
+Summary: A collection of FreeType demos
 Group: System Environment/Libraries
 Requires: %{name} = %{version}-%{release}
 
