@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.2.1
-Release: 2.1
+Release: 3
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -21,6 +21,9 @@ Patch20:  freetype-2.1.10-enable-ft2-bci.patch
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
+
+# Fix multilib conflicts
+Patch88:  freetype-multilib.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root
 
@@ -72,6 +75,8 @@ popd
 
 %patch46  -p1 -b .enable-valid
 
+%patch88 -p1 -b .multilib
+
 %build
 # Work around code generation problem with strict-aliasing
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=118021
@@ -109,6 +114,32 @@ rm -rf $RPM_BUILD_ROOT
   done
 }
 %endif
+
+# fix multilib issues
+%ifarch x86_64 s390x ia64 ppc64
+%define wordsize 64
+%else
+%define wordsize 32
+%endif
+
+mv $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h \
+   $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig-%{wordsize}.h
+cat >$RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h <<EOF
+#ifndef __FTCONFIG_H__MULTILIB
+#define __FTCONFIG_H___MULTILIB
+
+#include <bits/wordsize.h>
+
+#if __WORDSIZE == 32
+# include "art_config-32.h"
+#elif __WORDSIZE == 64
+# include "art_config-64.h"
+#else
+# error "unexpected value for __WORDSIZE macro"
+#endif
+
+#endif 
+EOF
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -161,6 +192,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Thu Jul 27 2006 Matthias Clasen  <mclasen@redhat.com> - 2.2.1-3
+- fix multilib issues
+
 * Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 2.2.1-2.1
 - rebuild
 
