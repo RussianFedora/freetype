@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.2.1
-Release: 3
+Release: 4%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -192,6 +192,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Sun Aug 13 2006 Matthias Clasen <mclasen@redhat.com> - 2.2.1-4.fc6
+- fix a problem with the multilib patch (#202366)
+
 * Thu Jul 27 2006 Matthias Clasen  <mclasen@redhat.com> - 2.2.1-3
 - fix multilib issues
 
