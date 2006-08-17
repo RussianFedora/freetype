@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.2.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -141,6 +141,9 @@ cat >$RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h <<EOF
 #endif 
 EOF
 
+# Don't package static a or .la files
+rm -f $RPM_BUILD_ROOT%{_libdir}/*.{l,la}
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -185,13 +188,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/freetype2.m4
 %{_includedir}/freetype2/*
 %{_includedir}/*.h
-%{_libdir}/libfreetype.a
-%{_libdir}/libfreetype.la
 %{_libdir}/libfreetype.so
 %{_bindir}/freetype-config
 %{_libdir}/pkgconfig/
 
 %changelog
+* Thu Aug 17 2006 Jesse Keating <jkeating@redhat.com> - 2.2.1-5
+- don't package static libs
+
 * Sun Aug 13 2006 Matthias Clasen <mclasen@redhat.com> - 2.2.1-4.fc6
 - fix a problem with the multilib patch (#202366)
 
