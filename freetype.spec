@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.2.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -86,7 +86,7 @@ export CXXFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
 
 # Build Freetype 2
 {
-  %configure
+  %configure --disable-static
   make %{?_smp_mflags}
 }
 
@@ -193,6 +193,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Fri Aug 18 2006 Jesse Keating <jkeating@redhat.com> - 2.2.1-6
+- pass --disable-static to %%configure. (#172628)
+
 * Thu Aug 17 2006 Jesse Keating <jkeating@redhat.com> - 2.2.1-5
 - don't package static libs
 
