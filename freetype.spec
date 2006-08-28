@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.2.1
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -53,6 +53,7 @@ Summary: FreeType development libraries and header files
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 Requires: zlib-devel
+Requires: pkgconfig
 
 %description devel
 The freetype-devel package includes the static libraries and header files
@@ -193,6 +194,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Mon Aug 28 2006 Matthias Clasen <mclasen@redhat.com> - 2.2.1-7
+- Require pkgconfig in the -devel package
+
 * Fri Aug 18 2006 Jesse Keating <jkeating@redhat.com> - 2.2.1-6
 - pass --disable-static to %%configure. (#172628)
 
