@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.2.1
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -24,6 +24,10 @@ Patch46:  freetype-2.2.1-enable-valid.patch
 
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
+
+# Upstream patches
+Patch100: freetype-composite.patch
+Patch101: freetype-more-composite.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root
 
@@ -77,6 +81,9 @@ popd
 %patch46  -p1 -b .enable-valid
 
 %patch88 -p1 -b .multilib
+
+%patch100 -p1 -b .composite
+%patch101 -p1 -b .more-composite
 
 %build
 # Work around code generation problem with strict-aliasing
@@ -194,6 +201,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Tue Aug 29 2006 Behdad Esfahbod <besfahbo@redhat.com> 2.2.1-8
+- Add freetype-composite.patch and freetype-more-composite.patch
+  from upstream. (#131851)
+
 * Mon Aug 28 2006 Matthias Clasen <mclasen@redhat.com> - 2.2.1-7
 - Require pkgconfig in the -devel package
 
