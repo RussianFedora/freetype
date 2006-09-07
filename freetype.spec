@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.2.1
-Release: 8%{?dist}
+Release: 9%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -30,6 +30,8 @@ Patch100: freetype-composite.patch
 Patch101: freetype-more-composite.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root
+
+BuildRequires: libX11-devel
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -201,6 +203,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Thu Sep 07 2006 Behdad Esfahbod <besfahbo@redhat.com> 2.2.1-9
+- Add BuildRequires: libX11-devel (#205355)
+
 * Tue Aug 29 2006 Behdad Esfahbod <besfahbo@redhat.com> 2.2.1-8
 - Add freetype-composite.patch and freetype-more-composite.patch
   from upstream. (#131851)
