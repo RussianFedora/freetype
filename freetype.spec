@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.2.1
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -24,6 +24,9 @@ Patch46:  freetype-2.2.1-enable-valid.patch
 
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
+
+# Fix crash https://bugs.freedesktop.org/show_bug.cgi?id=6841
+Patch89:  freetype-2.2.1-memcpy-fix.patch
 
 # Upstream patches
 Patch100: freetype-composite.patch
@@ -83,6 +86,7 @@ popd
 %patch46  -p1 -b .enable-valid
 
 %patch88 -p1 -b .multilib
+%patch89 -p1 -b .memcpy
 
 %patch100 -p1 -b .composite
 %patch101 -p1 -b .more-composite
@@ -203,6 +207,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Mon Sep 11 2006 Behdad Esfahbod <besfahbo@redhat.com> 2.2.1-10
+- Fix crasher https://bugs.freedesktop.org/show_bug.cgi?id=6841
+- Add freetype-2.2.1-memcpy-fix.patch
+
 * Thu Sep 07 2006 Behdad Esfahbod <besfahbo@redhat.com> 2.2.1-9
 - Add BuildRequires: libX11-devel (#205355)
 
