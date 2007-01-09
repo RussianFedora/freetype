@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.2.1
-Release: 10%{?dist}
+Release: 16%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -31,8 +31,11 @@ Patch89:  freetype-2.2.1-memcpy-fix.patch
 # Upstream patches
 Patch100: freetype-composite.patch
 Patch101: freetype-more-composite.patch
+Patch102: freetype-2.2.1-zero-item-size.patch
+Patch103: freetype-2.2.1-fix-get-orientation.patch
+Patch104: freetype-2.2.1-ttcmap.patch
 
-Buildroot: %{_tmppath}/%{name}-%{version}-root
+Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
 
@@ -90,6 +93,9 @@ popd
 
 %patch100 -p1 -b .composite
 %patch101 -p1 -b .more-composite
+%patch102 -p1 -b .zero-item-size
+%patch103 -p0 -b .fix-get-orientation
+%patch104 -p1 -b .ttcmap
 
 %build
 # Work around code generation problem with strict-aliasing
@@ -101,14 +107,14 @@ export CXXFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
 # Build Freetype 2
 {
   %configure --disable-static
-  make %{?_smp_mflags}
+  make X11_PATH=/usr %{?_smp_mflags}
 }
 
 %if %{with_xfree86}
 # Build freetype 2 demos
 {
   pushd ft2demos-%{version}
-  make TOP_DIR=".."
+  make X11_PATH=/usr TOP_DIR=".."
   popd
 }
 %endif
@@ -120,10 +126,15 @@ rm -rf $RPM_BUILD_ROOT
 # Install Freetype 2
 %makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
 
+{
+  for ftdemo in ftbench ftchkwd ftdump ftlint ftmemchk ftvalid ; do
+      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
+  done
+}
 %if %{with_xfree86}
 # Install freetype 2 demos
 {
-  for ftdemo in ftbench ftchkwd ftdump ftgamma ftlint ftmemchk ftmulti ftstring fttimer ftvalid ftview ; do
+  for ftdemo in ftgamma ftmulti ftstring fttimer ftview ; do
       builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
@@ -207,6 +218,23 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Tue Jan 09 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.2.1-16
+- Backport binary-search fixes from HEAD
+- Add freetype-2.2.1-ttcmap.patch
+- Resolves: #208734
+
+- Fix rendering issue with some Asian fonts.
+- Add freetype-2.2.1-fix-get-orientation.patch
+- Resolves: #207261
+
+- Copy non-X demos even if not compiling with_xfree86.
+
+- Add freetype-2.2.1-zero-item-size.patch, to fix crasher.
+- Resolves #214048
+
+- Add X11_PATH=/usr to "make"s, to find modern X.
+- Resolves #212199
+
 * Mon Sep 11 2006 Behdad Esfahbod <besfahbo@redhat.com> 2.2.1-10
 - Fix crasher https://bugs.freedesktop.org/show_bug.cgi?id=6841
 - Add freetype-2.2.1-memcpy-fix.patch
