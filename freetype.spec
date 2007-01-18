@@ -6,8 +6,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.2.1
-Release: 16%{?dist}
+Version: 2.3.0
+Release: 1%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -29,11 +29,6 @@ Patch88:  freetype-multilib.patch
 Patch89:  freetype-2.2.1-memcpy-fix.patch
 
 # Upstream patches
-Patch100: freetype-composite.patch
-Patch101: freetype-more-composite.patch
-Patch102: freetype-2.2.1-zero-item-size.patch
-Patch103: freetype-2.2.1-fix-get-orientation.patch
-Patch104: freetype-2.2.1-ttcmap.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -91,27 +86,13 @@ popd
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .memcpy
 
-%patch100 -p1 -b .composite
-%patch101 -p1 -b .more-composite
-%patch102 -p1 -b .zero-item-size
-%patch103 -p0 -b .fix-get-orientation
-%patch104 -p1 -b .ttcmap
-
 %build
-# Work around code generation problem with strict-aliasing
-# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=118021
-#
-export CFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
-export CXXFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
 
-# Build Freetype 2
-{
-  %configure --disable-static
-  make X11_PATH=/usr %{?_smp_mflags}
-}
+%configure --disable-static
+make X11_PATH=/usr %{?_smp_mflags}
 
 %if %{with_xfree86}
-# Build freetype 2 demos
+# Build demos
 {
   pushd ft2demos-%{version}
   make X11_PATH=/usr TOP_DIR=".."
@@ -123,7 +104,6 @@ export CXXFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
 rm -rf $RPM_BUILD_ROOT
 
 
-# Install Freetype 2
 %makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
 
 {
@@ -132,7 +112,6 @@ rm -rf $RPM_BUILD_ROOT
   done
 }
 %if %{with_xfree86}
-# Install freetype 2 demos
 {
   for ftdemo in ftgamma ftmulti ftstring fttimer ftview ; do
       builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
@@ -151,7 +130,7 @@ mv $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h \
    $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig-%{wordsize}.h
 cat >$RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h <<EOF
 #ifndef __FTCONFIG_H__MULTILIB
-#define __FTCONFIG_H___MULTILIB
+#define __FTCONFIG_H__MULTILIB
 
 #include <bits/wordsize.h>
 
@@ -218,6 +197,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Wed Jan 17 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.0-1
+- Update to 2.3.0.
+- Drop upstream patches.
+- Drop -fno-strict-aliasing, it should just work.
+- Fix typo in ftconfig.h generation.
+
 * Tue Jan 09 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.2.1-16
 - Backport binary-search fixes from HEAD
 - Add freetype-2.2.1-ttcmap.patch
