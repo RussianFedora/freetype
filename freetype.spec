@@ -1,13 +1,14 @@
-# Disables patented bytecode interpreter.  Setting to 0 enables
-# the bytecode interpreter.
+# Disable patented bytecode interpreter and patented subpixel rendering.
+# Setting to 0 enables them.
 %define without_bytecode_interpreter    1
+%define without_subpixel_rendering      1
 
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -18,6 +19,7 @@ Source2: ft2demos-%{version}.tar.bz2
 # Add -lm when linking X demos
 Patch5: ft2demos-2.1.9-mathlib.patch
 Patch20:  freetype-2.1.10-enable-ft2-bci.patch
+Patch21:  freetype-2.3.0-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
@@ -81,6 +83,10 @@ popd
 %patch20  -p1 -b .enable-ft2-bci
 %endif
 
+%if ! %{without_subpixel_rendering}
+%patch21  -p1 -b .enable-spr
+%endif
+
 %patch46  -p1 -b .enable-valid
 
 %patch88 -p1 -b .multilib
@@ -89,13 +95,13 @@ popd
 %build
 
 %configure --disable-static
-make X11_PATH=/usr %{?_smp_mflags}
+make %{?_smp_mflags}
 
 %if %{with_xfree86}
 # Build demos
 {
   pushd ft2demos-%{version}
-  make X11_PATH=/usr TOP_DIR=".."
+  make TOP_DIR=".."
   popd
 }
 %endif
@@ -197,6 +203,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Wed Jan 17 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.0-2
+- Add without_subpixel_rendering.
+- Drop X11_PATH=/usr.  Not needed anymore.
+
 * Wed Jan 17 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.0-1
 - Update to 2.3.0.
 - Drop upstream patches.
