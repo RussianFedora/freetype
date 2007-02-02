@@ -7,8 +7,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.3.0
-Release: 2%{?dist}
+Version: 2.3.1
+Release: 1%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -203,6 +203,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Fri Feb 02 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.1-1
+- Update to 2.3.1.
+
 * Wed Jan 17 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.0-2
 - Add without_subpixel_rendering.
 - Drop X11_PATH=/usr.  Not needed anymore.
