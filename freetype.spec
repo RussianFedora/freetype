@@ -8,7 +8,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -119,7 +119,7 @@ rm -rf $RPM_BUILD_ROOT
 }
 %if %{with_xfree86}
 {
-  for ftdemo in ftgamma ftmulti ftstring fttimer ftview ; do
+  for ftdemo in ftdiff ftgamma ftgrid ftmulti ftstring fttimer ftview ; do
       builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
@@ -185,7 +185,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/ftmemchk
 %{_bindir}/ftvalid
 %if %{with_xfree86}
+%{_bindir}/ftdiff
 %{_bindir}/ftgamma
+%{_bindir}/ftgrid
 %{_bindir}/ftmulti
 %{_bindir}/ftstring
 %{_bindir}/fttimer
@@ -203,6 +205,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Thu Apr 05 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.3-2
+- Include new demos ftgrid and ftdiff in freetype-demos. (#235478)
+
 * Thu Apr 05 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.3-1
 - Update to 2.3.3.
 
