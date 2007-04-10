@@ -7,8 +7,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.3.3
-Release: 2%{?dist}
+Version: 2.3.4
+Release: 1%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -205,6 +205,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Tue Apr 05 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-1
+- Update to 2.3.4.
+
 * Thu Apr 05 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.3-2
 - Include new demos ftgrid and ftdiff in freetype-demos. (#235478)
 
