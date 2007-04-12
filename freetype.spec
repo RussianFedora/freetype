@@ -8,7 +8,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.4
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -126,7 +126,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 # fix multilib issues
-%ifarch x86_64 s390x ia64 ppc64
+%ifarch x86_64 s390x ia64 ppc64 alpha
 %define wordsize 64
 %else
 %define wordsize 32
@@ -205,6 +205,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Thu Apr 12 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-2
+- Add alpha to 64-bit archs (#236166)
+
 * Tue Apr 05 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-1
 - Update to 2.3.4.
 
