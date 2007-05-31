@@ -8,7 +8,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.4
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -31,6 +31,7 @@ Patch88:  freetype-multilib.patch
 Patch89:  freetype-2.2.1-memcpy-fix.patch
 
 # Upstream patches
+Patch100: freetype-2.3.4-ttf-overflow.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -91,6 +92,8 @@ popd
 
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .memcpy
+
+%patch100 -p1 -b .ttf-overflow
 
 %build
 
@@ -205,6 +208,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Thu May 31 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-3
+- Add freetype-2.3.4-ttf-overflow.patch
+
 * Thu Apr 12 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-2
 - Add alpha to 64-bit archs (#236166)
 
