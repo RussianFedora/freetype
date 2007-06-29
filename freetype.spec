@@ -8,7 +8,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.4
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -98,6 +98,8 @@ popd
 %build
 
 %configure --disable-static
+sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' builds/unix/libtool
+sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' builds/unix/libtool
 make %{?_smp_mflags}
 
 %if %{with_xfree86}
@@ -208,6 +210,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Fri Jun 29 2007 Adam Jackson <ajax@redhat.com> 2.3.4-4
+- Fix builds/unix/libtool to not emit rpath into binaries. (#225770)
+
 * Thu May 31 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-3
 - Add freetype-2.3.4-ttf-overflow.patch
 
