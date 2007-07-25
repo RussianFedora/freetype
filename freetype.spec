@@ -7,8 +7,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.3.4
-Release: 4%{?dist}
+Version: 2.3.5
+Release: 1%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -31,7 +31,6 @@ Patch88:  freetype-multilib.patch
 Patch89:  freetype-2.2.1-memcpy-fix.patch
 
 # Upstream patches
-Patch100: freetype-2.3.4-ttf-overflow.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -92,8 +91,6 @@ popd
 
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .memcpy
-
-%patch100 -p1 -b .ttf-overflow
 
 %build
 
@@ -210,6 +207,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Wed Jul 25 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.5-1
+- Update to 2.3.5.
+- Drop freetype-2.3.4-ttf-overflow.patch
+
 * Fri Jun 29 2007 Adam Jackson <ajax@redhat.com> 2.3.4-4
 - Fix builds/unix/libtool to not emit rpath into binaries. (#225770)
 
