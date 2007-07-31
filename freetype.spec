@@ -1,14 +1,15 @@
-# Disable patented bytecode interpreter and patented subpixel rendering.
-# Setting to 0 enables them.
-%define without_bytecode_interpreter    1
-%define without_subpixel_rendering      1
+# Patented bytecode interpreter and patented subpixel rendering disabled by default.
+# Pass '--with bytecode_interpreter' and '--with subpixel_rendering' on rpmbuild
+# command-line to enable them.
+%{!?_with_bytecode_interpreter: %{!?_without_bytecode_interpreter: %define _without_bytecode_interpreter --without-bytecode_interpreter}}
+%{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
 
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -79,11 +80,11 @@ pushd ft2demos-%{version}
 %patch5 -p1 -b .mathlib
 popd
 
-%if ! %{without_bytecode_interpreter}
+%if %{?_with_bytecode_interpreter:1}%{!?_with_bytecode_interpreter:0}
 %patch20  -p1 -b .enable-ft2-bci
 %endif
 
-%if ! %{without_subpixel_rendering}
+%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 %patch21  -p1 -b .enable-spr
 %endif
 
@@ -207,6 +208,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Tue Jul 31 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.5-2
+- Change spec file to permit enabling bytecode-interpreter and
+  subpixel-rendering without editing spec file.
+- Resolves: 249986
+
 * Wed Jul 25 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.5-1
 - Update to 2.3.5.
 - Drop freetype-2.3.4-ttf-overflow.patch
