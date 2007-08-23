@@ -9,7 +9,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.5
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -208,6 +208,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Thu Aug 23 2007 Adam Jackson <ajax@redhat.com> - 2.3.5-3
+- Rebuild for build ID
+
 * Tue Jul 31 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.5-2
 - Change spec file to permit enabling bytecode-interpreter and
   subpixel-rendering without editing spec file.
