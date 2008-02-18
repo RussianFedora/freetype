@@ -9,7 +9,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.5
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -208,6 +208,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Mon Feb 18 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 2.3.5-4
+- Autorebuild for GCC 4.3
+
 * Thu Aug 23 2007 Adam Jackson <ajax@redhat.com> - 2.3.5-3
 - Rebuild for build ID
 
