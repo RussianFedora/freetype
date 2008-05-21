@@ -9,8 +9,8 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.5
-Release: 4%{?dist}
-License: BSD/GPL dual license
+Release: 5%{?dist}
+License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
 Source:  freetype-%{version}.tar.bz2
@@ -129,7 +129,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 # fix multilib issues
-%ifarch x86_64 s390x ia64 ppc64 alpha
+%ifarch x86_64 s390x ia64 ppc64 alpha sparc64
 %define wordsize 64
 %else
 %define wordsize 32
@@ -208,6 +208,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Wed May 21 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 2.3.5-5
+- fix license tag
+- add sparc64 to list of 64bit arches
+
 * Mon Feb 18 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 2.3.5-4
 - Autorebuild for GCC 4.3
 
