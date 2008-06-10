@@ -13,6 +13,6 @@
 -libdir=@libdir@
 +includedir=`pkg-config --variable includedir freetype2`
 +libdir=`pkg-config --variable libdir freetype2`
- enable_shared=@enable_shared@
+ enable_shared=@build_libtool_libs@
  wl=@wl@
  hardcode_libdir_flag_spec='@hardcode_libdir_flag_spec@'

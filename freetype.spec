@@ -8,8 +8,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.3.5
-Release: 5%{?dist}
+Version: 2.3.6
+Release: 1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -208,6 +208,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Tue Jun 10 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.6-1
+- Update to 2.3.6
+
 * Wed May 21 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 2.3.5-5
 - fix license tag
 - add sparc64 to list of 64bit arches
