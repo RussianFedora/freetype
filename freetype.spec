@@ -9,7 +9,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.5
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: BSD/GPL dual license
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -32,6 +32,8 @@ Patch88:  freetype-multilib.patch
 Patch89:  freetype-2.2.1-memcpy-fix.patch
 
 # Upstream patches
+
+Patch90:  freetype-2.3.5-CVEs.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -92,6 +94,8 @@ popd
 
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .memcpy
+
+%patch90 -p1 -b .CVEs
 
 %build
 
@@ -208,6 +212,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Tue Jun 17 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.5-6
+- Add freetype-2.3.5-CVEs.patch
+- Resolves: #451213
+
 * Fri May 23 2008 Dennis Gilmore <dennis@ausil.us> - 2.3.5-5
 - add sparc64  to list of 64 bit arches
 
