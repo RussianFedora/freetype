@@ -1,0 +1,195 @@
+diff --git a/src/base/ftstream.c b/src/base/ftstream.c
+index a067a1f..569e46c 100644
+--- a/src/base/ftstream.c
++++ b/src/base/ftstream.c
+@@ -89,6 +89,9 @@
+   FT_Stream_Skip( FT_Stream  stream,
+                   FT_Long    distance )
+   {
++    if ( distance < 0 )
++      return FT_Err_Invalid_Stream_Operation;
++
+     return FT_Stream_Seek( stream, (FT_ULong)( stream->pos + distance ) );
+   }
+ 
+diff --git a/src/psaux/psobjs.c b/src/psaux/psobjs.c
+index 9d3ebdf..b7b84ac 100644
+--- a/src/psaux/psobjs.c
++++ b/src/psaux/psobjs.c
+@@ -169,7 +169,7 @@
+                 void*       object,
+                 FT_PtrDist  length )
+   {
+-    if ( idx < 0 || idx > table->max_elems )
++    if ( idx < 0 || idx >= table->max_elems )
+     {
+       FT_ERROR(( "ps_table_add: invalid index\n" ));
+       return PSaux_Err_Invalid_Argument;
+diff --git a/src/sfnt/ttload.c b/src/sfnt/ttload.c
+index abe0278..6b7c342 100644
+--- a/src/sfnt/ttload.c
++++ b/src/sfnt/ttload.c
+@@ -618,6 +618,15 @@
+ 
+       if ( maxProfile->maxFunctionDefs == 0 )
+         maxProfile->maxFunctionDefs = 64;
++
++      /* we add 4 phantom points later */
++      if ( maxProfile->maxTwilightPoints > ( 0xFFFFU - 4 ) )
++      {
++        FT_ERROR(( "Too much twilight points in `maxp' table;\n" ));
++        FT_ERROR(( "  some glyphs might be rendered incorrectly.\n" ));
++
++        maxProfile->maxTwilightPoints = 0xFFFFU - 4;
++      }
+     }
+ 
+     FT_TRACE3(( "numGlyphs: %u\n", maxProfile->numGlyphs ));
+diff --git a/src/truetype/ttinterp.c b/src/truetype/ttinterp.c
+index f0f91e9..f9c3656 100644
+--- a/src/truetype/ttinterp.c
++++ b/src/truetype/ttinterp.c
+@@ -5449,7 +5449,7 @@
+ 
+     /* XXX: this is probably wrong... at least it prevents memory */
+     /*      corruption when zp2 is the twilight zone              */
+-    if ( last_point > CUR.zp2.n_points )
++    if ( BOUNDS( last_point, CUR.zp2.n_points ) )
+     {
+       if ( CUR.zp2.n_points > 0 )
+         last_point = (FT_UShort)(CUR.zp2.n_points - 1);
+diff --git a/src/type1/t1load.c b/src/type1/t1load.c
+index 508fd89..9d7c748 100644
+--- a/src/type1/t1load.c
++++ b/src/type1/t1load.c
+@@ -674,7 +674,7 @@
+ 
+       for ( n = 0; n < num_designs; n++ )
+       {
+-        T1_TokenRec  axis_tokens[T1_MAX_MM_DESIGNS];
++        T1_TokenRec  axis_tokens[T1_MAX_MM_AXIS];
+         T1_Token     token;
+         FT_Int       axis, n_axis;
+ 
+@@ -687,6 +687,15 @@
+ 
+         if ( n == 0 )
+         {
++          if ( n_axis <= 0 || n_axis > T1_MAX_MM_AXIS )
++          {
++            FT_ERROR(( "parse_blend_design_positions:" ));
++            FT_ERROR(( "  invalid number of axes: %d\n",
++                       n_axis ));
++            error = T1_Err_Invalid_File_Format;
++            goto Exit;
++          }
++
+           num_axis = n_axis;
+           error = t1_allocate_blend( face, num_designs, num_axis );
+           if ( error )
+diff --git a/src/type1/t1parse.c b/src/type1/t1parse.c
+index 1b252c7..36f5c82 100644
+--- a/src/type1/t1parse.c
++++ b/src/type1/t1parse.c
+@@ -65,14 +65,16 @@
+   /*************************************************************************/
+ 
+ 
++  /* see Adobe Technical Note 5040.Download_Fonts.pdf */
++
+   static FT_Error
+   read_pfb_tag( FT_Stream   stream,
+                 FT_UShort  *atag,
+-                FT_Long    *asize )
++                FT_ULong   *asize )
+   {
+     FT_Error   error;
+     FT_UShort  tag;
+-    FT_Long    size;
++    FT_ULong   size;
+ 
+ 
+     *atag  = 0;
+@@ -82,7 +84,7 @@
+     {
+       if ( tag == 0x8001U || tag == 0x8002U )
+       {
+-        if ( !FT_READ_LONG_LE( size ) )
++        if ( !FT_READ_ULONG_LE( size ) )
+           *asize = size;
+       }
+ 
+@@ -100,22 +102,25 @@
+   {
+     FT_Error   error;
+     FT_UShort  tag;
+-    FT_Long    size;
++    FT_ULong   dummy;
+ 
+ 
+     if ( FT_STREAM_SEEK( 0 ) )
+       goto Exit;
+ 
+-    error = read_pfb_tag( stream, &tag, &size );
++    error = read_pfb_tag( stream, &tag, &dummy );
+     if ( error )
+       goto Exit;
+ 
++    /* We assume that the first segment in a PFB is always encoded as   */
++    /* text.  This might be wrong (and the specification doesn't insist */
++    /* on that), but we have never seen a counterexample.               */
+     if ( tag != 0x8001U && FT_STREAM_SEEK( 0 ) )
+       goto Exit;
+ 
+     if ( !FT_FRAME_ENTER( header_length ) )
+     {
+-      error = 0;
++      error = T1_Err_Ok;
+ 
+       if ( ft_memcmp( stream->cursor, header_string, header_length ) != 0 )
+         error = T1_Err_Unknown_File_Format;
+@@ -136,7 +141,7 @@
+   {
+     FT_Error   error;
+     FT_UShort  tag;
+-    FT_Long    size;
++    FT_ULong   size;
+ 
+ 
+     psaux->ps_parser_funcs->init( &parser->root, 0, 0, memory );
+@@ -260,7 +265,7 @@
+     FT_Stream  stream = parser->stream;
+     FT_Memory  memory = parser->root.memory;
+     FT_Error   error  = T1_Err_Ok;
+-    FT_Long    size;
++    FT_ULong   size;
+ 
+ 
+     if ( parser->in_pfb )
+@@ -409,7 +414,7 @@
+         goto Exit;
+       }
+ 
+-      size = (FT_Long)( parser->base_len - ( cur - parser->base_dict ) );
++      size = parser->base_len - ( cur - parser->base_dict );
+ 
+       if ( parser->in_memory )
+       {
+diff --git a/src/type1/t1parse.h b/src/type1/t1parse.h
+index 6fa4ca6..fb1c8a8 100644
+--- a/src/type1/t1parse.h
++++ b/src/type1/t1parse.h
+@@ -64,10 +64,10 @@ FT_BEGIN_HEADER
+     FT_Stream     stream;
+ 
+     FT_Byte*      base_dict;
+-    FT_Long       base_len;
++    FT_ULong      base_len;
+ 
+     FT_Byte*      private_dict;
+-    FT_Long       private_len;
++    FT_ULong      private_len;
+ 
+     FT_Bool       in_pfb;
+     FT_Bool       in_memory;
+
