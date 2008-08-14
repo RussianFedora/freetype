@@ -8,7 +8,7 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.3.6
+Version: 2.3.7
 Release: 1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
@@ -208,6 +208,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Tue Aug 14 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-1
+- Update to 2.3.7
+
 * Tue Jun 10 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.6-1
 - Update to 2.3.6
 
