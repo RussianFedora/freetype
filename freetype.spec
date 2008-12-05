@@ -213,7 +213,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
-* Fri Dec 05 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-2
+* Fri Dec 05 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-2
 - Add freetype-autohinter-ligature.patch
 - Resolves: #368561
 
