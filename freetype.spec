@@ -1,6 +1,8 @@
 # Patented bytecode interpreter and patented subpixel rendering disabled by default.
 # Pass '--with bytecode_interpreter' and '--with subpixel_rendering' on rpmbuild
 # command-line to enable them.
+%define _with_subpixel_rendering 1}
+%define _without_subpixel_rendering 0}
 %{!?_with_bytecode_interpreter: %{!?_without_bytecode_interpreter: %define _without_bytecode_interpreter --without-bytecode_interpreter}}
 %{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
 
@@ -9,7 +11,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.7
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -32,6 +34,7 @@ Patch88:  freetype-multilib.patch
 Patch89:  freetype-2.2.1-memcpy-fix.patch
 
 # Upstream patches
+Patch101: freetype-autohinter-ligature.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -92,6 +95,8 @@ popd
 
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .memcpy
+
+%patch101 -p0 -b .autohinter-ligature
 
 %build
 
@@ -208,6 +213,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/
 
 %changelog
+* Fri Dec 05 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-2
+- Add freetype-autohinter-ligature.patch
+- Resolves: #368561
+
 * Tue Aug 14 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-1
 - Update to 2.3.7
 
