@@ -1,0 +1,15 @@
+Index: src/autofit/aflatin.c
+===================================================================
+RCS file: /cvsroot/freetype/freetype2/src/autofit/aflatin.c,v
+retrieving revision 1.65
+diff -u -p -d -r1.65 aflatin.c
+--- src/autofit/aflatin.c	7 Jul 2007 07:30:39 -0000	1.65
++++ src/autofit/aflatin.c	5 Dec 2008 21:15:46 -0000
+@@ -2144,6 +2144,7 @@
+     { 0x20A0, 0x20CF },  /* Currency Symbols */
+     { 0x2150, 0x218F },  /* Number Forms */
+     { 0x2460, 0x24FF },  /* Enclosed Alphanumerics */
++    { 0xFB00, 0xFB06 },  /* Latin Ligatures */
+     { 0     , 0      }
+   };
+ 
