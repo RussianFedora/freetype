@@ -11,13 +11,13 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.7
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
-Source:  freetype-%{version}.tar.bz2
-Source1: freetype-doc-%{version}.tar.bz2
-Source2: ft2demos-%{version}.tar.bz2
+Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.tar.bz2
+Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
+Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 
 # Add -lm when linking X demos
 Patch5: ft2demos-2.1.9-mathlib.patch
@@ -107,12 +107,16 @@ make %{?_smp_mflags}
 
 %if %{with_xfree86}
 # Build demos
-{
-  pushd ft2demos-%{version}
-  make TOP_DIR=".."
-  popd
-}
+pushd ft2demos-%{version}
+make TOP_DIR=".."
+popd
 %endif
+
+# Convert FTL.txt to UTF-8
+pushd docs
+iconv -f latin1 -t utf-8 < FTL.TXT > FTL.TXT.tmp && mv FTL.TXT.tmp FTL.TXT
+popd
+
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -182,7 +186,9 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %{_libdir}/libfreetype.so.*
-%doc ChangeLog README
+%doc README
+%doc docs/LICENSE.TXT docs/FTL.TXT docs/GPL.TXT
+%doc docs/CHANGES docs/VERSION.DLL docs/formats.txt docs/ft2faq.html
 
 %files demos
 %defattr(-,root,root)
@@ -201,6 +207,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/fttimer
 %{_bindir}/ftview
 %endif
+%doc ChangeLog README
 
 %files devel
 %defattr(-,root,root)
@@ -211,8 +218,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libfreetype.so
 %{_bindir}/freetype-config
 %{_libdir}/pkgconfig/
+%doc docs/design
+%doc docs/glyphs
+%doc docs/reference
+%doc docs/tutorial
 
 %changelog
+* Tue Dec 09 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-3
+- Add full source URL to Source lines.
+- Add docs to main and devel package.
+- rpmlint is happy now.
+- Resolves: #225770
+
 * Fri Dec 05 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-2
 - Add freetype-autohinter-ligature.patch
 - Resolves: #368561
@@ -642,7 +659,7 @@ rm -rf $RPM_BUILD_ROOT
 - auto rebuild in the new build environment (release 5)
 
 * Thu Mar 18 1999 Cristian Gafton <gafton@redhat.com>
-- fixed the %doc file list
+- fixed the doc file list
 
 * Wed Feb 24 1999 Preston Brown <pbrown@redhat.com>
 - Injected new description and group.
