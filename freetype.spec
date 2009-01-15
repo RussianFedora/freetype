@@ -10,8 +10,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.3.7
-Release: 3%{?dist}
+Version: 2.3.8
+Release: 1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -32,9 +32,6 @@ Patch88:  freetype-multilib.patch
 
 # Fix crash https://bugs.freedesktop.org/show_bug.cgi?id=6841
 Patch89:  freetype-2.2.1-memcpy-fix.patch
-
-# Upstream patches
-Patch101: freetype-autohinter-ligature.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -95,8 +92,6 @@ popd
 
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .memcpy
-
-%patch101 -p0 -b .autohinter-ligature
 
 %build
 
@@ -224,6 +219,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Thu Jan 15 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.8-1
+- Update to 2.3.8
+- Remove freetype-autohinter-ligature.patch
+
 * Tue Dec 09 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-3
 - Add full source URL to Source lines.
 - Add docs to main and devel package.
