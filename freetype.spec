@@ -11,7 +11,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.8
-Release: 2%{?dist}
+Release: 2.1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -109,7 +109,9 @@ popd
 
 # Convert FTL.txt to UTF-8
 pushd docs
-iconv -f latin1 -t utf-8 < FTL.TXT > FTL.TXT.tmp && mv FTL.TXT.tmp FTL.TXT
+iconv -f latin1 -t utf-8 < FTL.TXT > FTL.TXT.tmp && \
+touch -r FTL.TXT FTL.TXT.tmp && \
+mv FTL.TXT.tmp FTL.TXT
 popd
 
 
@@ -219,6 +221,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Thu Mar 09 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.8-2.1
+- Preserve timestamp of FTL.TXT when converting to UTF-8.
+
 * Tue Feb 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.8-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
 
