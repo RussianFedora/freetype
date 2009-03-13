@@ -10,8 +10,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.3.8
-Release: 2.1%{?dist}
+Version: 2.3.9
+Release: 1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -221,6 +221,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Thu Mar 13 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-1
+- Update to 2.3.9.
+- Resolves #489928
+
 * Thu Mar 09 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.8-2.1
 - Preserve timestamp of FTL.TXT when converting to UTF-8.
 
