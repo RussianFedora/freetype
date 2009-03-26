@@ -11,7 +11,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.9
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -36,6 +36,13 @@ Patch89:  freetype-2.2.1-memcpy-fix.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
+
+%if %{?_with_bytecode_interpreter:1}%{!?_with_bytecode_interpreter:0}
+Provides: %{name}-bytecode
+%endif
+%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
+Provides: %{name}-subpixel
+%endif
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -221,6 +228,11 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Wed Mar 25 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-2
+- Add Provides: freetype-bytecode and freetype-subpixel if built
+  with those options.
+- Resolves: #155210
+
 * Thu Mar 13 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-1
 - Update to 2.3.9.
 - Resolves #489928
