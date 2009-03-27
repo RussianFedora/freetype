@@ -1,8 +1,6 @@
 # Patented bytecode interpreter and patented subpixel rendering disabled by default.
 # Pass '--with bytecode_interpreter' and '--with subpixel_rendering' on rpmbuild
 # command-line to enable them.
-%define _with_subpixel_rendering 1}
-%define _without_subpixel_rendering 0}
 %{!?_with_bytecode_interpreter: %{!?_without_bytecode_interpreter: %define _without_bytecode_interpreter --without-bytecode_interpreter}}
 %{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
 
@@ -11,7 +9,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.9
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -228,6 +226,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Wed Mar 27 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-3
+- Disable subpixel hinting by default.  Was turned on unintentionally.
+
 * Wed Mar 25 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-2
 - Add Provides: freetype-bytecode and freetype-subpixel if built
   with those options.
