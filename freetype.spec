@@ -9,7 +9,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.9
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -219,13 +219,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/*.h
 %{_libdir}/libfreetype.so
 %{_bindir}/freetype-config
-%{_libdir}/pkgconfig/
+%{_libdir}/pkgconfig/freetype2.pc
 %doc docs/design
 %doc docs/glyphs
 %doc docs/reference
 %doc docs/tutorial
 
 %changelog
+* Thu May  7 2009 Matthias Clasen <mclasen@redhat.com> 2.3.9-4
+- Don't own /usr/lib/pkgconfig
+
 * Wed Mar 27 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-3
 - Disable subpixel hinting by default.  Was turned on unintentionally.
 
