@@ -9,7 +9,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.9
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -30,6 +30,9 @@ Patch88:  freetype-multilib.patch
 
 # Fix crash https://bugs.freedesktop.org/show_bug.cgi?id=6841
 Patch89:  freetype-2.2.1-memcpy-fix.patch
+
+# Fix aliasing issue
+Patch90: freetype-2.3.9-aliasing.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -97,6 +100,7 @@ popd
 
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .memcpy
+%patch90 -p1 -b .aliasing
 
 %build
 
@@ -226,6 +230,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Sat Jul 25 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.9-5
+- Add freetype-2.3.9-aliasing.patch
+- Resolves: 513582
+
 * Thu May  7 2009 Matthias Clasen <mclasen@redhat.com> 2.3.9-4
 - Don't own /usr/lib/pkgconfig
 
