@@ -8,7 +8,7 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.3.10
+Version: 2.3.11
 Release: 1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
@@ -24,6 +24,8 @@ Patch21:  freetype-2.3.0-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
+# Enable additional demos
+Patch47:  freetype-2.3.11-more-demos.patch
 
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
@@ -94,6 +96,7 @@ popd
 %endif
 
 %patch46  -p1 -b .enable-valid
+%patch47  -p1 -b .more-demos
 
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .memcpy
@@ -127,7 +130,7 @@ rm -rf $RPM_BUILD_ROOT
 %makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
 
 {
-  for ftdemo in ftbench ftchkwd ftdump ftlint ftmemchk ftvalid ; do
+  for ftdemo in ftbench ftchkwd ftmemchk ftpatchk fttimer ftdump ftlint ftmemchk ftvalid ; do
       builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
@@ -196,6 +199,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %{_bindir}/ftbench
 %{_bindir}/ftchkwd
+%{_bindir}/ftmemchk
+%{_bindir}/ftpatchk
+%{_bindir}/fttimer
 %{_bindir}/ftdump
 %{_bindir}/ftlint
 %{_bindir}/ftmemchk
@@ -226,6 +232,11 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Thu Oct 22 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-1
+- Update to 2.3.11.
+- Add freetype-2.3.11-more-demos.patch
+- New demo programs ftmemchk, ftpatchk, and fttimer
+
 * Thu Oct 08 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.10-1
 - Drop freetype-2.3.9-aliasing.patch
 - Update to 2.3.10.
