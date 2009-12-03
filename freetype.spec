@@ -1,7 +1,5 @@
-# Patented bytecode interpreter and patented subpixel rendering disabled by default.
-# Pass '--with bytecode_interpreter' and '--with subpixel_rendering' on rpmbuild
-# command-line to enable them.
-%{!?_with_bytecode_interpreter: %{!?_without_bytecode_interpreter: %define _without_bytecode_interpreter --without-bytecode_interpreter}}
+# Patented subpixel rendering disabled by default.
+# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
 %{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
 
 %{!?with_xfree86:%define with_xfree86 1}
@@ -9,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.11
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -30,16 +28,11 @@ Patch47:  freetype-2.3.11-more-demos.patch
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
 
-# Fix crash https://bugs.freedesktop.org/show_bug.cgi?id=6841
-Patch89:  freetype-2.2.1-memcpy-fix.patch
-
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
 
-%if %{?_with_bytecode_interpreter:1}%{!?_with_bytecode_interpreter:0}
 Provides: %{name}-bytecode
-%endif
 %if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 Provides: %{name}-subpixel
 %endif
@@ -87,9 +80,7 @@ pushd ft2demos-%{version}
 %patch5 -p1 -b .mathlib
 popd
 
-%if %{?_with_bytecode_interpreter:1}%{!?_with_bytecode_interpreter:0}
 %patch20  -p1 -b .enable-ft2-bci
-%endif
 
 %if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 %patch21  -p1 -b .enable-spr
@@ -99,7 +90,6 @@ popd
 %patch47  -p1 -b .more-demos
 
 %patch88 -p1 -b .multilib
-%patch89 -p1 -b .memcpy
 
 %build
 
@@ -232,6 +222,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Thu Dec  3 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-2
+- Drop upstreamed patch.
+- Enable patented bytecode interpretter now that the patents are expired.
+
 * Thu Oct 22 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-1
 - Update to 2.3.11.
 - Add freetype-2.3.11-more-demos.patch
