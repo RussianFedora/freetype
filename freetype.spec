@@ -8,8 +8,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.3.9
-Release: 6%{?dist}
+Version: 2.3.11
+Release: 1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -230,6 +230,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Thu Dec  3 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-1
+- 2.3.11
+
 * Thu Jul 30 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.9-6
 - Add freetype-2.3.9-aliasing.patch
 - Resolves: 513582
