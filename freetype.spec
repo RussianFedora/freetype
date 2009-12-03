@@ -9,7 +9,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.11
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -24,6 +24,8 @@ Patch21:  freetype-2.3.0-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
+# Enable additional demos
+Patch47:  freetype-2.3.11-more-demos.patch
 
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
@@ -91,6 +93,7 @@ popd
 %endif
 
 %patch46  -p1 -b .enable-valid
+%patch47  -p1 -b .more-demos
 
 %patch88 -p1 -b .multilib
 
@@ -222,6 +225,11 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+
+* Thu Dec  3 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-3
+- Add freetype-2.3.11-more-demos.patch
+- New demo programs ftmemchk, ftpatchk, and fttimer
+
 * Thu Dec  3 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-2
 - Second try.  Drop upstreamed patches.
 
