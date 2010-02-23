@@ -6,8 +6,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.3.11
-Release: 2%{?dist}
+Version: 2.3.12
+Release: 1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -15,8 +15,6 @@ Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.
 Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 
-# Add -lm when linking X demos
-Patch5: ft2demos-2.1.9-mathlib.patch
 Patch20:  freetype-2.1.10-enable-ft2-bci.patch
 Patch21:  freetype-2.3.0-enable-spr.patch
 
@@ -76,10 +74,6 @@ FreeType.
 %prep
 %setup -q -b 1 -a 2
 
-pushd ft2demos-%{version}
-%patch5 -p1 -b .mathlib
-popd
-
 %patch20  -p1 -b .enable-ft2-bci
 
 %if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
@@ -87,7 +81,10 @@ popd
 %endif
 
 %patch46  -p1 -b .enable-valid
+
+pushd ft2demos-%{version}
 %patch47  -p1 -b .more-demos
+popd
 
 %patch88 -p1 -b .multilib
 
@@ -222,6 +219,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Thu Feb 23 2010 Behdad Esfahbod <behdad@redhat.com> 2.3.12-1
+- Update to 2.3.12
+- Drop mathlib patch
+
 * Thu Dec  3 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-2
 - Drop upstreamed patch.
 - Enable patented bytecode interpretter now that the patents are expired.
