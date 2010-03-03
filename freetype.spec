@@ -1,5 +1,7 @@
-# Patented subpixel rendering disabled by default.
-# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
+# Patented bytecode interpreter and patented subpixel rendering disabled by default.
+# Pass '--with bytecode_interpreter' and '--with subpixel_rendering' on rpmbuild
+# command-line to enable them.
+%{!?_with_bytecode_interpreter: %{!?_without_bytecode_interpreter: %define _without_bytecode_interpreter --without-bytecode_interpreter}}
 %{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
 
 %{!?with_xfree86:%define with_xfree86 1}
@@ -7,7 +9,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.11
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -32,7 +34,9 @@ Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
 
+%if %{?_with_bytecode_interpreter:1}%{!?_with_bytecode_interpreter:0}
 Provides: %{name}-bytecode
+%endif
 %if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 Provides: %{name}-subpixel
 %endif
@@ -80,7 +84,9 @@ pushd ft2demos-%{version}
 %patch5 -p1 -b .mathlib
 popd
 
+%if %{?_with_bytecode_interpreter:1}%{!?_with_bytecode_interpreter:0}
 %patch20  -p1 -b .enable-ft2-bci
+%endif
 
 %if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 %patch21  -p1 -b .enable-spr
@@ -222,6 +228,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Wed Mar  3 2010 Behdad Esfahbod <behdad@redhat.com> 2.3.11-3
+- Disable patented bytecode interpretter again
+- Resolves: 547532
+
 * Thu Dec  3 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-2
 - Drop upstreamed patch.
 - Enable patented bytecode interpretter now that the patents are expired.
