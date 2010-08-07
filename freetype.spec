@@ -6,7 +6,7 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.3.12
+Version: 2.4.2
 Release: 1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
@@ -15,7 +15,6 @@ Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.
 Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 
-Patch20:  freetype-2.1.10-enable-ft2-bci.patch
 Patch21:  freetype-2.3.0-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
@@ -73,8 +72,6 @@ FreeType.
 
 %prep
 %setup -q -b 1 -a 2
-
-%patch20  -p1 -b .enable-ft2-bci
 
 %if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 %patch21  -p1 -b .enable-spr
@@ -219,6 +216,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Fri Aug  6 2010 Matthias Clasen <mclasen@redhat.com> 2.4.2-1
+- Update to 2.4.2
+- Drop upstreamed patch, bytecode interpreter now on by default
+
 * Thu Feb 23 2010 Behdad Esfahbod <behdad@redhat.com> 2.3.12-1
 - Update to 2.3.12
 - Drop mathlib patch
