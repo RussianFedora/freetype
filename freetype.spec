@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -15,6 +15,7 @@ Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.
 Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 
+Patch20:  freetype-2.1.10-enable-ft2-bci.patch
 Patch21:  freetype-2.3.0-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
@@ -29,7 +30,9 @@ Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
 
+%if %{?_with_bytecode_interpreter:1}%{!?_with_bytecode_interpreter:0}
 Provides: %{name}-bytecode
+%endif
 %if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 Provides: %{name}-subpixel
 %endif
@@ -72,6 +75,10 @@ FreeType.
 
 %prep
 %setup -q -b 1 -a 2
+
+%if %{?_with_bytecode_interpreter:0}%{!?_with_bytecode_interpreter:1}
+%patch20  -p1 -R -b .enable-ft2-bci
+%endif
 
 %if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 %patch21  -p1 -b .enable-spr
@@ -216,6 +223,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Fri Aug  6 2010 Matthias Clasen <mclasen@redhat.com> 2.4.2-2
+- Fix a thinko, we still want to disable the bytecode interpreter
+  by default
+
 * Fri Aug  6 2010 Matthias Clasen <mclasen@redhat.com> 2.4.2-1
 - Update to 2.4.2
 - Drop upstreamed patch, bytecode interpreter now on by default
