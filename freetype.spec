@@ -9,7 +9,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.11
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -29,6 +29,14 @@ Patch47:  freetype-2.3.11-more-demos.patch
 
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
+
+Patch89:  freetype-2.3.11-CVE-2010-2498.patch
+Patch90:  freetype-2.3.11-CVE-2010-2499.patch
+Patch91:  freetype-2.3.11-CVE-2010-2500.patch
+Patch92:  freetype-2.3.11-CVE-2010-2519.patch
+Patch93:  freetype-2.3.11-CVE-2010-2520.patch
+Patch94:  freetype-2.3.11-CVE-2010-2527.patch
+Patch95:  freetype-2.3.11-CVE-2010-2541.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -96,6 +104,14 @@ popd
 %patch47  -p1 -b .more-demos
 
 %patch88 -p1 -b .multilib
+
+%patch89 -p1 -b .CVE-2010-2498
+%patch90 -p1 -b .CVE-2010-2499
+%patch91 -p1 -b .CVE-2010-2500
+%patch92 -p1 -b .CVE-2010-2519
+%patch93 -p1 -b .CVE-2010-2520
+%patch94 -p1 -b .CVE-2010-2527
+%patch95 -p1 -b .CVE-2010-2541
 
 %build
 
@@ -228,6 +244,23 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Fri Oct  1 2010 Marek Kasik <mkasik@redhat.com> 2.3.11-4
+- Add freetype-2.3.11-CVE-2010-2498.patch
+    (Assure that `end_point' is not larger than `glyph->num_points')
+- Add freetype-2.3.11-CVE-2010-2499.patch
+    (Check the buffer size during gathering PFB fragments)
+- Add freetype-2.3.11-CVE-2010-2500.patch
+    (Use smaller threshold values for `width' and `height')
+- Add freetype-2.3.11-CVE-2010-2519.patch
+    (Check `rlen' the length of fragment declared in the POST fragment header)
+- Add freetype-2.3.11-CVE-2010-2520.patch
+    (Fix bounds check)
+- Add freetype-2.3.11-CVE-2010-2527.patch
+    (Use precision for `%s' where appropriate to avoid buffer overflows)
+- Add freetype-2.3.11-CVE-2010-2541.patch
+    (Avoid overflow when dealing with names of axes)
+- Resolves: #613299
+
 * Wed Mar  3 2010 Behdad Esfahbod <behdad@redhat.com> 2.3.11-3
 - Disable patented bytecode interpretter again
 - Resolves: 547532
