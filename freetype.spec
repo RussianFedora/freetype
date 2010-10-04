@@ -9,7 +9,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.11
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -37,6 +37,7 @@ Patch92:  freetype-2.3.11-CVE-2010-2519.patch
 Patch93:  freetype-2.3.11-CVE-2010-2520.patch
 Patch94:  freetype-2.3.11-CVE-2010-2527.patch
 Patch95:  freetype-2.3.11-CVE-2010-2541.patch
+Patch96:  freetype-2.3.11-CVE-2010-1797.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -112,6 +113,7 @@ popd
 %patch93 -p1 -b .CVE-2010-2520
 %patch94 -p1 -b .CVE-2010-2527
 %patch95 -p1 -b .CVE-2010-2541
+%patch96 -p1 -b .CVE-2010-1797
 
 %build
 
@@ -244,6 +246,13 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Mon Oct  4 2010 Marek Kasik <mkasik@redhat.com> 2.3.11-5
+- Add freetype-2.3.11-CVE-2010-1797.patch
+    (Check stack after execution of operations too.
+     Skip the evaluations of the values in decoder, if
+     cff_decoder_parse_charstrings() returns any error.)
+- Resolves: #621627
+
 * Fri Oct  1 2010 Marek Kasik <mkasik@redhat.com> 2.3.11-4
 - Add freetype-2.3.11-CVE-2010-2498.patch
     (Assure that `end_point' is not larger than `glyph->num_points')
