@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -25,6 +25,8 @@ Patch47:  freetype-2.3.11-more-demos.patch
 
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
+
+Patch89:  freetype-2.4.2-CVE-2010-3311.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -91,6 +93,7 @@ pushd ft2demos-%{version}
 popd
 
 %patch88 -p1 -b .multilib
+%patch89 -p1 -b .CVE-2010-3311
 
 %build
 
@@ -223,6 +226,11 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Wed Oct  6 2010 Marek Kasik <mkasik@redhat.com> 2.4.2-3
+- Add freetype-2.4.2-CVE-2010-3311.patch
+    (Don't seek behind end of stream.)
+- Resolves: #638522
+
 * Fri Aug  6 2010 Matthias Clasen <mclasen@redhat.com> 2.4.2-2
 - Fix a thinko, we still want to disable the bytecode interpreter
   by default
