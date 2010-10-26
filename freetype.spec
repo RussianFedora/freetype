@@ -6,8 +6,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.4.2
-Release: 3%{?dist}
+Version: 2.4.3
+Release: 1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -226,6 +226,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Tue Oct 26 2010 Marek Kasik <mkasik@redhat.com> 2.4.3-1
+- Update to 2.4.3
+- Resolves: #639906
+
 * Wed Oct  6 2010 Marek Kasik <mkasik@redhat.com> 2.4.2-3
 - Add freetype-2.4.2-CVE-2010-3311.patch
     (Don't seek behind end of stream.)
