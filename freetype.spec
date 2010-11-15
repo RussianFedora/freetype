@@ -9,7 +9,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.11
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -42,6 +42,7 @@ Patch97:  freetype-2.3.11-CVE-2010-2805.patch
 Patch98:  freetype-2.3.11-CVE-2010-2806.patch
 Patch99:  freetype-2.3.11-CVE-2010-2808.patch
 Patch100:  freetype-2.3.11-CVE-2010-3311.patch
+Patch101:  freetype-2.3.11-CVE-2010-3855.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -122,6 +123,7 @@ popd
 %patch98 -p1 -b .CVE-2010-2806
 %patch99 -p1 -b .CVE-2010-2808
 %patch100 -p1 -b .CVE-2010-3311
+%patch101 -p1 -b .CVE-2010-3855
 
 %build
 
@@ -251,6 +253,11 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Mon Nov 15 2010 Marek Kasik <mkasik@redhat.com> 2.3.11-7
+- Add freetype-2.3.11-CVE-2010-3855.patch
+    (Protect against invalid `runcnt' values.)
+- Resolves: #651764
+
 * Mon Oct  4 2010 Marek Kasik <mkasik@redhat.com> 2.3.11-6
 - Add freetype-2.3.11-CVE-2010-2805.patch
     (Fix comparison.)
