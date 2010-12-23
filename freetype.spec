@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.2
-Release: 4%{?dist}
+Release: 4%{?dist}.1
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -83,7 +83,7 @@ FreeType.
 %patch20  -p1 -R -b .enable-ft2-bci
 %endif
 
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
+%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:1}
 %patch21  -p1 -b .enable-spr
 %endif
 
@@ -228,6 +228,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Mon Nov 22 2010 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.2-4.1
+- rebuilt with subpixel_rendering
+
 * Mon Nov 15 2010 Marek Kasik <mkasik@redhat.com> 2.4.2-4
 - Add freetype-2.4.2-CVE-2010-3855.patch
     (Protect against invalid `runcnt' values.)
