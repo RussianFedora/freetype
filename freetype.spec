@@ -1,21 +1,17 @@
-# Patented bytecode interpreter and patented subpixel rendering disabled by default.
-# Pass '--with bytecode_interpreter' and '--with subpixel_rendering' on rpmbuild
-# command-line to enable them.
-%{!?_with_bytecode_interpreter: %{!?_without_bytecode_interpreter: %define _without_bytecode_interpreter --without-bytecode_interpreter}}
-%{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
-
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.11
-Release: 6%{?dist}
+Release: 6.1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
 Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.tar.bz2
 Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
+Source3: freetype-backend
+Source4: freetype.conf
 
 # Add -lm when linking X demos
 Patch5: ft2demos-2.1.9-mathlib.patch
@@ -47,12 +43,10 @@ Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
 
-%if %{?_with_bytecode_interpreter:1}%{!?_with_bytecode_interpreter:0}
-Provides: %{name}-bytecode
-%endif
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
-Provides: %{name}-subpixel
-%endif
+Obsoletes: freetype-rfremix
+Provides: %{name}-bytecode = %{version}-%{release}
+Provides: %{name}-subpixel = %{version}-%{release}
+
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -91,23 +85,16 @@ FreeType.
 
 
 %prep
-%setup -q -b 1 -a 2
+%setup -q -b 1 -c
 
+# dual source configuration
+pushd freetype-%{version}
+tar xvf %{SOURCE2}
 pushd ft2demos-%{version}
 %patch5 -p1 -b .mathlib
 popd
-
-%if %{?_with_bytecode_interpreter:1}%{!?_with_bytecode_interpreter:0}
-%patch20  -p1 -b .enable-ft2-bci
-%endif
-
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
-%patch21  -p1 -b .enable-spr
-%endif
-
 %patch46  -p1 -b .enable-valid
 %patch47  -p1 -b .more-demos
-
 %patch88 -p1 -b .multilib
 
 %patch89 -p1 -b .CVE-2010-2498
@@ -122,9 +109,20 @@ popd
 %patch98 -p1 -b .CVE-2010-2806
 %patch99 -p1 -b .CVE-2010-2808
 %patch100 -p1 -b .CVE-2010-3311
+popd
+
+cp -a freetype-%{version} rfremix
+mv freetype-%{version} fedora
+
+pushd rfremix
+%patch20  -p1 -b .enable-ft2-bci
+%patch21  -p1 -b .enable-spr
+popd
+
 
 %build
 
+pushd fedora
 %configure --disable-static
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' builds/unix/libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' builds/unix/libtool
@@ -143,16 +141,38 @@ iconv -f latin1 -t utf-8 < FTL.TXT > FTL.TXT.tmp && \
 touch -r FTL.TXT FTL.TXT.tmp && \
 mv FTL.TXT.tmp FTL.TXT
 popd
+popd
+
+pushd rfremix
+%configure --disable-static
+sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' builds/unix/libtool
+sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' builds/unix/libtool
+make %{?_smp_mflags}
+
+%if %{with_xfree86}
+# Build demos
+pushd ft2demos-%{version}
+make TOP_DIR=".."
+popd
+%endif
+
+# Convert FTL.txt to UTF-8
+pushd docs
+iconv -f latin1 -t utf-8 < FTL.TXT > FTL.TXT.tmp && \
+touch -r FTL.TXT FTL.TXT.tmp && \
+mv FTL.TXT.tmp FTL.TXT
+popd
+popd
 
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-
+pushd fedora
 %makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
 
 {
-  for ftdemo in ftbench ftchkwd ftmemchk ftpatchk fttimer ftdump ftlint ftmemchk ftvalid ; do
+  for ftdemo in ftbench ftchkwd ftdump ftlint ftmemchk ftvalid ; do
       builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
@@ -193,6 +213,67 @@ EOF
 # Don't package static a or .la files
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 
+mv $RPM_BUILD_ROOT%{_libdir}/libfreetype.so.6.3.22 \
+    $RPM_BUILD_ROOT%{_libdir}/libfreetype-fedora.so.6.3.22
+popd
+
+pushd rfremix
+%makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
+
+{
+  for ftdemo in ftbench ftchkwd ftdump ftlint ftmemchk ftvalid ; do
+      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
+  done
+}
+%if %{with_xfree86}
+{
+  for ftdemo in ftdiff ftgamma ftgrid ftmulti ftstring fttimer ftview ; do
+      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
+  done
+}
+%endif
+
+# fix multilib issues
+%ifarch x86_64 s390x ia64 ppc64 alpha sparc64
+%define wordsize 64
+%else
+%define wordsize 32
+%endif
+
+mv $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h \
+   $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig-%{wordsize}.h
+cat >$RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h <<EOF
+#ifndef __FTCONFIG_H__MULTILIB
+#define __FTCONFIG_H__MULTILIB
+
+#include <bits/wordsize.h>
+
+#if __WORDSIZE == 32
+# include "ftconfig-32.h"
+#elif __WORDSIZE == 64
+# include "ftconfig-64.h"
+#else
+# error "unexpected value for __WORDSIZE macro"
+#endif
+
+#endif 
+EOF
+
+# Don't package static a or .la files
+rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
+
+mv $RPM_BUILD_ROOT%{_libdir}/libfreetype.so.6.3.22 \
+    $RPM_BUILD_ROOT%{_libdir}/libfreetype-rfremix.so.6.3.22
+popd
+
+pushd $RPM_BUILD_ROOT%{_libdir}
+ln -s libfreetype-rfremix.so.6.3.22 libfreetype.so.6.3.22
+popd
+
+install -dD $RPM_BUILD_ROOT%{_sbindir} $RPM_BUILD_ROOT%{_sysconfdir}
+install -m 755 %{SOURCE3} $RPM_BUILD_ROOT%{_sbindir}
+install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -206,24 +287,75 @@ rm -rf $RPM_BUILD_ROOT
   exit 0
 }
 
-%post -p /sbin/ldconfig
 
-%postun -p /sbin/ldconfig
+%post
+%ifarch x86_64
+if [ -f /usr/sbin/alternatives ]; then
+    if [ -f /etc/freetype.conf ]; then
+        . /etc/freetype.conf
+        if [ "$FREETYPE" == "rfremix" ]; then
+            /usr/sbin/alternatives --remove freetype-x86_64 %{_libdir}/libfreetype-fedora.so.6.3.22 > /dev/null 2>&1
+            /usr/sbin/alternatives --install %{_libdir}/libfreetype.so.6.3.22 freetype-x86_64 %{_libdir}/libfreetype-rfremix.so.6.3.22 2 > /dev/null 2>&1
+        elif [ "$FREETYPE" == "fedora" ]; then
+            /usr/sbin/alternatives --remove freetype-x86_64 /usr/lib64/libfreetype-rfremix.so.6.3.22 > /dev/null 2>&1
+            /usr/sbin/alternatives --install /usr/lib64/libfreetype.so.6.3.22 freetype-x86_64 /usr/lib64/libfreetype-fedora.so.6.3.22 1 > /dev/null 2>&1
+        fi
+    else
+        /usr/sbin/alternatives --remove freetype-x86_64 %{_libdir}/libfreetype-fedora.so.6.3.22 > /dev/null 2>&1
+        /usr/sbin/alternatives --install %{_libdir}/libfreetype.so.6.3.22 freetype-x86_64 %{_libdir}/libfreetype-rfremix.so.6.3.22 2 > /dev/null 2>&1
+    fi
+fi
+%else
+if [ -f /usr/sbin/alternatives ]; then
+    if [ -f /etc/freetype.conf ]; then
+        . /etc/freetype.conf
+        if [ "$FREETYPE" == "rfremix" ]; then
+            /usr/sbin/alternatives --remove freetype-i386 %{_libdir}/libfreetype-fedora.so.6.3.22 > /dev/null 2>&1
+            /usr/sbin/alternatives --install %{_libdir}/libfreetype.so.6.3.22 freetype-i386 %{_libdir}/libfreetype-rfremix.so.6.3.22 2 > /dev/null 2>&1
+        elif [ "$FREETYPE" == "fedora" ]; then
+            /usr/sbin/alternatives --remove freetype-i386 /usr/lib64/libfreetype-rfremix.so.6.3.22 > /dev/null 2>&1
+            /usr/sbin/alternatives --install /usr/lib64/libfreetype.so.6.3.22 freetype-i386 /usr/lib64/libfreetype-fedora.so.6.3.22 1 > /dev/null 2>&1
+        fi
+    else
+        /usr/sbin/alternatives --remove freetype-i386 %{_libdir}/libfreetype-fedora.so.6.3.22 > /dev/null 2>&1
+        /usr/sbin/alternatives --install %{_libdir}/libfreetype.so.6.3.22 freetype-i386 %{_libdir}/libfreetype-rfremix.so.6.3.22 2 > /dev/null 2>&1
+    fi
+fi
+%endif
+/sbin/ldconfig
+
+
+%postun
+if [ "$1" -eq 0 ]; then
+    %ifarch x86_64
+    if [ -f /usr/sbin/alternatives ]; then
+        /usr/sbin/alternatives --remove freetype-x86_64 %{_libdir}/libfreetype-fedora.so.6.3.22 > /dev/null 2>&1
+        /usr/sbin/alternatives --remove freetype-x86_64 %{_libdir}/libfreetype-rfremix.so.6.3.22 > /dev/null 2>&1
+    fi
+    %else
+    if [ -f /usr/sbin/alternatives ]; then
+        /usr/sbin/alternatives --remove freetype-i386 %{_libdir}/libfreetype-fedora.so.6.3.22 > /dev/null 2>&1
+        /usr/sbin/alternatives --remove freetype-i386 %{_libdir}/libfreetype-rfremix.so.6.3.22 > /dev/null 2>&1
+    fi
+    %endif
+fi
+/sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
-%{_libdir}/libfreetype.so.*
-%doc README
-%doc docs/LICENSE.TXT docs/FTL.TXT docs/GPL.TXT
-%doc docs/CHANGES docs/VERSION.DLL docs/formats.txt docs/ft2faq.html
+%config(noreplace) %{_sysconfdir}/%{name}.conf
+%{_sbindir}/%{name}-backend
+%{_libdir}/libfreetype*.so.*
+%doc fedora/README
+%doc fedora/docs/LICENSE.TXT fedora/docs/FTL.TXT fedora/docs/GPL.TXT
+%doc fedora/docs/CHANGES fedora/docs/VERSION.DLL fedora/docs/formats.txt fedora/docs/ft2faq.html
+
 
 %files demos
 %defattr(-,root,root)
 %{_bindir}/ftbench
 %{_bindir}/ftchkwd
-%{_bindir}/ftmemchk
-%{_bindir}/ftpatchk
-%{_bindir}/fttimer
 %{_bindir}/ftdump
 %{_bindir}/ftlint
 %{_bindir}/ftmemchk
@@ -237,7 +369,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/fttimer
 %{_bindir}/ftview
 %endif
-%doc ChangeLog README
+%doc fedora/ChangeLog fedora/README
 
 %files devel
 %defattr(-,root,root)
@@ -248,12 +380,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libfreetype.so
 %{_bindir}/freetype-config
 %{_libdir}/pkgconfig/freetype2.pc
-%doc docs/design
-%doc docs/glyphs
-%doc docs/reference
-%doc docs/tutorial
+%doc fedora/docs/design
+%doc fedora/docs/glyphs
+%doc fedora/docs/reference
+%doc fedora/docs/tutorial
 
 %changelog
+* Tue Oct 19 2010 Arkady L. Shane <ashejn@yandex-team.ru> 2.3.11-6.1
+- RFRemix fixes
+
 * Mon Oct  4 2010 Marek Kasik <mkasik@redhat.com> 2.3.11-6
 - Add freetype-2.3.11-CVE-2010-2805.patch
     (Fix comparison.)

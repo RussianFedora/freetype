@@ -1,0 +1,48 @@
+#!/bin/sh
+
+usage()
+{
+    echo "freetype-backend <fedora|rfremix>"
+    exit 1
+}
+
+if [ $(id -u) -ne 0 ]; then
+    echo "Your must be supersuser root. Abort..."
+    exit 1
+fi
+
+BACKEND=$1
+
+if [ -z $BACKEND ]; then
+    usage
+fi
+
+if [ ! -f /usr/sbin/alternatives ]; then
+    echo "Please install chkconfig package before using freetype-backend. Abort..."
+    exit 1
+fi
+
+if [ "$BACKEND" == "fedora" ]; then
+    if [ -f /usr/lib64/libfreetype-fedora.so.6.3.22 ]; then
+        /usr/sbin/alternatives --remove freetype-x86_64 /usr/lib64/libfreetype-rfremix.so.6.3.22
+        /usr/sbin/alternatives --install /usr/lib64/libfreetype.so.6.3.22 freetype-x86_64 /usr/lib64/libfreetype-fedora.so.6.3.22 1
+    fi
+    if [ -f /usr/lib/libfreetype-fedora.so.6.3.22 ]; then
+        /usr/sbin/alternatives --remove freetype-i386 /usr/lib/libfreetype-rfremix.so.6.3.22
+        /usr/sbin/alternatives --install /usr/lib/libfreetype.so.6.3.22 freetype-i386 /usr/lib/libfreetype-fedora.so.6.3.22 1
+    fi
+    echo "FREETYPE=\"fedora\"" > /etc/freetype.conf
+elif [ "$BACKEND" == "rfremix" ]; then
+    if [ -f /usr/lib64/libfreetype-fedora.so.6.3.22 ]; then
+        /usr/sbin/alternatives --remove freetype-x86_64 /usr/lib64/libfreetype-fedora.so.6.3.22
+        /usr/sbin/alternatives --install /usr/lib64/libfreetype.so.6.3.22 freetype-x86_64 /usr/lib64/libfreetype-rfremix.so.6.3.22 1
+    fi
+    if [ -f /usr/lib/libfreetype-fedora.so.6.3.22 ]; then
+        /usr/sbin/alternatives --remove freetype-i386 /usr/lib/libfreetype-fedora.so.6.3.22
+        /usr/sbin/alternatives --install /usr/lib/libfreetype.so.6.3.22 freetype-i386 /usr/lib/libfreetype-rfremix.so.6.3.22 2
+    fi
+    echo "FREETYPE=\"rfremix\"" > /etc/freetype.conf
+else
+    echo "Backend must be fedora or rfremix only. Abort..."
+    exit 1
+fi
