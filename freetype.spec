@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.3.11
-Release: 6.1%{?dist}
+Release: 7.1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -109,6 +109,7 @@ popd
 %patch98 -p1 -b .CVE-2010-2806
 %patch99 -p1 -b .CVE-2010-2808
 %patch100 -p1 -b .CVE-2010-3311
+%patch101 -p1 -b .CVE-2010-3855
 popd
 
 cp -a freetype-%{version} rfremix
@@ -386,6 +387,11 @@ fi
 %doc fedora/docs/tutorial
 
 %changelog
+* Sat Feb 26 2011 Arkady L. Shane <ashejn@yandex-team.ru> 2.3.11-7.1
+- Add freetype-2.3.11-CVE-2010-3855.patch
+    (Protect against invalid `runcnt' values.)
+- Resolves: #651764
+
 * Tue Oct 19 2010 Arkady L. Shane <ashejn@yandex-team.ru> 2.3.11-6.1
 - RFRemix fixes
 
