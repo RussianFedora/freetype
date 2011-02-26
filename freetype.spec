@@ -38,6 +38,7 @@ Patch97:  freetype-2.3.11-CVE-2010-2805.patch
 Patch98:  freetype-2.3.11-CVE-2010-2806.patch
 Patch99:  freetype-2.3.11-CVE-2010-2808.patch
 Patch100:  freetype-2.3.11-CVE-2010-3311.patch
+Patch101:  freetype-2.3.11-CVE-2010-3855.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
