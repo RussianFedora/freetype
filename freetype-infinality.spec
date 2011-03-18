@@ -1,30 +1,24 @@
-# Patented subpixel rendering disabled by default.
-# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
-%{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
-
-%{!?with_xfree86:%define with_xfree86 1}
+%define freetypelibversion 6.6.2
 
 Summary: A free and portable font rendering engine
-Name: freetype
+Name: freetype-infinality
 Version: 2.4.4
-Release: 4%{?dist}.1
+Release: 1%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
 Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.tar.bz2
-Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
-Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 
-Patch21:  freetype-2.3.0-enable-spr.patch
+Patch20: freetype-add-subpixel-hinting-infinality-20101008-1.patch
+Patch21: freetype-enable-subpixel-hinting-infinality-20100909-1.patch
+Patch22: freetype-enhance-emboldening-infinality-20101002-1.patch
+
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
-# Enable additional demos
-Patch47:  freetype-2.3.11-more-demos.patch
 
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
-
 Patch89:  freetype-2.4.2-CVE-2010-3311.patch
 
 Patch90:  0001-Fall-back-to-autohinting-if-a-TTF-OTF-doesn-t-contai.patch
@@ -35,10 +29,11 @@ Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 BuildRequires: libX11-devel
 
 Provides: %{name}-bytecode
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:1}
-Provides: %{name}-subpixel
-Provides: %{name}-rfremix
-%endif
+Provides: freetype-infinailty
+Obsoletes: freetype-subpixel
+
+Requires:      /etc/ld.so.conf.d
+BuildRequires: libX11-devel
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -48,17 +43,9 @@ manages font files as well as efficiently load, hint and render
 individual glyphs. FreeType is not a font server or a complete
 text-rendering library.
 
-
-%package demos
-Summary: A collection of FreeType demos
-Group: System Environment/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description demos
-The FreeType engine is a free and portable font rendering
-engine, developed to provide advanced font support for a variety of
-platforms and environments.  The demos package includes a set of useful
-small utilities showing various capabilities of the FreeType library.
+This version is compiled with the patented bytecode interpreter and subpixel
+rendering enabled. It transparently overrides the system library using
+ld.so.conf.d.
 
 
 %package devel
@@ -77,23 +64,18 @@ FreeType.
 
 
 %prep
-%setup -q -b 1 -a 2
+%setup -q -n freetype-%{version}
 
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:1}
-%patch21  -p1 -b .enable-spr
-%endif
+%patch20  -p1 -b .add-subpixel-hinting
+%patch21  -p1 -b .enable-subpixel-hinting
+%patch22  -p1 -b .enhance-emboldening
 
 %patch46  -p1 -b .enable-valid
-
-pushd ft2demos-%{version}
-%patch47  -p1 -b .more-demos
-popd
 
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .CVE-2010-3311
 %patch90 -p1 -b .auto-autohint
 %patch91 -p1 -b .fix-autohint
-
 
 %build
 
@@ -102,39 +84,17 @@ sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' builds/u
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' builds/unix/libtool
 make %{?_smp_mflags}
 
-%if %{with_xfree86}
-# Build demos
-pushd ft2demos-%{version}
-make TOP_DIR=".."
-popd
-%endif
-
-# Convert FTL.txt to UTF-8
-pushd docs
-iconv -f latin1 -t utf-8 < FTL.TXT > FTL.TXT.tmp && \
-touch -r FTL.TXT FTL.TXT.tmp && \
-mv FTL.TXT.tmp FTL.TXT
-popd
-
-
 %install
 rm -rf $RPM_BUILD_ROOT
 
+umask 0022
 
 %makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
 
-{
-  for ftdemo in ftbench ftchkwd ftmemchk ftpatchk fttimer ftdump ftlint ftmemchk ftvalid ; do
-      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
-  done
-}
-%if %{with_xfree86}
-{
-  for ftdemo in ftdiff ftgamma ftgrid ftmulti ftstring fttimer ftview ; do
-      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
-  done
-}
-%endif
+# Don't package static a or .la files nor devel files
+rm -rf $RPM_BUILD_ROOT%{_libdir}/*.{a,la,so} \
+       $RPM_BUILD_ROOT%{_libdir}/pkgconfig $RPM_BUILD_ROOT%{_bindir} \
+       $RPM_BUILD_ROOT%{_datadir}/aclocal $RPM_BUILD_ROOT%{_includedir}
 
 # fix multilib issues
 %ifarch x86_64 s390x ia64 ppc64 alpha sparc64
@@ -143,27 +103,21 @@ rm -rf $RPM_BUILD_ROOT
 %define wordsize 32
 %endif
 
-mv $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h \
-   $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig-%{wordsize}.h
-cat >$RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h <<EOF
-#ifndef __FTCONFIG_H__MULTILIB
-#define __FTCONFIG_H__MULTILIB
+# Move library to avoid conflict with official FreeType package
+mkdir $RPM_BUILD_ROOT%{_libdir}/%{name}
+mv -f $RPM_BUILD_ROOT%{_libdir}/libfreetype.so.* \
+      $RPM_BUILD_ROOT%{_libdir}/%{name}
+cd $RPM_BUILD_ROOT%{_libdir}/%{name}
+cd -
 
-#include <bits/wordsize.h>
+# Register the library directory in /etc/ld.so.conf.d
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d
+echo "%{_libdir}/%{name}" \
+     >$RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/%{name}-%{_arch}.conf
 
-#if __WORDSIZE == 32
-# include "ftconfig-32.h"
-#elif __WORDSIZE == 64
-# include "ftconfig-64.h"
-#else
-# error "unexpected value for __WORDSIZE macro"
-#endif
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
 
-#endif 
-EOF
-
-# Don't package static a or .la files
-rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
+/bin/echo "PRELOAD=1; if [ -f /etc/sysconfig/fonts ]; then . /etc/sysconfig/fonts; fi; A1=\`arch\`; A2=%{_arch}; if [ \"\${A1:0:1}\" = \"\${A2:0:1}\" -a ! \"\$PRELOAD\" = \"0\" ]; then ADDED=\`/bin/echo \$LD_PRELOAD | grep \"%{_libdir}/libfreetype.so.6\" | wc -l\`; if [ \"\$ADDED\" = \"0\" ]; then export LD_PRELOAD=%{_libdir}/%{name}/libfreetype.so.%{freetypelibversion}:\$LD_PRELOAD ; fi; fi" > $RPM_BUILD_ROOT/%{_sysconfdir}/profile.d/%{name}-%{_arch}.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -178,87 +132,28 @@ rm -rf $RPM_BUILD_ROOT
   exit 0
 }
 
-%post -p /sbin/ldconfig
+%post 
+/sbin/ldconfig
+/usr/sbin/semanage fcontext -a -t textrel_shlib_t %{_libdir}/freetype-infinality/libfreetype.so.%{freetypelibversion}
+/sbin/restorecon %{_libdir}/freetype-infinality/libfreetype.so.%{freetypelibversion}
 
-%postun -p /sbin/ldconfig
+%postun 
+/usr/sbin/semanage fcontext -d -t textrel_shlib_t %{_libdir}/freetype-infinality/libfreetype.so.%{freetypelibversion}
+/sbin/ldconfig
+
 
 %files
 %defattr(-,root,root)
-%{_libdir}/libfreetype.so.*
+%{_libdir}/*
+%{_sysconfdir}/*
 %doc README
 %doc docs/LICENSE.TXT docs/FTL.TXT docs/GPL.TXT
-%doc docs/CHANGES docs/VERSION.DLL docs/formats.txt docs/ft2faq.html
+%doc docs/CHANGES docs/VERSION.DLL docs/formats.txt 
 
-%files demos
-%defattr(-,root,root)
-%{_bindir}/ftbench
-%{_bindir}/ftchkwd
-%{_bindir}/ftmemchk
-%{_bindir}/ftpatchk
-%{_bindir}/fttimer
-%{_bindir}/ftdump
-%{_bindir}/ftlint
-%{_bindir}/ftmemchk
-%{_bindir}/ftvalid
-%if %{with_xfree86}
-%{_bindir}/ftdiff
-%{_bindir}/ftgamma
-%{_bindir}/ftgrid
-%{_bindir}/ftmulti
-%{_bindir}/ftstring
-%{_bindir}/fttimer
-%{_bindir}/ftview
-%endif
-%doc ChangeLog README
-
-%files devel
-%defattr(-,root,root)
-%dir %{_includedir}/freetype2
-%{_datadir}/aclocal/freetype2.m4
-%{_includedir}/freetype2/*
-%{_includedir}/*.h
-%{_libdir}/libfreetype.so
-%{_bindir}/freetype-config
-%{_libdir}/pkgconfig/freetype2.pc
-%doc docs/design
-%doc docs/glyphs
-%doc docs/reference
-%doc docs/tutorial
 
 %changelog
-* Fri Mar 18 2011 Arkady L. Shane <ashejn@yandex-team.ru> - 2.4.4-4.1
-- rebuild with spr
-- added P freetype-rfremix
-
-* Tue Mar  8 2011 Marek Kasik <mkasik@redhat.com> 2.4.4-4
-- Fix autohinting fallback (#547532).
-- Ignore CFF-based OTFs.
-
-* Sun Feb 20 2011 Marek Kasik <mkasik@redhat.com> 2.4.4-3
-- Enable bytecode interpreter (#547532).
-- Fall back to autohinting if a TTF/OTF doesn't contain any bytecode.
-
-* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.4-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
-
-* Thu Dec  2 2010 Marek Kasik <mkasik@redhat.com> 2.4.4-1
-- Update to 2.4.4
-- Remove freetype-2.4.3-CVE-2010-3855.patch
-- Resolves: #659020
-
-* Mon Nov 15 2010 Marek Kasik <mkasik@redhat.com> 2.4.3-2
-- Add freetype-2.4.3-CVE-2010-3855.patch
-    (Protect against invalid `runcnt' values.)
-- Resolves: #651764
-
-* Tue Oct 26 2010 Marek Kasik <mkasik@redhat.com> 2.4.3-1
-- Update to 2.4.3
-- Resolves: #639906
-
-* Wed Oct  6 2010 Marek Kasik <mkasik@redhat.com> 2.4.2-3
-- Add freetype-2.4.2-CVE-2010-3311.patch
-    (Don't seek behind end of stream.)
-- Resolves: #638522
+* Fri Mar 18 2011 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.4-1
+- apply infinality patches
 
 * Fri Aug  6 2010 Matthias Clasen <mclasen@redhat.com> 2.4.2-2
 - Fix a thinko, we still want to disable the bytecode interpreter
@@ -752,7 +647,7 @@ rm -rf $RPM_BUILD_ROOT
 - auto rebuild in the new build environment (release 5)
 
 * Thu Mar 18 1999 Cristian Gafton <gafton@redhat.com>
-- fixed the doc file list
+- fixed the %doc file list
 
 * Wed Feb 24 1999 Preston Brown <pbrown@redhat.com>
 - Injected new description and group.

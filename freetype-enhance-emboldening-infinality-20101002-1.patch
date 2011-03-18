@@ -1,0 +1,30 @@
+Changes for 2010-10-03:
+ * Only allow adjustment of the glyph widths on variable-width fonts.
+
+--- freetype-2.4.2.orig/src/base/ftoutln.c	2010-06-27 08:03:58.000000000 -0500
++++ freetype-2.4.2/src/base/ftoutln.c	2010-09-06 19:41:38.394975647 -0500
+@@ -957,7 +957,10 @@
+         }
+ 
+         outline->points[n].x = v_cur.x + strength + in.x;
+-        outline->points[n].y = v_cur.y + strength + in.y;
++	
++        /* Disabling this in the y direction results in a more
++	 * visually appealing emboldening.  YMMV */
++        /*outline->points[n].y = v_cur.y + strength + in.y;*/
+ 
+         v_prev = v_cur;
+         v_cur  = v_next;
+diff -ru freetype-2.4.2.orig/src/base/ftsynth.c freetype-2.4.2/src/base/ftsynth.c
+--- freetype-2.4.2.orig/src/base/ftsynth.c  2010-01-05 12:54:49.000000000 -0600
++++ freetype-2.4.2/src/base/ftsynth.c 2010-10-02 21:23:40.161154162 -0500
+@@ -146,7 +146,8 @@
+     slot->metrics.width        += xstr;
+     slot->metrics.height       += ystr;
+     slot->metrics.horiBearingY += ystr;
+-    slot->metrics.horiAdvance  += xstr;
++    /* need to disable only when font is monospace */
++    if ( !( slot->face->face_flags & FT_FACE_FLAG_FIXED_WIDTH ) ) slot->metrics.horiAdvance  += xstr;
+     slot->metrics.vertBearingX -= xstr / 2;
+     slot->metrics.vertBearingY += ystr;
+     slot->metrics.vertAdvance  += ystr;
