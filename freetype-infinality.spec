@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype-infinality
 Version: 2.4.4
-Release: 1%{?dist}
+Release: 1%{?dist}.1
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -152,6 +152,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Apr 22 2011 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.4-1.1
+- rebuilt
+
 * Fri Mar 18 2011 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.4-1
 - apply infinality patches
 
