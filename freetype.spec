@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.4
-Release: 4%{?dist}.1
+Release: 5%{?dist}.1.R
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -29,6 +29,7 @@ Patch89:  freetype-2.4.2-CVE-2010-3311.patch
 
 Patch90:  0001-Fall-back-to-autohinting-if-a-TTF-OTF-doesn-t-contai.patch
 Patch91:  0002-Fix-autohinting-fallback.patch
+Patch92:  freetype-2.4.4-CVE-2011-0226.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -93,6 +94,7 @@ popd
 %patch89 -p1 -b .CVE-2010-3311
 %patch90 -p1 -b .auto-autohint
 %patch91 -p1 -b .fix-autohint
+%patch92 -p1 -b .CVE-2011-0226
 
 
 %build
@@ -226,6 +228,13 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Wed Jul 20 2011 Marek Kasik <mkasik@redhat.com> 2.4.4-5.1.R
+- Add freetype-2.4.4-CVE-2011-0226.patch
+    (Add better argument check for `callothersubr'.)
+    - based on patches by Werner Lemberg,
+      Alexei Podtelezhnikov and Matthias Drochner
+- Resolves: #723469
+
 * Fri Mar 18 2011 Arkady L. Shane <ashejn@yandex-team.ru> - 2.4.4-4.1
 - rebuild with spr
 - added P freetype-rfremix
