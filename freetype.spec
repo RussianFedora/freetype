@@ -180,7 +180,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %{_libdir}/libfreetype.so.*
 %doc README
-%doc docs/LICENSE.TXT docs/FTL.TXT GPLv2.TXT
+%doc docs/LICENSE.TXT docs/FTL.TXT docs/GPLv2.TXT
 %doc docs/CHANGES docs/VERSION.DLL docs/formats.txt docs/ft2faq.html
 
 %files demos
