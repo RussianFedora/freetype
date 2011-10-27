@@ -1,13 +1,9 @@
-# Patented subpixel rendering disabled by default.
-# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
-%{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
-
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.6
-Release: 1%{?dist}.1.R
+Release: 2%{?dist}.1.R
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -26,16 +22,15 @@ Patch47:  freetype-2.3.11-more-demos.patch
 Patch88:  freetype-multilib.patch
 
 Patch89:  freetype-2.4.2-CVE-2010-3311.patch
+Patch90:  freetype-2.4.6-CVE-2011-3256.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
 
 Provides: %{name}-bytecode
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:1}
 Provides: %{name}-subpixel
 Provides: %{name}-rfremix
-%endif
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -76,9 +71,7 @@ FreeType.
 %prep
 %setup -q -b 1 -a 2
 
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:1}
 %patch21  -p1 -b .enable-spr
-%endif
 
 %patch46  -p1 -b .enable-valid
 
@@ -88,6 +81,7 @@ popd
 
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .CVE-2010-3311
+%patch90 -p1 -b .CVE-2011-3256
 
 %build
 
@@ -220,6 +214,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Thu Oct 20 2011 Marek Kasik <mkasik@redhat.com> 2.4.6-2.1.R
+- Add freetype-2.4.6-CVE-2011-3256.patch
+  (Handle some border cases)
+
 * Fri Sep 16 2011 Arkady L. Shane <ashejn@yandex-team.ru> - 2.4.6-1.1.R
 - sync with main fedora tree for F16
 
