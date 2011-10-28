@@ -1,13 +1,9 @@
-# Patented subpixel rendering disabled by default.
-# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
-%{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
-
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.4.4
-Release: 1%{?dist}
+Version: 2.3.11
+Release: 6%{?dist}.7.R
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -15,6 +11,8 @@ Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.
 Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 
+# Add -lm when linking X demos
+Patch5: ft2demos-2.1.9-mathlib.patch
 Patch20:  freetype-2.1.10-enable-ft2-bci.patch
 Patch21:  freetype-2.3.0-enable-spr.patch
 
@@ -26,18 +24,28 @@ Patch47:  freetype-2.3.11-more-demos.patch
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
 
-Patch89:  freetype-2.4.2-CVE-2010-3311.patch
+Patch89:  freetype-2.3.11-CVE-2010-2498.patch
+Patch90:  freetype-2.3.11-CVE-2010-2499.patch
+Patch91:  freetype-2.3.11-CVE-2010-2500.patch
+Patch92:  freetype-2.3.11-CVE-2010-2519.patch
+Patch93:  freetype-2.3.11-CVE-2010-2520.patch
+Patch94:  freetype-2.3.11-CVE-2010-2527.patch
+Patch95:  freetype-2.3.11-axis-name-overflow.patch
+Patch96:  freetype-2.3.11-CVE-2010-1797.patch
+Patch97:  freetype-2.3.11-CVE-2010-2805.patch
+Patch98:  freetype-2.3.11-CVE-2010-2806.patch
+Patch99:  freetype-2.3.11-CVE-2010-2808.patch
+Patch100:  freetype-2.3.11-CVE-2010-3311.patch
+Patch101:  freetype-2.3.11-CVE-2010-3855.patch
+Patch102:  freetype-2.3.11-CVE-2011-0226.patch
+Patch103:  freetype-2.3.11-CVE-2011-3256.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
 
-%if %{?_with_bytecode_interpreter:1}%{!?_with_bytecode_interpreter:0}
 Provides: %{name}-bytecode
-%endif
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 Provides: %{name}-subpixel
-%endif
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -78,26 +86,37 @@ FreeType.
 %prep
 %setup -q -b 1 -a 2
 
-%if %{?_with_bytecode_interpreter:0}%{!?_with_bytecode_interpreter:1}
-%patch20  -p1 -R -b .enable-ft2-bci
-%endif
-
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
-%patch21  -p1 -b .enable-spr
-%endif
-
-%patch46  -p1 -b .enable-valid
-
 pushd ft2demos-%{version}
-%patch47  -p1 -b .more-demos
+%patch5 -p1 -b .mathlib
 popd
 
+%patch20  -p1 -b .enable-ft2-bci
+%patch21  -p1 -b .enable-spr
+
+%patch46  -p1 -b .enable-valid
+%patch47  -p1 -b .more-demos
+
 %patch88 -p1 -b .multilib
-%patch89 -p1 -b .CVE-2010-3311
+
+%patch89 -p1 -b .CVE-2010-2498
+%patch90 -p1 -b .CVE-2010-2499
+%patch91 -p1 -b .CVE-2010-2500
+%patch92 -p1 -b .CVE-2010-2519
+%patch93 -p1 -b .CVE-2010-2520
+%patch94 -p1 -b .CVE-2010-2527
+%patch95 -p1 -b .axis-name-overflow
+%patch96 -p1 -b .CVE-2010-1797
+%patch97 -p1 -b .CVE-2010-2805
+%patch98 -p1 -b .CVE-2010-2806
+%patch99 -p1 -b .CVE-2010-2808
+%patch100 -p1 -b .CVE-2010-3311
+%patch101 -p1 -b .CVE-2010-3855
+%patch102 -p1 -b .CVE-2011-0226
+%patch103 -p1 -b .CVE-2011-3256
 
 %build
 
-%configure --disable-static
+%configure --disable-static CFLAGS="$CFLAGS -fno-strict-aliasing"
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' builds/unix/libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' builds/unix/libtool
 make %{?_smp_mflags}
@@ -124,7 +143,7 @@ rm -rf $RPM_BUILD_ROOT
 %makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
 
 {
-  for ftdemo in ftbench ftchkwd ftmemchk ftpatchk fttimer ftdump ftlint ftmemchk ftvalid ; do
+  for ftdemo in ftbench ftchkwd ftdump ftlint ftmemchk ftvalid ; do
       builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
@@ -193,9 +212,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %{_bindir}/ftbench
 %{_bindir}/ftchkwd
-%{_bindir}/ftmemchk
-%{_bindir}/ftpatchk
-%{_bindir}/fttimer
 %{_bindir}/ftdump
 %{_bindir}/ftlint
 %{_bindir}/ftmemchk
@@ -226,49 +242,82 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
-* Thu Dec  2 2010 Marek Kasik <mkasik@redhat.com> 2.4.4-1
-- Update to 2.4.4
-- Remove freetype-2.4.3-CVE-2010-3855.patch
-- Resolves: #659020
+* Fri Oct 28 2011 Arkady L. Shane <ashejn@russianfedora.ru> 2.3.11-6.el6_1.7.R
+- build with bytecode interpreter and subpixel rendering
 
-* Mon Nov 15 2010 Marek Kasik <mkasik@redhat.com> 2.4.3-2
-- Add freetype-2.4.3-CVE-2010-3855.patch
+* Fri Oct 21 2011 Marek Kasik <mkasik@redhat.com> 2.3.11-6.el6_1.7
+- Add freetype-2.3.11-CVE-2011-3256.patch
+    (Handle some border cases.)
+- Resolves: #747083
+
+* Wed Jul 20 2011 Marek Kasik <mkasik@redhat.com> 2.3.11-6.el6_1.6
+- A little change in configure part
+- Resolves: #723467
+
+* Wed Jul 20 2011 Marek Kasik <mkasik@redhat.com> 2.3.11-6.el6_1.5
+- Use -fno-strict-aliasing instead of __attribute__((__may_alias__))
+- Resolves: #723467
+
+* Wed Jul 20 2011 Marek Kasik <mkasik@redhat.com> 2.3.11-6.el6_1.4
+- Allow FT_Glyph to alias (to pass Rpmdiff)
+- Resolves: #723467
+
+* Wed Jul 20 2011 Marek Kasik <mkasik@redhat.com> 2.3.11-6.el6_1.3
+- Add freetype-2.3.11-CVE-2011-0226.patch
+    (Add better argument check for `callothersubr'.)
+    - based on patches by Werner Lemberg,
+      Alexei Podtelezhnikov and Matthias Drochner
+- Resolves: #723467
+
+* Wed Nov 10 2010 Marek Kasik <mkasik@redhat.com> 2.3.11-6.el6_0.2
+- Add freetype-2.3.11-CVE-2010-3855.patch
     (Protect against invalid `runcnt' values.)
-- Resolves: #651764
+- Resolves: #651761
 
-* Tue Oct 26 2010 Marek Kasik <mkasik@redhat.com> 2.4.3-1
-- Update to 2.4.3
-- Resolves: #639906
-
-* Wed Oct  6 2010 Marek Kasik <mkasik@redhat.com> 2.4.2-3
-- Add freetype-2.4.2-CVE-2010-3311.patch
+* Thu Sep 30 2010 Marek Kasik <mkasik@redhat.com> 2.3.11-6.el6_0.1
+- Add freetype-2.3.11-CVE-2010-2805.patch
+    (Fix comparison.)
+- Add freetype-2.3.11-CVE-2010-2806.patch
+    (Protect against negative string_size. Fix comparison.)
+- Add freetype-2.3.11-CVE-2010-2808.patch
+    (Check the total length of collected POST segments.)
+- Add freetype-2.3.11-CVE-2010-3311.patch
     (Don't seek behind end of stream.)
-- Resolves: #638522
+- Resolves: #638838
 
-* Fri Aug  6 2010 Matthias Clasen <mclasen@redhat.com> 2.4.2-2
-- Fix a thinko, we still want to disable the bytecode interpreter
-  by default
+* Wed Aug 11 2010 Marek Kasik <mkasik@redhat.com> 2.3.11-5
+- Add freetype-2.3.11-CVE-2010-1797.patch
+    (Check stack after execution of operations too.
+     Skip the evaluations of the values in decoder, if
+     cff_decoder_parse_charstrings() returns any error.)
+- Resolves: #621624
 
-* Fri Aug  6 2010 Matthias Clasen <mclasen@redhat.com> 2.4.2-1
-- Update to 2.4.2
-- Drop upstreamed patch, bytecode interpreter now on by default
+* Thu Jul 22 2010 Marek Kasik <mkasik@redhat.com> 2.3.11-4
+- Add freetype-2.3.11-CVE-2010-2498.patch
+    (Assure that `end_point' is not larger than `glyph->num_points')
+- Add freetype-2.3.11-CVE-2010-2499.patch
+    (Check the buffer size during gathering PFB fragments)
+- Add freetype-2.3.11-CVE-2010-2500.patch
+    (Use smaller threshold values for `width' and `height')
+- Add freetype-2.3.11-CVE-2010-2519.patch
+    (Check `rlen' the length of fragment declared in the POST fragment header)
+- Add freetype-2.3.11-CVE-2010-2520.patch
+    (Fix bounds check)
+- Add freetype-2.3.11-CVE-2010-2527.patch
+    (Use precision for `%s' where appropriate to avoid buffer overflows)
+- Add freetype-2.3.11-axis-name-overflow.patch
+    (Avoid overflow when dealing with names of axes)
+- Resolves: #613298
 
-* Thu Feb 23 2010 Behdad Esfahbod <behdad@redhat.com> 2.3.12-1
-- Update to 2.3.12
-- Drop mathlib patch
-
-* Thu Dec  3 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-2
-- Drop upstreamed patch.
-- Enable patented bytecode interpretter now that the patents are expired.
-
-* Thu Oct 22 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-1
-- Update to 2.3.11.
+* Thu Dec  3 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-3
 - Add freetype-2.3.11-more-demos.patch
 - New demo programs ftmemchk, ftpatchk, and fttimer
 
-* Thu Oct 08 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.10-1
-- Drop freetype-2.3.9-aliasing.patch
-- Update to 2.3.10.
+* Thu Dec  3 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-2
+- Second try.  Drop upstreamed patches.
+
+* Thu Dec  3 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.11-1
+- 2.3.11
 
 * Thu Jul 30 2009 Behdad Esfahbod <behdad@redhat.com> 2.3.9-6
 - Add freetype-2.3.9-aliasing.patch
