@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.6
-Release: 3%{?dist}.R
+Release: 4%{?dist}.R
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -23,6 +23,7 @@ Patch88:  freetype-multilib.patch
 
 Patch89:  freetype-2.4.2-CVE-2010-3311.patch
 Patch90:  freetype-2.4.6-CVE-2011-3256.patch
+Patch91:  freetype-2.4.6-CVE-2011-3439.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -82,6 +83,7 @@ popd
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .CVE-2010-3311
 %patch90 -p1 -b .CVE-2011-3256
+%patch91 -p1 -b .CVE-2011-3439
 
 %build
 
@@ -214,6 +216,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Tue Nov 15 2011 Marek Kasik <mkasik@redhat.com> 2.4.6-4.R
+- Fix CVE-2011-3439
+- Resolves: #753837
+
 * Sat Oct 29 2011 Arkady L. Shane <ashejn@russianfedora.ru> - 2.4.6-3.R
 - rebuilt
 
