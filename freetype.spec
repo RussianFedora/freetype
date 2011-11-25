@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.4
-Release: 5%{?dist}.1.R
+Release: 7%{?dist}.R
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -30,6 +30,8 @@ Patch89:  freetype-2.4.2-CVE-2010-3311.patch
 Patch90:  0001-Fall-back-to-autohinting-if-a-TTF-OTF-doesn-t-contai.patch
 Patch91:  0002-Fix-autohinting-fallback.patch
 Patch92:  freetype-2.4.4-CVE-2011-0226.patch
+Patch93:  freetype-2.4.4-CVE-2011-3256.patch
+Patch94:  freetype-2.4.4-CVE-2011-3439.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -95,6 +97,8 @@ popd
 %patch90 -p1 -b .auto-autohint
 %patch91 -p1 -b .fix-autohint
 %patch92 -p1 -b .CVE-2011-0226
+%patch93 -p1 -b .CVE-2011-3256
+%patch94 -p1 -b .CVE-2011-3439
 
 
 %build
@@ -228,6 +232,15 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Tue Nov 15 2011 Marek Kasik <mkasik@redhat.com> 2.4.4-7.R
+- Fix CVE-2011-3439
+- Resolves: #753837
+
+* Thu Oct 20 2011 Marek Kasik <mkasik@redhat.com> 2.4.4-6
+- Add freetype-2.4.4-CVE-2011-3256.patch
+    (Handle some border cases)
+    - based on patch by Braden Thomas
+
 * Wed Jul 20 2011 Marek Kasik <mkasik@redhat.com> 2.4.4-5.1.R
 - Add freetype-2.4.4-CVE-2011-0226.patch
     (Add better argument check for `callothersubr'.)
