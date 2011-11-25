@@ -7,7 +7,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.2
-Release: 4%{?dist}.1
+Release: 7%{?dist}.R
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -28,6 +28,9 @@ Patch88:  freetype-multilib.patch
 
 Patch89:  freetype-2.4.2-CVE-2010-3311.patch
 Patch90:  freetype-2.4.2-CVE-2010-3855.patch
+Patch91:  freetype-2.4.2-CVE-2011-0226.patch
+Patch92:  freetype-2.4.2-CVE-2011-3256.patch
+Patch93:  freetype-2.4.2-CVE-2011-3439.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -96,6 +99,9 @@ popd
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .CVE-2010-3311
 %patch90 -p1 -b .CVE-2010-3855
+%patch91 -p1 -b .CVE-2011-0226
+%patch92 -p1 -b .CVE-2011-3256
+%patch93 -p1 -b .CVE-2011-3439
 
 %build
 
@@ -228,6 +234,21 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Tue Nov 15 2011 Marek Kasik <mkasik@redhat.com> 2.4.2-7.R
+- Fix CVE-2011-3439
+- Resolves: #753837
+
+* Thu Oct 20 2011 Marek Kasik <mkasik@redhat.com> 2.4.2-6
+- Add freetype-2.4.2-CVE-2011-3256.patch
+    (Handle some border cases)
+
+* Wed Jul 20 2011 Marek Kasik <mkasik@redhat.com> 2.4.2-5
+- Add freetype-2.4.2-CVE-2011-0226.patch
+    (Add better argument check for `callothersubr'.)
+    - based on patches by Werner Lemberg,
+      Alexei Podtelezhnikov and Matthias Drochner
+- Resolves: #723469
+
 * Mon Nov 22 2010 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.2-4.1
 - rebuilt with subpixel_rendering
 
