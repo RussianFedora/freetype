@@ -1,13 +1,9 @@
-# Patented subpixel rendering disabled by default.
-# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
-%{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
-
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.4.4
-Release: 1%{?dist}
+Version: 2.4.8
+Release: 1%{?dist}.R
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -15,7 +11,6 @@ Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.
 Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 
-Patch20:  freetype-2.1.10-enable-ft2-bci.patch
 Patch21:  freetype-2.3.0-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
@@ -26,18 +21,12 @@ Patch47:  freetype-2.3.11-more-demos.patch
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
 
-Patch89:  freetype-2.4.2-CVE-2010-3311.patch
-
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
 
-%if %{?_with_bytecode_interpreter:1}%{!?_with_bytecode_interpreter:0}
 Provides: %{name}-bytecode
-%endif
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 Provides: %{name}-subpixel
-%endif
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -78,13 +67,7 @@ FreeType.
 %prep
 %setup -q -b 1 -a 2
 
-%if %{?_with_bytecode_interpreter:0}%{!?_with_bytecode_interpreter:1}
-%patch20  -p1 -R -b .enable-ft2-bci
-%endif
-
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 %patch21  -p1 -b .enable-spr
-%endif
 
 %patch46  -p1 -b .enable-valid
 
@@ -93,7 +76,6 @@ pushd ft2demos-%{version}
 popd
 
 %patch88 -p1 -b .multilib
-%patch89 -p1 -b .CVE-2010-3311
 
 %build
 
@@ -186,7 +168,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %{_libdir}/libfreetype.so.*
 %doc README
-%doc docs/LICENSE.TXT docs/FTL.TXT docs/GPL.TXT
+%doc docs/LICENSE.TXT docs/FTL.TXT docs/GPLv2.TXT
 %doc docs/CHANGES docs/VERSION.DLL docs/formats.txt docs/ft2faq.html
 
 %files demos
@@ -226,6 +208,45 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Wed Dec  7 2011 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.8-1.R
+- rebuilt with subpixel rendering
+
+* Tue Nov 15 2011 Marek Kasik <mkasik@redhat.com> 2.4.8-1
+- Update to 2.4.8
+- Remove an unneeded patch
+
+* Wed Oct 26 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.7-2
+- Rebuilt for glibc bug#747377
+
+* Thu Oct 20 2011 Marek Kasik <mkasik@redhat.com> 2.4.7-1
+- Update to 2.4.7
+- Fixes CVE-2011-3256
+- Resolves: #747262
+
+* Thu Aug  4 2011 Marek Kasik <mkasik@redhat.com> 2.4.6-1
+- Update to 2.4.6
+
+* Wed Jul 20 2011 Marek Kasik <mkasik@redhat.com> 2.4.5-2
+- Add freetype-2.4.5-CVE-2011-0226.patch
+    (Add better argument check for `callothersubr'.)
+    - based on patches by Werner Lemberg,
+      Alexei Podtelezhnikov and Matthias Drochner
+- Resolves: #723469
+
+* Tue Jun 28 2011 Marek Kasik <mkasik@redhat.com> 2.4.5-1
+- Update to 2.4.5
+
+* Tue Mar  8 2011 Marek Kasik <mkasik@redhat.com> 2.4.4-4
+- Fix autohinting fallback (#547532).
+- Ignore CFF-based OTFs.
+
+* Sun Feb 20 2011 Marek Kasik <mkasik@redhat.com> 2.4.4-3
+- Enable bytecode interpreter (#547532).
+- Fall back to autohinting if a TTF/OTF doesn't contain any bytecode.
+
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Thu Dec  2 2010 Marek Kasik <mkasik@redhat.com> 2.4.4-1
 - Update to 2.4.4
 - Remove freetype-2.4.3-CVE-2010-3855.patch
