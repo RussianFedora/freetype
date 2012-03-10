@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.8
-Release: 1%{?dist}.R
+Release: 2%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -208,6 +208,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Sat Mar 10 2012 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.8-2.R
+- rebuilt
+
 * Wed Dec  7 2011 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.8-1.R
 - rebuilt with subpixel rendering
 
