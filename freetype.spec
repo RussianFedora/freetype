@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.6
-Release: 4%{?dist}.R
+Release: 5%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -24,6 +24,25 @@ Patch88:  freetype-multilib.patch
 Patch89:  freetype-2.4.2-CVE-2010-3311.patch
 Patch90:  freetype-2.4.6-CVE-2011-3256.patch
 Patch91:  freetype-2.4.6-CVE-2011-3439.patch
+Patch92:  freetype-2.4.6-CVE-2012-1126.patch
+Patch93:  freetype-2.4.6-CVE-2012-1127.patch
+Patch94:  freetype-2.4.6-CVE-2012-1128.patch
+Patch95:  freetype-2.4.6-CVE-2012-1130.patch
+Patch96:  freetype-2.4.6-CVE-2012-1131.patch
+Patch97:  freetype-2.4.6-CVE-2012-1132.patch
+Patch98:  freetype-2.4.6-CVE-2012-1133.patch
+Patch99:  freetype-2.4.6-CVE-2012-1134.patch
+Patch100: freetype-2.4.6-CVE-2012-1135.patch
+Patch101: freetype-2.4.6-CVE-2012-1136.patch
+Patch102: freetype-2.4.6-CVE-2012-1137.patch
+Patch103: freetype-2.4.6-CVE-2012-1138.patch
+Patch104: freetype-2.4.6-CVE-2012-1139.patch
+Patch105: freetype-2.4.6-CVE-2012-1140.patch
+Patch106: freetype-2.4.6-CVE-2012-1141.patch
+Patch107: freetype-2.4.6-CVE-2012-1142.patch
+Patch108: freetype-2.4.6-CVE-2012-1143.patch
+Patch109: freetype-2.4.6-CVE-2012-1144.patch
+Patch110: freetype-2.4.6-bdf-overflow.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -84,6 +103,25 @@ popd
 %patch89 -p1 -b .CVE-2010-3311
 %patch90 -p1 -b .CVE-2011-3256
 %patch91 -p1 -b .CVE-2011-3439
+%patch92 -p1 -b .CVE-2012-1126
+%patch93 -p1 -b .CVE-2012-1127
+%patch94 -p1 -b .CVE-2012-1128
+%patch95 -p1 -b .CVE-2012-1130
+%patch96 -p1 -b .CVE-2012-1131
+%patch97 -p1 -b .CVE-2012-1132
+%patch98 -p1 -b .CVE-2012-1133
+%patch99 -p1 -b .CVE-2012-1134
+%patch100 -p1 -b .CVE-2012-1135
+%patch101 -p1 -b .CVE-2012-1136
+%patch102 -p1 -b .CVE-2012-1137
+%patch103 -p1 -b .CVE-2012-1138
+%patch104 -p1 -b .CVE-2012-1139
+%patch105 -p1 -b .CVE-2012-1140
+%patch106 -p1 -b .CVE-2012-1141
+%patch107 -p1 -b .CVE-2012-1142
+%patch108 -p1 -b .CVE-2012-1143
+%patch109 -p1 -b .CVE-2012-1144
+%patch110 -p1 -b .bdf-overflow
 
 %build
 
@@ -216,6 +254,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Tue Apr 24 2012 Arkady L. Shane <ashejn@russianfedora.ru> 2.4.6-5.R
+- Fixes various CVEs
+- Resolves: #806270
+
 * Tue Nov 15 2011 Marek Kasik <mkasik@redhat.com> 2.4.6-4.R
 - Fix CVE-2011-3439
 - Resolves: #753837
