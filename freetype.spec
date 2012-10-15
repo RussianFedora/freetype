@@ -1,9 +1,11 @@
+# Patented subpixel rendering disabled by default.
+# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.4.8
-Release: 3%{?dist}
+Version: 2.4.10
+Release: 2%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -20,27 +22,6 @@ Patch47:  freetype-2.3.11-more-demos.patch
 
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
-
-Patch89:  freetype-2.4.8-CVE-2012-1126.patch
-Patch90:  freetype-2.4.8-CVE-2012-1127.patch
-Patch91:  freetype-2.4.8-CVE-2012-1128.patch
-Patch92:  freetype-2.4.8-CVE-2012-1130.patch
-Patch93:  freetype-2.4.8-CVE-2012-1131.patch
-Patch94:  freetype-2.4.8-CVE-2012-1132.patch
-Patch95:  freetype-2.4.8-CVE-2012-1133.patch
-Patch96:  freetype-2.4.8-CVE-2012-1134.patch
-Patch97:  freetype-2.4.8-CVE-2012-1135.patch
-Patch98:  freetype-2.4.8-CVE-2012-1136.patch
-Patch99:  freetype-2.4.8-CVE-2012-1137.patch
-Patch100:  freetype-2.4.8-CVE-2012-1138.patch
-Patch101:  freetype-2.4.8-CVE-2012-1139.patch
-Patch102:  freetype-2.4.8-CVE-2012-1140.patch
-Patch103:  freetype-2.4.8-CVE-2012-1141.patch
-Patch104:  freetype-2.4.8-CVE-2012-1142.patch
-Patch105:  freetype-2.4.8-CVE-2012-1143.patch
-Patch106:  freetype-2.4.8-CVE-2012-1144.patch
-Patch107:  freetype-2.4.8-bdf-overflow.patch
-
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -96,26 +77,7 @@ pushd ft2demos-%{version}
 %patch47  -p1 -b .more-demos
 popd
 
-%patch88  -p1 -b .multilib
-%patch89  -p1 -b .CVE-2012-1126
-%patch90  -p1 -b .CVE-2012-1127
-%patch91  -p1 -b .CVE-2012-1128
-%patch92  -p1 -b .CVE-2012-1130
-%patch93  -p1 -b .CVE-2012-1131
-%patch94  -p1 -b .CVE-2012-1132
-%patch95  -p1 -b .CVE-2012-1133
-%patch96  -p1 -b .CVE-2012-1134
-%patch97  -p1 -b .CVE-2012-1135
-%patch98  -p1 -b .CVE-2012-1136
-%patch99  -p1 -b .CVE-2012-1137
-%patch100 -p1 -b .CVE-2012-1138
-%patch101 -p1 -b .CVE-2012-1139
-%patch102 -p1 -b .CVE-2012-1140
-%patch103 -p1 -b .CVE-2012-1141
-%patch104 -p1 -b .CVE-2012-1142
-%patch105 -p1 -b .CVE-2012-1143
-%patch106 -p1 -b .CVE-2012-1144
-%patch107 -p1 -b .bdf-overflow
+%patch88 -p1 -b .multilib
 
 %build
 
@@ -248,15 +210,21 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
-* Fri Mar 30 2012 Marek Kasik <mkasik@redhat.com> 2.4.8-3
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.10-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Wed Jul 11 2012 Marek Kasik <mkasik@redhat.com> 2.4.10-1
+- Update to 2.4.10
+- Remove patches which are already included in upstream
+- Resolves: #832651
+
+* Fri Mar 30 2012 Marek Kasik <mkasik@redhat.com> 2.4.9-1
+- Update to 2.4.9
 - Fixes various CVEs
 - Resolves: #806270
 
-* Sat Mar 10 2012 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.8-2.R
-- rebuilt
-
-* Wed Dec  7 2011 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.8-1.R
-- rebuilt with subpixel rendering
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.8-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Tue Nov 15 2011 Marek Kasik <mkasik@redhat.com> 2.4.8-1
 - Update to 2.4.8
