@@ -1,10 +1,13 @@
+# Patented subpixel rendering disabled by default.
+# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
+
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.4.8
-Release: 2%{?dist}
-License: FTL or GPLv2+
+Version: 2.4.11
+Release: 1%{?dist}
+License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
 Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.tar.bz2
@@ -12,6 +15,7 @@ Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{versi
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 
 Patch21:  freetype-2.3.0-enable-spr.patch
+Patch22:  freetype-2.4.11-enable-sph.patch
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
@@ -27,6 +31,9 @@ BuildRequires: libX11-devel
 
 Provides: %{name}-bytecode
 Provides: %{name}-subpixel
+Provides: %{name}-subpixel-hinting
+
+
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -68,6 +75,8 @@ FreeType.
 %setup -q -b 1 -a 2
 
 %patch21  -p1 -b .enable-spr
+
+%patch22  -p1 -b .enable-sph
 
 %patch46  -p1 -b .enable-valid
 
@@ -208,11 +217,32 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
-* Sat Mar 10 2012 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.8-2.R
-- rebuilt
+* Wed Jan 16 2013 Arkady L. Shane <ashejn@russianfedora.ru> - 2.4.11-1.R
+- enable subpixel rendering
+- enable subpixel hinting
 
-* Wed Dec  7 2011 Arkady L. Shane <ashejn@yandex-team.ru> 2.4.8-1.R
-- rebuilt with subpixel rendering
+* Wed Jan  2 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-1
+- Update to 2.4.11
+- Resolves: #889177
+
+* Wed Oct 24 2012 Marek Kasik <mkasik@redhat.com> - 2.4.10-3
+- Update License field
+
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.10-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Wed Jul 11 2012 Marek Kasik <mkasik@redhat.com> 2.4.10-1
+- Update to 2.4.10
+- Remove patches which are already included in upstream
+- Resolves: #832651
+
+* Fri Mar 30 2012 Marek Kasik <mkasik@redhat.com> 2.4.9-1
+- Update to 2.4.9
+- Fixes various CVEs
+- Resolves: #806270
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.8-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Tue Nov 15 2011 Marek Kasik <mkasik@redhat.com> 2.4.8-1
 - Update to 2.4.8
