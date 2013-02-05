@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.8
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -41,6 +41,8 @@ Patch105:  freetype-2.4.8-CVE-2012-1143.patch
 Patch106:  freetype-2.4.8-CVE-2012-1144.patch
 Patch107:  freetype-2.4.8-bdf-overflow.patch
 
+# https://bugzilla.redhat.com/show_bug.cgi?id=903554
+Patch108:  freetype-2.4.8-CVE-2012-5669.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -116,6 +118,7 @@ popd
 %patch105 -p1 -b .CVE-2012-1143
 %patch106 -p1 -b .CVE-2012-1144
 %patch107 -p1 -b .bdf-overflow
+%patch108 -p1 -b .CVE-2012-5669
 
 %build
 
@@ -248,6 +251,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Thu Jan 24 2013 Marek Kasik <mkasik@redhat.com> 2.4.8-4.R
+- Fixes CVE-2012-5669
+- Resolves: #903554
+
 * Fri Mar 30 2012 Marek Kasik <mkasik@redhat.com> 2.4.8-3
 - Fixes various CVEs
 - Resolves: #806270
