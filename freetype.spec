@@ -5,7 +5,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.10
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -22,6 +22,9 @@ Patch47:  freetype-2.3.11-more-demos.patch
 
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=903554
+Patch89:  freetype-2.4.10-CVE-2012-5669.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -78,6 +81,7 @@ pushd ft2demos-%{version}
 popd
 
 %patch88 -p1 -b .multilib
+%patch89 -p1 -b .CVE-2012-5669
 
 %build
 
@@ -210,6 +214,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Thu Jan 24 2013 Marek Kasik <mkasik@redhat.com> 2.4.10-3.R
+- Fixes CVE-2012-5669
+- Resolves: #903554
+
 * Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.10-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
