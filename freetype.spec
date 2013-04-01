@@ -5,7 +5,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.10
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: FTL or GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -25,6 +25,9 @@ Patch88:  freetype-multilib.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=903554
 Patch89:  freetype-2.4.10-CVE-2012-5669.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=891457
+Patch90:  freetype-2.4.10-fix-emboldening.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -82,6 +85,7 @@ popd
 
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .CVE-2012-5669
+%patch90 -p1 -b .fix-emboldening
 
 %build
 
@@ -214,6 +218,15 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Tue Mar 19 2013 Marek Kasik <mkasik@redhat.com> - 2.4.10-4.R
+- Fix emboldening:
+    - split out MSB function
+    - fix integer overflows
+    - fix broken emboldening at small sizes
+    - clean up emboldening code and improve comments there
+    - fortify emboldening code against egregious distortions
+- Resolves: #891457
+
 * Thu Jan 24 2013 Marek Kasik <mkasik@redhat.com> 2.4.10-3.R
 - Fixes CVE-2012-5669
 - Resolves: #903554
