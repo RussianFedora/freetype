@@ -6,13 +6,14 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.11
-Release: 3%{?dist}
+Release: 6%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
 Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.tar.bz2
 Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
+Source3: ftconfig.h
 
 Patch21:  freetype-2.3.0-enable-spr.patch
 Patch22:  freetype-2.4.11-enable-sph.patch
@@ -35,8 +36,6 @@ BuildRequires: libX11-devel
 Provides: %{name}-bytecode
 Provides: %{name}-subpixel
 Provides: %{name}-subpixel-hinting
-
-
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -104,11 +103,15 @@ make TOP_DIR=".."
 popd
 %endif
 
-# Convert FTL.txt to UTF-8
+# Convert FTL.txt and example3.cpp to UTF-8
 pushd docs
 iconv -f latin1 -t utf-8 < FTL.TXT > FTL.TXT.tmp && \
 touch -r FTL.TXT FTL.TXT.tmp && \
 mv FTL.TXT.tmp FTL.TXT
+
+iconv -f iso-8859-1 -t utf-8 < "tutorial/example3.cpp" > "tutorial/example3.cpp.utf8"
+touch -r tutorial/example3.cpp tutorial/example3.cpp.utf8 && \
+mv tutorial/example3.cpp.utf8 tutorial/example3.cpp
 popd
 
 
@@ -132,7 +135,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 # fix multilib issues
-%ifarch x86_64 s390x ia64 ppc64 alpha sparc64
+%ifarch x86_64 s390x ia64 ppc64 alpha sparc64 aarch64
 %define wordsize 64
 %else
 %define wordsize 32
@@ -140,22 +143,7 @@ rm -rf $RPM_BUILD_ROOT
 
 mv $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h \
    $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig-%{wordsize}.h
-cat >$RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h <<EOF
-#ifndef __FTCONFIG_H__MULTILIB
-#define __FTCONFIG_H__MULTILIB
-
-#include <bits/wordsize.h>
-
-#if __WORDSIZE == 32
-# include "ftconfig-32.h"
-#elif __WORDSIZE == 64
-# include "ftconfig-64.h"
-#else
-# error "unexpected value for __WORDSIZE macro"
-#endif
-
-#endif 
-EOF
+install -p -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h
 
 # Don't package static a or .la files
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
@@ -221,6 +209,15 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Wed May 29 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2.4.11-6.R
+- Add aarch64 to 64 bit arch list
+
+* Thu May 16 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-5.R
+- Change encoding of "docs/tutorial/example3.cpp" to UTF-8
+
+* Thu May 16 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-4.R
+- Package ftconfig.h as source file
+
 * Tue Mar 19 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-3.R
 - Fix emboldening:
     - split out MSB function
