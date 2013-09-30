@@ -6,7 +6,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.11
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -28,6 +28,9 @@ Patch88:  freetype-multilib.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=891457
 Patch89:  freetype-2.4.11-fix-emboldening.patch
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=686709
+Patch90:  0001-Fix-vertical-size-of-emboldened-glyphs.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -88,6 +91,7 @@ popd
 
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .emboldening
+%patch90 -p1 -b .emboldened-glyphs
 
 %build
 
@@ -209,6 +213,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Fri Sep 20 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-7.R
+- Fix vertical size of emboldened glyphs
+
 * Wed May 29 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2.4.11-6.R
 - Add aarch64 to 64 bit arch list
 
