@@ -1,12 +1,9 @@
-# Patented subpixel rendering disabled by default.
-# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
-
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.4.11
-Release: 7%{?dist}
+Version: 2.5.0
+Release: 4%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -26,19 +23,24 @@ Patch47:  freetype-2.3.11-more-demos.patch
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=891457
-Patch89:  freetype-2.4.11-fix-emboldening.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=961855
+Patch90:  freetype-2.4.12-pkgconfig.patch
+
+# Backport of all (2) commits from 2.5.0.1
+Patch91:  freetype-2.5.0.1.patch
 
 # https://bugzilla.gnome.org/show_bug.cgi?id=686709
-Patch90:  0001-Fix-vertical-size-of-emboldened-glyphs.patch
+Patch92:  0001-Fix-vertical-size-of-emboldened-glyphs.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
+BuildRequires: libpng-devel
 
 Provides: %{name}-bytecode
+%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 Provides: %{name}-subpixel
-Provides: %{name}-subpixel-hinting
+%endif
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -90,8 +92,12 @@ pushd ft2demos-%{version}
 popd
 
 %patch88 -p1 -b .multilib
-%patch89 -p1 -b .emboldening
-%patch90 -p1 -b .emboldened-glyphs
+
+%patch90 -p1 -b .pkgconfig
+
+%patch91 -p1 -b .2.5.0.1
+
+%patch92 -p1 -b .emboldened-glyphs
 
 %build
 
@@ -213,28 +219,53 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
-* Fri Sep 20 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-7.R
+* Mon Oct 21 2013 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.0-4.R
+- enable subpixel rendering and subpixel hinting
+
+* Fri Sep 20 2013 Marek Kasik <mkasik@redhat.com> - 2.5.0-4
 - Fix vertical size of emboldened glyphs
 
-* Wed May 29 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2.4.11-6.R
+* Mon Aug 05 2013 Marek Kasik <mkasik@redhat.com> - 2.5.0-3
+- Fix changelog dates
+
+* Mon Aug 05 2013 Marek Kasik <mkasik@redhat.com> - 2.5.0-2
+- Require libpng
+
+* Mon Aug 05 2013 Marek Kasik <mkasik@redhat.com> - 2.5.0-1
+- Update to 2.5.0
+- Backport changes from freetype-2.5.0.1
+-   (ft2demos-2.5.0.1 and freetype-doc-2.5.0.1 were not released)
+
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.12-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
+* Wed May 29 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2.4.12-5
 - Add aarch64 to 64 bit arch list
 
-* Thu May 16 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-5.R
+* Thu May 16 2013 Marek Kasik <mkasik@redhat.com> - 2.4.12-4
 - Change encoding of "docs/tutorial/example3.cpp" to UTF-8
 
-* Thu May 16 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-4.R
+* Thu May 16 2013 Marek Kasik <mkasik@redhat.com> - 2.4.12-3
 - Package ftconfig.h as source file
 
-* Tue Mar 19 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-3.R
+* Mon May 13 2013 Marek Kasik <mkasik@redhat.com> - 2.4.12-2
+- Don't use quotes in freetype2.pc
+- Resolves: #961855
+
+* Thu May  9 2013 Marek Kasik <mkasik@redhat.com> - 2.4.12-1
+- Update to 2.4.12
+- Enable Adobe CFF engine
+- Resolves: #959771
+
+* Tue Mar 19 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-3
 - Fix emboldening:
     - split out MSB function
     - fix integer overflows
     - fix broken emboldening at small sizes
 - Resolves: #891457
 
-* Wed Jan 16 2013 Arkady L. Shane <ashejn@russianfedora.ru> - 2.4.11-1.R
-- enable subpixel rendering
-- enable subpixel hinting
+* Wed Feb 13 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.11-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
 * Wed Jan  2 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-1
 - Update to 2.4.11
@@ -322,7 +353,7 @@ rm -rf $RPM_BUILD_ROOT
 - Update to 2.4.2
 - Drop upstreamed patch, bytecode interpreter now on by default
 
-* Thu Feb 23 2010 Behdad Esfahbod <behdad@redhat.com> 2.3.12-1
+* Tue Feb 23 2010 Behdad Esfahbod <behdad@redhat.com> 2.3.12-1
 - Update to 2.3.12
 - Drop mathlib patch
 
@@ -349,7 +380,7 @@ rm -rf $RPM_BUILD_ROOT
 * Thu May  7 2009 Matthias Clasen <mclasen@redhat.com> 2.3.9-4
 - Don't own /usr/lib/pkgconfig
 
-* Wed Mar 27 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-3
+* Fri Mar 27 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-3
 - Disable subpixel hinting by default.  Was turned on unintentionally.
 
 * Wed Mar 25 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-2
@@ -357,11 +388,11 @@ rm -rf $RPM_BUILD_ROOT
   with those options.
 - Resolves: #155210
 
-* Thu Mar 13 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-1
+* Fri Mar 13 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-1
 - Update to 2.3.9.
 - Resolves #489928
 
-* Thu Mar 09 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.8-2.1
+* Mon Mar 09 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.8-2.1
 - Preserve timestamp of FTL.TXT when converting to UTF-8.
 
 * Tue Feb 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.8-2
@@ -381,7 +412,7 @@ rm -rf $RPM_BUILD_ROOT
 - Add freetype-autohinter-ligature.patch
 - Resolves: #368561
 
-* Tue Aug 14 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-1
+* Thu Aug 14 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-1
 - Update to 2.3.7
 
 * Tue Jun 10 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.6-1
@@ -415,7 +446,7 @@ rm -rf $RPM_BUILD_ROOT
 * Thu Apr 12 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-2
 - Add alpha to 64-bit archs (#236166)
 
-* Tue Apr 05 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-1
+* Thu Apr 05 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-1
 - Update to 2.3.4.
 
 * Thu Apr 05 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.3-2
@@ -607,7 +638,7 @@ rm -rf $RPM_BUILD_ROOT
 - Add a patch to implement FT_LOAD_TARGET_LIGHT
 - Fix up freetype-1.4-libtool.patch 
 
-* Sat Dec 12 2002 Mike A. Harris <mharris@redhat.com> 2.1.3-2
+* Thu Dec 12 2002 Mike A. Harris <mharris@redhat.com> 2.1.3-2
 - Update to freetype 2.1.3
 - Removed ttmkfdir sources and patches, as they have been moved from the
   freetype packaging to XFree86 packaging, and now to the ttmkfdir package
