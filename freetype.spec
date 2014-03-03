@@ -1,7 +1,3 @@
-# Patented subpixel rendering disabled by default.
-# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
-%{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
-
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
@@ -17,6 +13,7 @@ Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.
 Source3: ftconfig.h
 
 Patch21:  freetype-2.3.0-enable-spr.patch
+Patch22:  freetype-2.4.11-enable-sph.patch
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
@@ -35,9 +32,7 @@ BuildRequires: libX11-devel
 BuildRequires: libpng-devel
 
 Provides: %{name}-bytecode
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 Provides: %{name}-subpixel
-%endif
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -78,9 +73,8 @@ FreeType.
 %prep
 %setup -q -b 1 -a 2
 
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 %patch21  -p1 -b .enable-spr
-%endif
+%patch22  -p1 -b .enable-sph
 
 %patch46  -p1 -b .enable-valid
 
@@ -211,6 +205,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Mon Mar  3 2014 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.2-2.R
+- enable subpixel rendering and subpixel hinting
+
 * Mon Jan 20 2014 Marek Kasik <mkasik@redhat.com> - 2.5.2-2
 - Fix include directory in freetype-config
 - Resolves: #1055154
