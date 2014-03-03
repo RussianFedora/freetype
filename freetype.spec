@@ -1,9 +1,13 @@
+# Patented subpixel rendering disabled by default.
+# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
+%{!?_with_subpixel_rendering: %{!?_without_subpixel_rendering: %define _without_subpixel_rendering --without-subpixel_rendering}}
+
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.5.0
-Release: 4%{?dist}
+Version: 2.5.2
+Release: 2%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -13,24 +17,17 @@ Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.
 Source3: ftconfig.h
 
 Patch21:  freetype-2.3.0-enable-spr.patch
-Patch22:  freetype-2.4.11-enable-sph.patch
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
 # Enable additional demos
-Patch47:  freetype-2.3.11-more-demos.patch
+Patch47:  freetype-2.5.2-more-demos.patch
 
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=961855
 Patch90:  freetype-2.4.12-pkgconfig.patch
-
-# Backport of all (2) commits from 2.5.0.1
-Patch91:  freetype-2.5.0.1.patch
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=686709
-Patch92:  0001-Fix-vertical-size-of-emboldened-glyphs.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -81,9 +78,9 @@ FreeType.
 %prep
 %setup -q -b 1 -a 2
 
+%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 %patch21  -p1 -b .enable-spr
-
-%patch22  -p1 -b .enable-sph
+%endif
 
 %patch46  -p1 -b .enable-valid
 
@@ -94,10 +91,6 @@ popd
 %patch88 -p1 -b .multilib
 
 %patch90 -p1 -b .pkgconfig
-
-%patch91 -p1 -b .2.5.0.1
-
-%patch92 -p1 -b .emboldened-glyphs
 
 %build
 
@@ -145,15 +138,15 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 # fix multilib issues
-%ifarch x86_64 s390x ia64 ppc64 alpha sparc64 aarch64
+%ifarch x86_64 s390x ia64 ppc64 ppc64le alpha sparc64 aarch64
 %define wordsize 64
 %else
 %define wordsize 32
 %endif
 
-mv $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h \
-   $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig-%{wordsize}.h
-install -p -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h
+mv $RPM_BUILD_ROOT%{_includedir}/freetype2/config/ftconfig.h \
+   $RPM_BUILD_ROOT%{_includedir}/freetype2/config/ftconfig-%{wordsize}.h
+install -p -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_includedir}/freetype2/config/ftconfig.h
 
 # Don't package static a or .la files
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
@@ -209,7 +202,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_includedir}/freetype2
 %{_datadir}/aclocal/freetype2.m4
 %{_includedir}/freetype2/*
-%{_includedir}/*.h
 %{_libdir}/libfreetype.so
 %{_bindir}/freetype-config
 %{_libdir}/pkgconfig/freetype2.pc
@@ -219,8 +211,18 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
-* Mon Oct 21 2013 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.0-4.R
-- enable subpixel rendering and subpixel hinting
+* Mon Jan 20 2014 Marek Kasik <mkasik@redhat.com> - 2.5.2-2
+- Fix include directory in freetype-config
+- Resolves: #1055154
+
+* Fri Jan 17 2014 Marek Kasik <mkasik@redhat.com> - 2.5.2-1
+- Update to 2.5.2
+- Modify spec file to respect the new header file layout
+- Resolves: #1034065
+
+* Fri Jan 10 2014 Marek Kasik <mkasik@redhat.com> - 2.5.0-5
+- Enable ppc64le architecture
+- Resolves: #1051202
 
 * Fri Sep 20 2013 Marek Kasik <mkasik@redhat.com> - 2.5.0-4
 - Fix vertical size of emboldened glyphs
