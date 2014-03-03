@@ -12,8 +12,8 @@ Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{versi
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 Source3: ftconfig.h
 
-Patch21:  freetype-2.3.0-enable-spr.patch
-Patch22:  freetype-2.4.11-enable-sph.patch
+Patch21:  freetype-2.5.2-enable-spr.patch
+Patch22:  freetype-2.5.2-enable-sph.patch
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
