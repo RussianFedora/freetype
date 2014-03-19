@@ -2,7 +2,7 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.5.2
+Version: 2.5.3
 Release: 2%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
@@ -30,6 +30,8 @@ Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
+BuildRequires: zlib-devel
+BuildRequires: bzip2-devel
 
 Provides: %{name}-bytecode
 Provides: %{name}-subpixel
@@ -203,8 +205,16 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/glyphs
 %doc docs/reference
 %doc docs/tutorial
+%{_mandir}/man1/*
 
 %changelog
+* Tue Mar 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-2.R
+- Enable support for bzip2 compressed fonts
+
+* Tue Mar 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-1.R
+- Update to 2.5.3
+- Resolves: #1073923
+
 * Mon Mar  3 2014 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.2-2.R
 - enable subpixel rendering and subpixel hinting
 
