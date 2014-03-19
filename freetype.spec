@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.5.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -31,6 +31,10 @@ Patch91:  freetype-2.5.0.1.patch
 
 # https://bugzilla.gnome.org/show_bug.cgi?id=686709
 Patch92:  0001-Fix-vertical-size-of-emboldened-glyphs.patch
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=1074647
+Patch93:  freetype-2.5.0-CVE-2014-2240.patch
+Patch94:  freetype-2.5.0-CVE-2014-2241.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -98,6 +102,9 @@ popd
 %patch91 -p1 -b .2.5.0.1
 
 %patch92 -p1 -b .emboldened-glyphs
+
+%patch93 -p1 -b .CVE-2014-2240
+%patch94 -p1 -b .CVE-2014-2241
 
 %build
 
@@ -219,6 +226,13 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Tue Mar 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.0-5.R
+- Add freetype-2.5.0-CVE-2014-2240.patch
+    (Return when `hintMask' is invalid.)
+- Add freetype-2.5.0-CVE-2014-2241.patch
+    (Don't call non-existing subroutines.)
+- Resolves: #1074647
+
 * Mon Oct 21 2013 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.0-4.R
 - enable subpixel rendering and subpixel hinting
 
