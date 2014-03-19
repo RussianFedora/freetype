@@ -11,4 +11,4 @@
 +includedir=%includedir%/freetype2
  
  Name: FreeType 2
- Description: A free, high-quality, and portable font engine.
+ URL: http://freetype.org
