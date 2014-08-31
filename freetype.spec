@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.5.3
-Release: 2%{?dist}
+Release: 8%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -25,6 +25,9 @@ Patch88:  freetype-multilib.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=961855
 Patch90:  freetype-2.4.12-pkgconfig.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1079302
+Patch91:  freetype-2.5.3-freetype-config-libs.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -61,8 +64,6 @@ small utilities showing various capabilities of the FreeType library.
 Summary: FreeType development libraries and header files
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
-Requires: zlib-devel
-Requires: pkgconfig
 
 %description devel
 The freetype-devel package includes the static libraries and header files
@@ -88,9 +89,15 @@ popd
 
 %patch90 -p1 -b .pkgconfig
 
+%patch91 -p1 -b .freetype-config-libs
+
 %build
 
-%configure --disable-static
+%configure --disable-static \
+           --with-zlib=yes \
+           --with-bzip2=yes \
+           --with-png=yes \
+           --with-harfbuzz=no
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' builds/unix/libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' builds/unix/libtool
 make %{?_smp_mflags}
@@ -134,7 +141,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 # fix multilib issues
-%ifarch x86_64 s390x ia64 ppc64 ppc64le alpha sparc64 aarch64
+%if %{__isa_bits} == 64
 %define wordsize 64
 %else
 %define wordsize 32
@@ -208,6 +215,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Sun Aug 31 2014 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.3-8.R
+- sync with upstream
+- Generic 32/64 bit platform detection (fix it once and for all)
+- Be explicit about required libraries
+- Don't return flags of privately used libraries when
+- calling "freetype-config --libs"
+- Resolves: #1079302
+- drop private libs from freetype-config so it returns the same libs as pkg-config
+
 * Tue Mar 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-2.R
 - Enable support for bzip2 compressed fonts
 
