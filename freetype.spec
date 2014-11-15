@@ -220,7 +220,7 @@ rm -rf $RPM_BUILD_ROOT
 - Fix directories returned by freetype-config with modified prefix
 - Resolves: #1161963
 
-* Mon Aug 18 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-9.R
+* Mon Aug 31 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-9.R
 - Simplify getting of wordsize
 
 * Sun Aug 31 2014 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.3-8.R
