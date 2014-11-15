@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.5.3
-Release: 8%{?dist}
+Release: 11%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -28,6 +28,9 @@ Patch90:  freetype-2.4.12-pkgconfig.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1079302
 Patch91:  freetype-2.5.3-freetype-config-libs.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1161963
+Patch92:  freetype-2.5.3-freetype-config-prefix.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -91,6 +94,8 @@ popd
 
 %patch91 -p1 -b .freetype-config-libs
 
+%patch92 -p1 -b .freetype-config-prefix
+
 %build
 
 %configure --disable-static \
@@ -141,11 +146,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 # fix multilib issues
-%if %{__isa_bits} == 64
-%define wordsize 64
-%else
-%define wordsize 32
-%endif
+%define wordsize %{__isa_bits}
 
 mv $RPM_BUILD_ROOT%{_includedir}/freetype2/config/ftconfig.h \
    $RPM_BUILD_ROOT%{_includedir}/freetype2/config/ftconfig-%{wordsize}.h
@@ -215,6 +216,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Tue Nov 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-11.R
+- Fix directories returned by freetype-config with modified prefix
+- Resolves: #1161963
+
+* Mon Aug 18 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-9.R
+- Simplify getting of wordsize
+
 * Sun Aug 31 2014 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.3-8.R
 - sync with upstream
 - Generic 32/64 bit platform detection (fix it once and for all)
