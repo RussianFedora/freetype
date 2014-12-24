@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.5.0
-Release: 5%{?dist}
+Release: 7%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -35,6 +35,10 @@ Patch92:  0001-Fix-vertical-size-of-emboldened-glyphs.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=1074647
 Patch93:  freetype-2.5.0-CVE-2014-2240.patch
 Patch94:  freetype-2.5.0-CVE-2014-2241.patch
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=1172634
+Patch95:  freetype-2.5.0-hintmask.patch
+Patch96:  freetype-2.5.0-hintmap.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -105,6 +109,9 @@ popd
 
 %patch93 -p1 -b .CVE-2014-2240
 %patch94 -p1 -b .CVE-2014-2241
+
+%patch95 -p1 -b .hintmask
+%patch96 -p1 -b .hintmap
 
 %build
 
@@ -226,6 +233,14 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Thu Dec 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.0-7.R
+- Suppress an assert when hintMap.count == 0 in specific situations.
+- Resolves: #1172634
+
+* Wed Dec 10 2014 Marek Kasik <mkasik@redhat.com> - 2.5.0-6.R
+- Don't append to stem arrays after hintmask is constructed.
+- Resolves: #1172634
+
 * Tue Mar 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.0-5.R
 - Add freetype-2.5.0-CVE-2014-2240.patch
     (Return when `hintMask' is invalid.)

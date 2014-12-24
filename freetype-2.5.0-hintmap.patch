@@ -1,0 +1,55 @@
+From f89396cb6284954ff98b5dcbfc38e144deccdc83 Mon Sep 17 00:00:00 2001
+From: Dave Arnold <darnold@adobe.com>
+Date: Thu, 04 Dec 2014 05:17:26 +0000
+Subject: [cff] Modify an FT_ASSERT.
+
+* src/cff/cf2hints.c (cf2_hintmap_map): After the fix for Savannah
+bug #43661, the test font `...aspartam.otf' still triggers an
+FT_ASSERT.  Since hintmap still works with count==0, ...
+(cf2_glyphpath_lineTo, cf2_glyphpath_curveTo): ... add that term to
+suppress the assert.
+---
+diff --git a/src/cff/cf2hints.c b/src/cff/cf2hints.c
+index 28a892b..040d193 100644
+--- a/src/cff/cf2hints.c
++++ b/src/cff/cf2hints.c
+@@ -304,9 +304,6 @@
+   cf2_hintmap_map( CF2_HintMap  hintmap,
+                    CF2_Fixed    csCoord )
+   {
+-    FT_ASSERT( hintmap->isValid );  /* must call Build before Map */
+-    FT_ASSERT( hintmap->lastIndex < CF2_MAX_HINT_EDGES );
+-
+     if ( hintmap->count == 0 || ! hintmap->hinted )
+     {
+       /* there are no hints; use uniform scale and zero offset */
+@@ -317,6 +314,7 @@
+       /* start linear search from last hit */
+       CF2_UInt  i = hintmap->lastIndex;
+ 
++      FT_ASSERT( hintmap->lastIndex < CF2_MAX_HINT_EDGES );
+ 
+       /* search up */
+       while ( i < hintmap->count - 1                  &&
+@@ -1586,7 +1584,8 @@
+ 
+     if ( glyphpath->elemIsQueued )
+     {
+-      FT_ASSERT( cf2_hintmap_isValid( &glyphpath->hintMap ) );
++      FT_ASSERT( cf2_hintmap_isValid( &glyphpath->hintMap ) ||
++                 glyphpath->hintMap.count == 0              );
+ 
+       cf2_glyphpath_pushPrevElem( glyphpath,
+                                   &glyphpath->hintMap,
+@@ -1672,7 +1671,8 @@
+ 
+     if ( glyphpath->elemIsQueued )
+     {
+-      FT_ASSERT( cf2_hintmap_isValid( &glyphpath->hintMap ) );
++      FT_ASSERT( cf2_hintmap_isValid( &glyphpath->hintMap ) ||
++                 glyphpath->hintMap.count == 0              );
+ 
+       cf2_glyphpath_pushPrevElem( glyphpath,
+                                   &glyphpath->hintMap,
+--
+cgit v0.9.0.2
