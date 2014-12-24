@@ -32,6 +32,10 @@ Patch91:  freetype-2.5.3-freetype-config-libs.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1161963
 Patch92:  freetype-2.5.3-freetype-config-prefix.patch
 
+# https://bugzilla.gnome.org/show_bug.cgi?id=1172634
+Patch93:  freetype-2.5.3-hintmask.patch
+Patch94:  freetype-2.5.3-hintmap.patch
+
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
@@ -95,6 +99,9 @@ popd
 %patch91 -p1 -b .freetype-config-libs
 
 %patch92 -p1 -b .freetype-config-prefix
+
+%patch93 -p1 -b .hintmask
+%patch94 -p1 -b .hintmap
 
 %build
 
@@ -216,6 +223,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Thu Dec 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-13.R
+- Suppress an assert when hintMap.count == 0 in specific situations.
+- Related: #1172634
+
+* Wed Dec 10 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-12.R
+- Don't append to stem arrays after hintmask is constructed.
+- Related: #1172634
+
 * Tue Nov 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-11.R
 - Fix directories returned by freetype-config with modified prefix
 - Resolves: #1161963
