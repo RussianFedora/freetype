@@ -2,8 +2,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.5.3
-Release: 13%{?dist}
+Version: 2.4.11
+Release: 9%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -12,39 +12,30 @@ Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{versi
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 Source3: ftconfig.h
 
-Patch21:  freetype-2.5.2-enable-spr.patch
-Patch22:  freetype-2.5.2-enable-sph.patch
+Patch21:  freetype-2.3.0-enable-spr.patch
+Patch22:  freetype-2.4.11-enable-sph.patch
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
 # Enable additional demos
-Patch47:  freetype-2.5.2-more-demos.patch
+Patch47:  freetype-2.3.11-more-demos.patch
 
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=961855
-Patch90:  freetype-2.4.12-pkgconfig.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=891457
+Patch89:  freetype-2.4.11-fix-emboldening.patch
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=1079302
-Patch91:  freetype-2.5.3-freetype-config-libs.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1161963
-Patch92:  freetype-2.5.3-freetype-config-prefix.patch
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=1172634
-Patch93:  freetype-2.5.3-hintmask.patch
-Patch94:  freetype-2.5.3-hintmap.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1010341
+Patch90:  0001-Fix-vertical-size-of-emboldened-glyphs.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
-BuildRequires: libpng-devel
-BuildRequires: zlib-devel
-BuildRequires: bzip2-devel
 
 Provides: %{name}-bytecode
 Provides: %{name}-subpixel
+Provides: %{name}-subpixel-hinting
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -71,6 +62,8 @@ small utilities showing various capabilities of the FreeType library.
 Summary: FreeType development libraries and header files
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
+Requires: zlib-devel
+Requires: pkgconfig
 
 %description devel
 The freetype-devel package includes the static libraries and header files
@@ -84,6 +77,7 @@ FreeType.
 %setup -q -b 1 -a 2
 
 %patch21  -p1 -b .enable-spr
+
 %patch22  -p1 -b .enable-sph
 
 %patch46  -p1 -b .enable-valid
@@ -93,23 +87,12 @@ pushd ft2demos-%{version}
 popd
 
 %patch88 -p1 -b .multilib
-
-%patch90 -p1 -b .pkgconfig
-
-%patch91 -p1 -b .freetype-config-libs
-
-%patch92 -p1 -b .freetype-config-prefix
-
-%patch93 -p1 -b .hintmask
-%patch94 -p1 -b .hintmap
+%patch89 -p1 -b .emboldening
+%patch90 -p1 -b .emboldened-glyphs
 
 %build
 
-%configure --disable-static \
-           --with-zlib=yes \
-           --with-bzip2=yes \
-           --with-png=yes \
-           --with-harfbuzz=no
+%configure --disable-static
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' builds/unix/libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' builds/unix/libtool
 make %{?_smp_mflags}
@@ -153,11 +136,15 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 # fix multilib issues
-%define wordsize %{__isa_bits}
+%ifarch x86_64 s390x ia64 ppc64 alpha sparc64 aarch64
+%define wordsize 64
+%else
+%define wordsize 32
+%endif
 
-mv $RPM_BUILD_ROOT%{_includedir}/freetype2/config/ftconfig.h \
-   $RPM_BUILD_ROOT%{_includedir}/freetype2/config/ftconfig-%{wordsize}.h
-install -p -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_includedir}/freetype2/config/ftconfig.h
+mv $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h \
+   $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig-%{wordsize}.h
+install -p -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h
 
 # Don't package static a or .la files
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
@@ -213,6 +200,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_includedir}/freetype2
 %{_datadir}/aclocal/freetype2.m4
 %{_includedir}/freetype2/*
+%{_includedir}/*.h
 %{_libdir}/libfreetype.so
 %{_bindir}/freetype-config
 %{_libdir}/pkgconfig/freetype2.pc
@@ -220,90 +208,29 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/glyphs
 %doc docs/reference
 %doc docs/tutorial
-%{_mandir}/man1/*
 
 %changelog
-* Thu Dec 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-13.R
-- Suppress an assert when hintMap.count == 0 in specific situations.
-- Related: #1172634
+* Sun Feb  8 2015 Arkady L. Shane <ashejn@russianfedora.ru> - 2.4.11-9.R
+- rebuilt with subpixel rendering and subpixel hinting
 
-* Wed Dec 10 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-12.R
-- Don't append to stem arrays after hintmask is constructed.
-- Related: #1172634
+* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 2.4.11-9
+- Mass rebuild 2014-01-24
 
-* Tue Nov 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-11.R
-- Fix directories returned by freetype-config with modified prefix
-- Resolves: #1161963
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 2.4.11-8
+- Mass rebuild 2013-12-27
 
-* Mon Aug 31 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-9.R
-- Simplify getting of wordsize
-
-* Sun Aug 31 2014 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.3-8.R
-- sync with upstream
-- Generic 32/64 bit platform detection (fix it once and for all)
-- Be explicit about required libraries
-- Don't return flags of privately used libraries when
-- calling "freetype-config --libs"
-- Resolves: #1079302
-- drop private libs from freetype-config so it returns the same libs as pkg-config
-
-* Tue Mar 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-2.R
-- Enable support for bzip2 compressed fonts
-
-* Tue Mar 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-1.R
-- Update to 2.5.3
-- Resolves: #1073923
-
-* Mon Mar  3 2014 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.2-2.R
-- enable subpixel rendering and subpixel hinting
-
-* Mon Jan 20 2014 Marek Kasik <mkasik@redhat.com> - 2.5.2-2
-- Fix include directory in freetype-config
-- Resolves: #1055154
-
-* Fri Jan 17 2014 Marek Kasik <mkasik@redhat.com> - 2.5.2-1
-- Update to 2.5.2
-- Modify spec file to respect the new header file layout
-- Resolves: #1034065
-
-* Fri Jan 10 2014 Marek Kasik <mkasik@redhat.com> - 2.5.0-5
-- Enable ppc64le architecture
-- Resolves: #1051202
-
-* Fri Sep 20 2013 Marek Kasik <mkasik@redhat.com> - 2.5.0-4
+* Thu Oct  3 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-7
 - Fix vertical size of emboldened glyphs
+- Resolves: #1010341
 
-* Mon Aug 05 2013 Marek Kasik <mkasik@redhat.com> - 2.5.0-3
-- Fix changelog dates
-
-* Mon Aug 05 2013 Marek Kasik <mkasik@redhat.com> - 2.5.0-2
-- Require libpng
-
-* Mon Aug 05 2013 Marek Kasik <mkasik@redhat.com> - 2.5.0-1
-- Update to 2.5.0
-- Backport changes from freetype-2.5.0.1
--   (ft2demos-2.5.0.1 and freetype-doc-2.5.0.1 were not released)
-
-* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.12-6
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
-
-* Wed May 29 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2.4.12-5
+* Wed May 29 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2.4.11-6
 - Add aarch64 to 64 bit arch list
 
-* Thu May 16 2013 Marek Kasik <mkasik@redhat.com> - 2.4.12-4
+* Thu May 16 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-5
 - Change encoding of "docs/tutorial/example3.cpp" to UTF-8
 
-* Thu May 16 2013 Marek Kasik <mkasik@redhat.com> - 2.4.12-3
+* Thu May 16 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-4
 - Package ftconfig.h as source file
-
-* Mon May 13 2013 Marek Kasik <mkasik@redhat.com> - 2.4.12-2
-- Don't use quotes in freetype2.pc
-- Resolves: #961855
-
-* Thu May  9 2013 Marek Kasik <mkasik@redhat.com> - 2.4.12-1
-- Update to 2.4.12
-- Enable Adobe CFF engine
-- Resolves: #959771
 
 * Tue Mar 19 2013 Marek Kasik <mkasik@redhat.com> - 2.4.11-3
 - Fix emboldening:
@@ -401,7 +328,7 @@ rm -rf $RPM_BUILD_ROOT
 - Update to 2.4.2
 - Drop upstreamed patch, bytecode interpreter now on by default
 
-* Tue Feb 23 2010 Behdad Esfahbod <behdad@redhat.com> 2.3.12-1
+* Thu Feb 23 2010 Behdad Esfahbod <behdad@redhat.com> 2.3.12-1
 - Update to 2.3.12
 - Drop mathlib patch
 
@@ -428,7 +355,7 @@ rm -rf $RPM_BUILD_ROOT
 * Thu May  7 2009 Matthias Clasen <mclasen@redhat.com> 2.3.9-4
 - Don't own /usr/lib/pkgconfig
 
-* Fri Mar 27 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-3
+* Wed Mar 27 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-3
 - Disable subpixel hinting by default.  Was turned on unintentionally.
 
 * Wed Mar 25 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-2
@@ -436,11 +363,11 @@ rm -rf $RPM_BUILD_ROOT
   with those options.
 - Resolves: #155210
 
-* Fri Mar 13 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-1
+* Thu Mar 13 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.9-1
 - Update to 2.3.9.
 - Resolves #489928
 
-* Mon Mar 09 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.8-2.1
+* Thu Mar 09 2009 Behdad Esfahbod <besfahbo@redhat.com> 2.3.8-2.1
 - Preserve timestamp of FTL.TXT when converting to UTF-8.
 
 * Tue Feb 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.8-2
@@ -460,7 +387,7 @@ rm -rf $RPM_BUILD_ROOT
 - Add freetype-autohinter-ligature.patch
 - Resolves: #368561
 
-* Thu Aug 14 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-1
+* Tue Aug 14 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.7-1
 - Update to 2.3.7
 
 * Tue Jun 10 2008 Behdad Esfahbod <besfahbo@redhat.com> 2.3.6-1
@@ -494,7 +421,7 @@ rm -rf $RPM_BUILD_ROOT
 * Thu Apr 12 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-2
 - Add alpha to 64-bit archs (#236166)
 
-* Thu Apr 05 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-1
+* Tue Apr 05 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.4-1
 - Update to 2.3.4.
 
 * Thu Apr 05 2007 Behdad Esfahbod <besfahbo@redhat.com> 2.3.3-2
@@ -686,7 +613,7 @@ rm -rf $RPM_BUILD_ROOT
 - Add a patch to implement FT_LOAD_TARGET_LIGHT
 - Fix up freetype-1.4-libtool.patch 
 
-* Thu Dec 12 2002 Mike A. Harris <mharris@redhat.com> 2.1.3-2
+* Sat Dec 12 2002 Mike A. Harris <mharris@redhat.com> 2.1.3-2
 - Update to freetype 2.1.3
 - Removed ttmkfdir sources and patches, as they have been moved from the
   freetype packaging to XFree86 packaging, and now to the ttmkfdir package

@@ -1,7 +1,7 @@
-diff -urN freetype-2.5.2.orig/include/config/ftoption.h freetype-2.5.2/include/config/ftoption.h
---- freetype-2.5.2.orig/include/config/ftoption.h	2014-03-03 17:43:56.171899693 +0400
-+++ freetype-2.5.2/include/config/ftoption.h	2014-03-03 17:46:05.380375399 +0400
-@@ -591,7 +591,7 @@
+diff -urN freetype-2.4.11.orig/include/freetype/config/ftoption.h freetype-2.4.11/include/freetype/config/ftoption.h
+--- freetype-2.4.11.orig/include/freetype/config/ftoption.h	2013-01-16 12:05:55.489434576 +0400
++++ freetype-2.4.11/include/freetype/config/ftoption.h	2013-01-16 12:09:34.827988475 +0400
+@@ -577,7 +577,7 @@
    /*   This option requires TT_CONFIG_OPTION_BYTECODE_INTERPRETER to be    */
    /*   defined.                                                            */
    /*                                                                       */
