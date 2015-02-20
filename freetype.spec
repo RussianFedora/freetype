@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.5.0
-Release: 7%{?dist}
+Release: 9%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -39,6 +39,32 @@ Patch94:  freetype-2.5.0-CVE-2014-2241.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=1172634
 Patch95:  freetype-2.5.0-hintmask.patch
 Patch96:  freetype-2.5.0-hintmap.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1191099
+# https://bugzilla.redhat.com/show_bug.cgi?id=1191191
+# https://bugzilla.redhat.com/show_bug.cgi?id=1191193
+Patch97:  freetype-2.5.0-CVE-2014-9656.patch
+Patch98:  freetype-2.5.0-CVE-2014-9657.patch
+Patch99:  freetype-2.5.0-CVE-2014-9658.patch
+Patch100:  freetype-2.5.0-ft-strncmp.patch
+Patch101:  freetype-2.5.0-CVE-2014-9675.patch
+Patch102:  freetype-2.5.0-CVE-2014-9660.patch
+Patch103:  freetype-2.5.0-CVE-2014-9661a.patch
+Patch104:  freetype-2.5.0-CVE-2014-9661b.patch
+Patch105:  freetype-2.5.0-CVE-2014-9662.patch
+Patch106:  freetype-2.5.0-CVE-2014-9663.patch
+Patch107:  freetype-2.5.0-CVE-2014-9664a.patch
+Patch108:  freetype-2.5.0-CVE-2014-9664b.patch
+Patch109:  freetype-2.5.0-CVE-2014-9666.patch
+Patch110:  freetype-2.5.0-CVE-2014-9667.patch
+Patch111:  freetype-2.5.0-CVE-2014-9669.patch
+Patch112:  freetype-2.5.0-CVE-2014-9670.patch
+Patch113:  freetype-2.5.0-CVE-2014-9671.patch
+Patch114:  freetype-2.5.0-CVE-2014-9672.patch
+Patch115:  freetype-2.5.0-CVE-2014-9673.patch
+Patch117:  freetype-2.5.0-unsigned-long.patch
+Patch116:  freetype-2.5.0-CVE-2014-9674a.patch
+Patch118:  freetype-2.5.0-CVE-2014-9674b.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -112,6 +138,29 @@ popd
 
 %patch95 -p1 -b .hintmask
 %patch96 -p1 -b .hintmap
+
+%patch97 -p1 -b .CVE-2014-9656
+%patch98 -p1 -b .CVE-2014-9657
+%patch99 -p1 -b .CVE-2014-9658
+%patch100 -p1 -b .ft-strncmp
+%patch101 -p1 -b .CVE-2014-9675
+%patch102 -p1 -b .CVE-2014-9660
+%patch103 -p1 -b .CVE-2014-9661a
+%patch104 -p1 -b .CVE-2014-9661b
+%patch105 -p1 -b .CVE-2014-9662
+%patch106 -p1 -b .CVE-2014-9663
+%patch107 -p1 -b .CVE-2014-9664a
+%patch108 -p1 -b .CVE-2014-9664b
+%patch109 -p1 -b .CVE-2014-9666
+%patch110 -p1 -b .CVE-2014-9667
+%patch111 -p1 -b .CVE-2014-9669
+%patch112 -p1 -b .CVE-2014-9670
+%patch113 -p1 -b .CVE-2014-9671
+%patch114 -p1 -b .CVE-2014-9672
+%patch115 -p1 -b .CVE-2014-9673
+%patch116 -p1 -b .unsigned-long
+%patch117 -p1 -b .CVE-2014-9674a
+%patch118 -p1 -b .CVE-2014-9674b
 
 %build
 
@@ -233,6 +282,52 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Tue Feb 17 2015 Marek Kasik <mkasik@redhat.com> - 2.5.0-9.R
+- Fixes CVE-2014-9656
+   - Check `p' before `num_glyphs'.
+- Fixes CVE-2014-9657
+   - Check minimum size of `record_size'.
+- Fixes CVE-2014-9658
+   - Use correct value for minimum table length test.
+- Fixes CVE-2014-9675
+   - New macro that checks one character more than `strncmp'.
+- Fixes CVE-2014-9660
+   - Check `_BDF_GLYPH_BITS'.
+- Fixes CVE-2014-9661
+   - Initialize `face->ttf_size'.
+   - Always set `face->ttf_size' directly.
+   - Exclusively use the `truetype' font driver for loading
+     the font contained in the `sfnts' array.
+- Fixes CVE-2014-9662
+   - Handle return values of point allocation routines.
+- Fixes CVE-2014-9663
+   - Fix order of validity tests.
+- Fixes CVE-2014-9664
+   - Add another boundary testing.
+   - Fix boundary testing.
+- Fixes CVE-2014-9666
+   - Protect against addition and multiplication overflow.
+- Fixes CVE-2014-9667
+   - Protect against addition overflow.
+- Fixes CVE-2014-9669
+   - Protect against overflow in additions and multiplications.
+- Fixes CVE-2014-9670
+   - Add sanity checks for row and column values.
+- Fixes CVE-2014-9671
+   - Check `size' and `offset' values.
+- Fixes CVE-2014-9672
+   - Prevent a buffer overrun caused by a font including too many (> 63)
+     strings to store names[] table.
+- Fixes CVE-2014-9673
+   - Fix integer overflow by a broken POST table in resource-fork.
+- Fixes CVE-2014-9674
+   - Fix integer overflow by a broken POST table in resource-fork.
+   - Additional overflow check in the summation of POST fragment lengths.
+- Resolves: #1191099, #1191191, #1191193
+
+* Wed Dec 17 2014 Marek Kasik <mkasik@redhat.com> - 2.5.0-8.R
+- Fix of URL of the bug #1172634
+
 * Thu Dec 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.0-7.R
 - Suppress an assert when hintMap.count == 0 in specific situations.
 - Resolves: #1172634
