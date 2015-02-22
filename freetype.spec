@@ -2,8 +2,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.5.3
-Release: 15%{?dist}
+Version: 2.5.5
+Release: 1%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -23,45 +23,8 @@ Patch47:  freetype-2.5.2-more-demos.patch
 # Fix multilib conflicts
 Patch88:  freetype-multilib.patch
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=961855
-Patch90:  freetype-2.4.12-pkgconfig.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1079302
-Patch91:  freetype-2.5.3-freetype-config-libs.patch
-
 # https://bugzilla.redhat.com/show_bug.cgi?id=1161963
 Patch92:  freetype-2.5.3-freetype-config-prefix.patch
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=1172634
-Patch93:  freetype-2.5.3-hintmask.patch
-Patch94:  freetype-2.5.3-hintmap.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1191099
-# https://bugzilla.redhat.com/show_bug.cgi?id=1191191
-# https://bugzilla.redhat.com/show_bug.cgi?id=1191193
-Patch95:  freetype-2.5.3-CVE-2014-9656.patch
-Patch96:  freetype-2.5.3-CVE-2014-9657.patch
-Patch97:  freetype-2.5.3-CVE-2014-9658.patch
-Patch98:  freetype-2.5.3-CVE-2014-9675.patch
-Patch99:  freetype-2.5.3-CVE-2014-9660.patch
-Patch100:  freetype-2.5.3-CVE-2014-9661a.patch
-Patch101:  freetype-2.5.3-CVE-2014-9661b.patch
-Patch102:  freetype-2.5.3-CVE-2014-9662.patch
-Patch103:  freetype-2.5.3-CVE-2014-9663.patch
-Patch104:  freetype-2.5.3-CVE-2014-9664a.patch
-Patch105:  freetype-2.5.3-CVE-2014-9664b.patch
-Patch106:  freetype-2.5.3-CVE-2014-9665.patch
-Patch107:  freetype-2.5.3-CVE-2014-9666.patch
-Patch108:  freetype-2.5.3-CVE-2014-9667.patch
-Patch109:  freetype-2.5.3-CVE-2014-9668.patch
-Patch110:  freetype-2.5.3-CVE-2014-9669.patch
-Patch111:  freetype-2.5.3-CVE-2014-9670.patch
-Patch112:  freetype-2.5.3-CVE-2014-9671.patch
-Patch113:  freetype-2.5.3-CVE-2014-9672.patch
-Patch114:  freetype-2.5.3-CVE-2014-9673.patch
-Patch115:  freetype-2.5.3-CVE-2014-9674a.patch
-Patch116:  freetype-2.5.3-unsigned-long.patch
-Patch117:  freetype-2.5.3-CVE-2014-9674b.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -72,6 +35,7 @@ BuildRequires: bzip2-devel
 
 Provides: %{name}-bytecode
 Provides: %{name}-subpixel
+Provides: %{name}-subpixel-hinting
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -121,38 +85,7 @@ popd
 
 %patch88 -p1 -b .multilib
 
-%patch90 -p1 -b .pkgconfig
-
-%patch91 -p1 -b .freetype-config-libs
-
 %patch92 -p1 -b .freetype-config-prefix
-
-%patch93 -p1 -b .hintmask
-%patch94 -p1 -b .hintmap
-
-%patch95 -p1 -b .CVE-2014-9656
-%patch96 -p1 -b .CVE-2014-9657
-%patch97 -p1 -b .CVE-2014-9658
-%patch98 -p1 -b .CVE-2014-9675
-%patch99 -p1 -b .CVE-2014-9660
-%patch100 -p1 -b .CVE-2014-9661a
-%patch101 -p1 -b .CVE-2014-9661b
-%patch102 -p1 -b .CVE-2014-9662
-%patch103 -p1 -b .CVE-2014-9663
-%patch104 -p1 -b .CVE-2014-9664a
-%patch105 -p1 -b .CVE-2014-9664b
-%patch106 -p1 -b .CVE-2014-9665
-%patch107 -p1 -b .CVE-2014-9666
-%patch108 -p1 -b .CVE-2014-9667
-%patch109 -p1 -b .CVE-2014-9668
-%patch110 -p1 -b .CVE-2014-9669
-%patch111 -p1 -b .CVE-2014-9670
-%patch112 -p1 -b .CVE-2014-9671
-%patch113 -p1 -b .CVE-2014-9672
-%patch114 -p1 -b .CVE-2014-9673
-%patch115 -p1 -b .CVE-2014-9674a
-%patch116 -p1 -b .unsigned-long
-%patch117 -p1 -b .CVE-2014-9674b
 
 %build
 
@@ -274,89 +207,54 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
-* Tue Feb 17 2015 Marek Kasik <mkasik@redhat.com> - 2.5.3-15.R
-- Fixes CVE-2014-9656
-   - Check `p' before `num_glyphs'.
-- Fixes CVE-2014-9657
-   - Check minimum size of `record_size'.
-- Fixes CVE-2014-9658
-   - Use correct value for minimum table length test.
-- Fixes CVE-2014-9675
-   - New macro that checks one character more than `strncmp'.
-- Fixes CVE-2014-9660
-   - Check `_BDF_GLYPH_BITS'.
-- Fixes CVE-2014-9661
-   - Initialize `face->ttf_size'.
-   - Always set `face->ttf_size' directly.
-   - Exclusively use the `truetype' font driver for loading
-     the font contained in the `sfnts' array.
-- Fixes CVE-2014-9662
-   - Handle return values of point allocation routines.
-- Fixes CVE-2014-9663
-   - Fix order of validity tests.
-- Fixes CVE-2014-9664
-   - Add another boundary testing.
-   - Fix boundary testing.
-- Fixes CVE-2014-9665
-   - Protect against too large bitmaps.
-- Fixes CVE-2014-9666
-   - Protect against addition and multiplication overflow.
-- Fixes CVE-2014-9667
-   - Protect against addition overflow.
-- Fixes CVE-2014-9668
-   - Protect against addition overflow.
-- Fixes CVE-2014-9669
-   - Protect against overflow in additions and multiplications.
-- Fixes CVE-2014-9670
-   - Add sanity checks for row and column values.
-- Fixes CVE-2014-9671
-   - Check `size' and `offset' values.
-- Fixes CVE-2014-9672
-   - Prevent a buffer overrun caused by a font including too many (> 63)
-     strings to store names[] table.
-- Fixes CVE-2014-9673
-   - Fix integer overflow by a broken POST table in resource-fork.
-- Fixes CVE-2014-9674
-   - Fix integer overflow by a broken POST table in resource-fork.
-   - Additional overflow check in the summation of POST fragment lengths.
-- Resolves: #1191099, #1191191, #1191193
+* Sun Feb 22 2015 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.5-1.R
+- rebuilt with subpixel rendering and subpixel hinting
 
-* Wed Dec 17 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-14.R
-- Fix of URL of the bug #1172634
+* Tue Jan  6 2015 Marek Kasik <mkasik@redhat.com> - 2.5.5-1
+- Update to 2.5.5
+- Resolves: #1178876
 
-* Thu Dec 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-13.R
-- Suppress an assert when hintMap.count == 0 in specific situations.
-- Related: #1172634
+* Tue Dec  9 2014 Marek Kasik <mkasik@redhat.com> - 2.5.4-1
+- Update to 2.5.4
+- Resolves: #1171504
 
-* Wed Dec 10 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-12.R
-- Don't append to stem arrays after hintmask is constructed.
-- Related: #1172634
-
-* Tue Nov 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-11.R
+* Tue Nov 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-11
 - Fix directories returned by freetype-config with modified prefix
 - Resolves: #1161963
 
-* Mon Aug 31 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-9.R
+* Tue Oct 21 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-10
+- Fix patch which enables subpixel rendering
+- Resolves: #1154448
+
+* Mon Aug 18 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-9
 - Simplify getting of wordsize
 
-* Sun Aug 31 2014 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.3-8.R
-- sync with upstream
+* Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.5.3-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
+* Sat Aug  2 2014 Peter Robinson <pbrobinson@redhat.com> 2.5.3-7
 - Generic 32/64 bit platform detection (fix it once and for all)
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.5.3-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Tue Mar 25 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-5
 - Be explicit about required libraries
+
+* Tue Mar 25 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-4
 - Don't return flags of privately used libraries when
 - calling "freetype-config --libs"
 - Resolves: #1079302
+
+* Fri Mar 21 2014 Dan Horák <dan[at]danny.cz> - 2.5.3-3
 - drop private libs from freetype-config so it returns the same libs as pkg-config
 
-* Tue Mar 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-2.R
+* Tue Mar 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-2
 - Enable support for bzip2 compressed fonts
 
-* Tue Mar 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-1.R
+* Tue Mar 11 2014 Marek Kasik <mkasik@redhat.com> - 2.5.3-1
 - Update to 2.5.3
 - Resolves: #1073923
-
-* Mon Mar  3 2014 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.2-2.R
-- enable subpixel rendering and subpixel hinting
 
 * Mon Jan 20 2014 Marek Kasik <mkasik@redhat.com> - 2.5.2-2
 - Fix include directory in freetype-config
