@@ -63,6 +63,10 @@ Patch115:  freetype-2.5.3-CVE-2014-9674a.patch
 Patch116:  freetype-2.5.3-unsigned-long.patch
 Patch117:  freetype-2.5.3-CVE-2014-9674b.patch
 
+# https://bugzilla.redhat.com/show_bug.cgi?id=1195652
+Patch118:  freetype-2.5.3-pcf-read-a.patch
+Patch119:  freetype-2.5.3-pcf-read-b.patch
+
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: libX11-devel
