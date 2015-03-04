@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.5.0
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -65,6 +65,10 @@ Patch115:  freetype-2.5.0-CVE-2014-9673.patch
 Patch117:  freetype-2.5.0-unsigned-long.patch
 Patch116:  freetype-2.5.0-CVE-2014-9674a.patch
 Patch118:  freetype-2.5.0-CVE-2014-9674b.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1195652
+Patch119:  freetype-2.5.0-pcf-read-a.patch
+Patch120:  freetype-2.5.0-pcf-read-b.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -161,6 +165,9 @@ popd
 %patch116 -p1 -b .unsigned-long
 %patch117 -p1 -b .CVE-2014-9674a
 %patch118 -p1 -b .CVE-2014-9674b
+
+%patch119 -p1 -b .pcf-read-a
+%patch120 -p1 -b .pcf-read-b
 
 %build
 
@@ -282,6 +289,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Tue Feb 24 2015 Marek Kasik <mkasik@redhat.com> - 2.5.0-10.R
+- Work around behaviour of X11's `pcfWriteFont' and `pcfReadFont' functions
+- Resolves: #1195652
+
 * Tue Feb 17 2015 Marek Kasik <mkasik@redhat.com> - 2.5.0-9.R
 - Fixes CVE-2014-9656
    - Check `p' before `num_glyphs'.
