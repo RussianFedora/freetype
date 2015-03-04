@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.5.3
-Release: 15%{?dist}
+Release: 16%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -154,6 +154,9 @@ popd
 %patch116 -p1 -b .unsigned-long
 %patch117 -p1 -b .CVE-2014-9674b
 
+%patch118 -p1 -b .pcf-read-a
+%patch119 -p1 -b .pcf-read-b
+
 %build
 
 %configure --disable-static \
@@ -274,6 +277,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Tue Feb 24 2015 Marek Kasik <mkasik@redhat.com> - 2.5.3-16.R
+- Work around behaviour of X11's `pcfWriteFont' and `pcfReadFont' functions
+- Resolves: #1195652
+
 * Tue Feb 17 2015 Marek Kasik <mkasik@redhat.com> - 2.5.3-15.R
 - Fixes CVE-2014-9656
    - Check `p' before `num_glyphs'.
