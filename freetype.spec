@@ -1,16 +1,20 @@
 %{!?with_xfree86:%define with_xfree86 1}
 
+%define version26 2.6
+
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.5.5
-Release: 1%{?dist}
+Version: 2.6.0
+Release: 3%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
-Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.tar.bz2
-Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
-Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
+Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version26}.tar.bz2
+Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version26}.tar.bz2
+Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version26}.tar.bz2
 Source3: ftconfig.h
+
+Patch0:   0001-cff-Don-t-use-hmtx-table-for-LSB-45520.patch
 
 Patch21:  freetype-2.5.2-enable-spr.patch
 Patch22:  freetype-2.5.2-enable-sph.patch
@@ -34,8 +38,9 @@ BuildRequires: zlib-devel
 BuildRequires: bzip2-devel
 
 Provides: %{name}-bytecode
+%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 Provides: %{name}-subpixel
-Provides: %{name}-subpixel-hinting
+%endif
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -72,14 +77,16 @@ FreeType.
 
 
 %prep
-%setup -q -b 1 -a 2
+%setup -q -b 1 -a 2 -n %{name}-%{version26}
+
+%patch0  -p1 -b .hmtx-table
 
 %patch21  -p1 -b .enable-spr
 %patch22  -p1 -b .enable-sph
 
 %patch46  -p1 -b .enable-valid
 
-pushd ft2demos-%{version}
+pushd ft2demos-%{version26}
 %patch47  -p1 -b .more-demos
 popd
 
@@ -100,7 +107,7 @@ make %{?_smp_mflags}
 
 %if %{with_xfree86}
 # Build demos
-pushd ft2demos-%{version}
+pushd ft2demos-%{version26}
 make TOP_DIR=".."
 popd
 %endif
@@ -125,13 +132,13 @@ rm -rf $RPM_BUILD_ROOT
 
 {
   for ftdemo in ftbench ftchkwd ftmemchk ftpatchk fttimer ftdump ftlint ftmemchk ftvalid ; do
-      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
+      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version26}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
 %if %{with_xfree86}
 {
   for ftdemo in ftdiff ftgamma ftgrid ftmulti ftstring fttimer ftview ; do
-      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
+      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version26}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
 %endif
@@ -207,8 +214,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
-* Sun Feb 22 2015 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.5-1.R
-- rebuilt with subpixel rendering and subpixel hinting
+* Thu Sep 24 2015 Arkady L. Shane <ashejn@russianfedora.pro> - 2.6.0-3.R
+- enable subpixel rendering and subpixel hinting
+
+* Tue Jul 28 2015 Marek Kasik <mkasik@redhat.com> - 2.6.0-3
+- Don't use `hmtx' table for LSB
+
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
+* Fri Jun 12 2015 Marek Kasik <mkasik@redhat.com> - 2.6.0-1
+- Update to 2.6
+- Resolves: #1229688
 
 * Tue Jan  6 2015 Marek Kasik <mkasik@redhat.com> - 2.5.5-1
 - Update to 2.5.5
