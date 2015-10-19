@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.5.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -25,6 +25,9 @@ Patch88:  freetype-multilib.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1161963
 Patch92:  freetype-2.5.3-freetype-config-prefix.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=678397
+Patch93:  freetype-2.5.5-thread-safety.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -86,6 +89,8 @@ popd
 %patch88 -p1 -b .multilib
 
 %patch92 -p1 -b .freetype-config-prefix
+
+%patch93 -p1 -b .thread-safety
 
 %build
 
@@ -207,6 +212,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Wed Aug 19 2015 Marek Kasik <mkasik@redhat.com> - 2.5.5-2.R
+- Backport patches for thread-safety
+- Resolves: #678397
+
 * Sun Feb 22 2015 Arkady L. Shane <ashejn@russianfedora.ru> - 2.5.5-1.R
 - rebuilt with subpixel rendering and subpixel hinting
 
