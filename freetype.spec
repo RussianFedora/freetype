@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.4.11
-Release: 9%{?dist}
+Release: 10%{?dist}.1
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -28,6 +28,28 @@ Patch89:  freetype-2.4.11-fix-emboldening.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1010341
 Patch90:  0001-Fix-vertical-size-of-emboldened-glyphs.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1197739
+Patch91:  freetype-2.4.11-CVE-2014-9657.patch
+Patch92:  freetype-2.4.11-CVE-2014-9658.patch
+Patch93:  freetype-2.4.11-ft-strncmp.patch
+Patch94:  freetype-2.4.11-CVE-2014-9675.patch
+Patch95:  freetype-2.4.11-CVE-2014-9660.patch
+Patch96:  freetype-2.4.11-CVE-2014-9661a.patch
+Patch97:  freetype-2.4.11-CVE-2014-9661b.patch
+Patch98:  freetype-2.4.11-CVE-2014-9663.patch
+Patch99:  freetype-2.4.11-CVE-2014-9664a.patch
+Patch100:  freetype-2.4.11-CVE-2014-9664b.patch
+Patch101:  freetype-2.4.11-CVE-2014-9667.patch
+Patch102:  freetype-2.4.11-CVE-2014-9669.patch
+Patch103:  freetype-2.4.11-CVE-2014-9670.patch
+Patch104:  freetype-2.4.11-CVE-2014-9671.patch
+Patch105:  freetype-2.4.11-CVE-2014-9673.patch
+Patch106:  freetype-2.4.11-CVE-2014-9674a.patch
+Patch107:  freetype-2.4.11-unsigned-long.patch
+Patch108:  freetype-2.4.11-CVE-2014-9674b.patch
+Patch109:  freetype-2.4.11-pcf-read-a.patch
+Patch110:  freetype-2.4.11-pcf-read-b.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -89,6 +111,27 @@ popd
 %patch88 -p1 -b .multilib
 %patch89 -p1 -b .emboldening
 %patch90 -p1 -b .emboldened-glyphs
+
+%patch91 -p1 -b .CVE-2014-9657
+%patch92 -p1 -b .CVE-2014-9658
+%patch93 -p1 -b .ft-strncmp
+%patch94 -p1 -b .CVE-2014-9675
+%patch95 -p1 -b .CVE-2014-9660
+%patch96 -p1 -b .CVE-2014-9661a
+%patch97 -p1 -b .CVE-2014-9661b
+%patch98 -p1 -b .CVE-2014-9663
+%patch99 -p1 -b .CVE-2014-9664a
+%patch100 -p1 -b .CVE-2014-9664b
+%patch101 -p1 -b .CVE-2014-9667
+%patch102 -p1 -b .CVE-2014-9669
+%patch103 -p1 -b .CVE-2014-9670
+%patch104 -p1 -b .CVE-2014-9671
+%patch105 -p1 -b .CVE-2014-9673
+%patch106 -p1 -b .CVE-2014-9674a
+%patch107 -p1 -b .unsigned-long
+%patch108 -p1 -b .CVE-2014-9674b
+%patch109 -p1 -b .pcf-read-a
+%patch110 -p1 -b .pcf-read-b
 
 %build
 
@@ -210,6 +253,41 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/tutorial
 
 %changelog
+* Tue Mar 10 2015 Marek Kasik <mkasik@redhat.com> - 2.4.11-10.el7_1.1.R
+- Fixes CVE-2014-9657
+   - Check minimum size of `record_size'.
+- Fixes CVE-2014-9658
+   - Use correct value for minimum table length test.
+- Fixes CVE-2014-9675
+   - New macro that checks one character more than `strncmp'.
+- Fixes CVE-2014-9660
+   - Check `_BDF_GLYPH_BITS'.
+- Fixes CVE-2014-9661
+   - Initialize `face->ttf_size'.
+   - Always set `face->ttf_size' directly.
+   - Exclusively use the `truetype' font driver for loading
+     the font contained in the `sfnts' array.
+- Fixes CVE-2014-9663
+   - Fix order of validity tests.
+- Fixes CVE-2014-9664
+   - Add another boundary testing.
+   - Fix boundary testing.
+- Fixes CVE-2014-9667
+   - Protect against addition overflow.
+- Fixes CVE-2014-9669
+   - Protect against overflow in additions and multiplications.
+- Fixes CVE-2014-9670
+   - Add sanity checks for row and column values.
+- Fixes CVE-2014-9671
+   - Check `size' and `offset' values.
+- Fixes CVE-2014-9673
+   - Fix integer overflow by a broken POST table in resource-fork.
+- Fixes CVE-2014-9674
+   - Fix integer overflow by a broken POST table in resource-fork.
+   - Additional overflow check in the summation of POST fragment lengths.
+- Work around behaviour of X11's `pcfWriteFont' and `pcfReadFont' functions
+- Resolves: #1197739
+
 * Sun Feb  8 2015 Arkady L. Shane <ashejn@russianfedora.ru> - 2.4.11-9.R
 - rebuilt with subpixel rendering and subpixel hinting
 
