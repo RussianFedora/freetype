@@ -7,9 +7,9 @@ Release: 10.1%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
-Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.tar.bz2
-Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
-Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
+Source:  http://downloads.sourceforge.net/project/freetype/freetype2/%{version}/freetype-%{version}.tar.bz2
+Source1: http://downloads.sourceforge.net/project/freetype/freetype-docs/%{version}/freetype-doc-%{version}.tar.bz2
+Source2: http://downloads.sourceforge.net/project/freetype/freetype-demos/%{version}/ft2demos-%{version}.tar.bz2
 Source3: ftconfig.h
 
 Patch21:  freetype-2.3.0-enable-spr.patch
