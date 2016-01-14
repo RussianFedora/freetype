@@ -140,9 +140,9 @@ rm -rf $RPM_BUILD_ROOT
 # fix multilib issues
 %define wordsize %{__isa_bits}
 
-mv $RPM_BUILD_ROOT%{_includedir}/freetype2/config/ftconfig.h \
-   $RPM_BUILD_ROOT%{_includedir}/freetype2/config/ftconfig-%{wordsize}.h
-install -p -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_includedir}/freetype2/config/ftconfig.h
+mv $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h \
+   $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig-%{wordsize}.h
+install -p -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h
 
 # Don't package static a or .la files
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
