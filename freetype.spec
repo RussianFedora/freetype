@@ -4,8 +4,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.6.0
-Release: 3%{?dist}
+Version: 2.6.2
+Release: 1%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -214,6 +214,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Thu Dec  3 2015 Tom Callaway <spot@fedoraproject.org> - 2.6.2-1.R
+- update to 2.6.2
+
 * Thu Sep 24 2015 Arkady L. Shane <ashejn@russianfedora.pro> - 2.6.0-3.R
 - enable subpixel rendering and subpixel hinting
 
