@@ -1,7 +1,5 @@
 %{!?with_xfree86:%define with_xfree86 1}
 
-%define version26 2.6.2
-
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.6.2
@@ -9,12 +7,10 @@ Release: 1%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
-Source:  http://downloads.sourceforge.net/sourceforge/freetype/freetype-%{version26}.tar.bz2
-Source1: http://downloads.sourceforge.net/sourceforge/freetype/freetype-doc-%{version26}.tar.bz2
-Source2: http://downloads.sourceforge.net/sourceforge/freetype/ft2demos-%{version26}.tar.bz2
+Source:  http://downloads.sourceforge.net/sourceforge/freetype/freetype-%{version}.tar.bz2
+Source1: http://downloads.sourceforge.net/sourceforge/freetype/freetype-doc-%{version}.tar.bz2
+Source2: http://downloads.sourceforge.net/sourceforge/freetype/ft2demos-%{version}.tar.bz2
 Source3: ftconfig.h
-
-Patch0:   0001-cff-Don-t-use-hmtx-table-for-LSB-45520.patch
 
 Patch21:  freetype-2.5.2-enable-spr.patch
 Patch22:  freetype-2.5.2-enable-sph.patch
@@ -78,8 +74,6 @@ FreeType.
 
 %prep
 %setup -q -b 1 -a 2 -n %{name}-%{version26}
-
-%patch0  -p1 -b .hmtx-table
 
 %patch21  -p1 -b .enable-spr
 %patch22  -p1 -b .enable-sph
