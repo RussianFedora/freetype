@@ -73,14 +73,14 @@ FreeType.
 
 
 %prep
-%setup -q -b 1 -a 2 -n %{name}-%{version26}
+%setup -q -b 1 -a 2 -n %{name}-%{version}
 
 %patch21  -p1 -b .enable-spr
 %patch22  -p1 -b .enable-sph
 
 %patch46  -p1 -b .enable-valid
 
-pushd ft2demos-%{version26}
+pushd ft2demos-%{version}
 %patch47  -p1 -b .more-demos
 popd
 
@@ -101,7 +101,7 @@ make %{?_smp_mflags}
 
 %if %{with_xfree86}
 # Build demos
-pushd ft2demos-%{version26}
+pushd ft2demos-%{version}
 make TOP_DIR=".."
 popd
 %endif
@@ -126,13 +126,13 @@ rm -rf $RPM_BUILD_ROOT
 
 {
   for ftdemo in ftbench ftchkwd ftmemchk ftpatchk fttimer ftdump ftlint ftmemchk ftvalid ; do
-      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version26}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
+      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
 %if %{with_xfree86}
 {
   for ftdemo in ftdiff ftgamma ftgrid ftmulti ftstring fttimer ftview ; do
-      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version26}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
+      builds/unix/libtool --mode=install install -m 755 ft2demos-%{version}/bin/$ftdemo $RPM_BUILD_ROOT/%{_bindir}
   done
 }
 %endif
