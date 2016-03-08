@@ -160,7 +160,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 
 %files
 %{!?_licensedir:%global license %%doc}
-%license docs/LICENSE.TXT docs/FTL.TX docs/GPLv2.TXTT
+%license docs/LICENSE.TXT docs/FTL.TXT docs/GPLv2.TXT
 %{_libdir}/libfreetype.so.*
 %doc README
 
