@@ -2,8 +2,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.6.3
-Release: 2%{?dist}
+Version: 2.6.5
+Release: 1%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -13,7 +13,7 @@ Source2: http://downloads.sourceforge.net/sourceforge/freetype/ft2demos-%{versio
 Source3: ftconfig.h
 
 Patch21:  freetype-2.5.2-enable-spr.patch
-Patch22:  freetype-2.5.2-enable-sph.patch
+Patch22:  freetype-2.6.5-enable-sph.patch
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
@@ -200,6 +200,10 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Wed Jul 13 2016 Marek Kasik <mkasik@redhat.com> - 2.6.5-1.R
+- Update to 2.6.5
+- Resolves: #1355743
+
 * Sat Mar  5 2016 Peter Robinson <pbrobinson@fedoraproject.org> 2.6.3-2.R
 - Use %%license and cleanup spec
 - Move dev docs to devel package
