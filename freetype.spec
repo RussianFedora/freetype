@@ -2,8 +2,8 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.6.5
-Release: 2%{?dist}.R
+Version: 2.7
+Release: 1%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -204,6 +204,10 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Sat Sep 24 2016 Arkady L. Shane <ashejn@russianfedora.pro> - 2.7-1.R
+- update to 2.7
+- Resolves: #1374305
+
 * Mon Aug 22 2016 Marek Kasik <mkasik@redhat.com> - 2.6.5-2.R
 - Don't show path of non-existing libtool file
 
