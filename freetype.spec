@@ -13,7 +13,6 @@ Source2: http://downloads.sourceforge.net/sourceforge/freetype/ft2demos-%{versio
 Source3: ftconfig.h
 
 Patch21:  freetype-2.5.2-enable-spr.patch
-Patch22:  freetype-2.6.5-enable-sph.patch
 
 # Enable otvalid and gxvalid modules
 Patch46:  freetype-2.2.1-enable-valid.patch
@@ -76,7 +75,6 @@ FreeType.
 %setup -q -b 1 -a 2 -n %{name}-%{version}
 
 %patch21  -p1 -b .enable-spr
-%patch22  -p1 -b .enable-sph
 
 %patch46  -p1 -b .enable-valid
 
@@ -207,6 +205,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 * Sat Sep 24 2016 Arkady L. Shane <ashejn@russianfedora.pro> - 2.7-1.R
 - update to 2.7
 - Resolves: #1374305
+- drop subpixel hinting patch
 
 * Mon Aug 22 2016 Marek Kasik <mkasik@redhat.com> - 2.6.5-2.R
 - Don't show path of non-existing libtool file
