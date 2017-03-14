@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.6.5
-Release: 2%{?dist}.R
+Release: 3%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -27,6 +27,9 @@ Patch88:  freetype-multilib.patch
 Patch92:  freetype-2.5.3-freetype-config-prefix.patch
 
 Patch93:  freetype-2.6.5-libtool.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1429965
+Patch94:  freetype-2.6.5-heap-buffer-overflow.patch
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
@@ -89,6 +92,8 @@ popd
 %patch92 -p1 -b .freetype-config-prefix
 
 %patch93 -p1 -b .libtool
+
+%patch94 -p1 -b .heap-buffer-overflow
 
 %build
 
@@ -204,6 +209,10 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Thu Mar  9 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-3.R
+- Fix heap buffer overflow
+- Resolves: #1429965
+
 * Mon Aug 22 2016 Marek Kasik <mkasik@redhat.com> - 2.6.5-2.R
 - Don't show path of non-existing libtool file
 
