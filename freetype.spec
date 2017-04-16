@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.7.1
-Release: 2%{?dist}.R
+Release: 4%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -202,6 +202,15 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Mon Apr 10 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-4.R
+- https://bugzilla.redhat.com/show_bug.cgi?id=1437999
+- Revert previous commit 
+- Related: #1437999
+
+* Mon Apr  3 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-3.R
+- Allow linear scaling for unhinted rendering
+- Resolves: #1437999
+
 * Tue Mar 14 2017 Arkady L. Shane <ashejn@russianfedora.pro> - 2.7.1-2.R
 - rebuilt
 
