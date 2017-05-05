@@ -214,22 +214,22 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
-* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-8
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-8.R
 - Fix numbers of tracking bugs
 
-* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-7
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-7.R
 - Add safety guard (CVE-2017-8287)
 - Resolves: #1446074
 
-* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-6
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-6.R
 - Better protect `flex' handling (CVE-2017-8105)
 - Resolves: #1446501
 
-* Mon Apr 10 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-5
+* Mon Apr 10 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-5.R
 - Revert previous commit
 - Related: #1437999
 
-* Mon Apr  3 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-4
+* Mon Apr  3 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-4.R
 - Allow linear scaling for unhinted rendering
 - Resolves: #1437999
 
