@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.7.1
-Release: 4%{?dist}.R
+Release: 7%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -12,20 +12,26 @@ Source1: http://downloads.sourceforge.net/sourceforge/freetype/freetype-doc-%{ve
 Source2: http://downloads.sourceforge.net/sourceforge/freetype/ft2demos-%{version}.tar.bz2
 Source3: ftconfig.h
 
-Patch21:  freetype-2.5.2-enable-spr.patch
+Patch0:  freetype-2.3.0-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
-Patch46:  freetype-2.2.1-enable-valid.patch
+Patch1:  freetype-2.2.1-enable-valid.patch
 # Enable additional demos
-Patch47:  freetype-2.5.2-more-demos.patch
+Patch2:  freetype-2.5.2-more-demos.patch
 
 # Fix multilib conflicts
-Patch88:  freetype-multilib.patch
+Patch3:  freetype-multilib.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1161963
-Patch92:  freetype-2.5.3-freetype-config-prefix.patch
+Patch4:  freetype-2.5.3-freetype-config-prefix.patch
 
-Patch93:  freetype-2.6.5-libtool.patch
+Patch5:  freetype-2.6.5-libtool.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1446500
+Patch6:  freetype-2.7.1-protect-flex-handling.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1446073
+Patch7:  freetype-2.7.1-safety-guard.patch
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
@@ -74,19 +80,18 @@ FreeType.
 %prep
 %setup -q -b 1 -a 2 -n %{name}-%{version}
 
-%patch21  -p1 -b .enable-spr
-
-%patch46  -p1 -b .enable-valid
+%patch0  -p1 -b .enable-spr
+%patch1  -p1 -b .enable-valid
 
 pushd ft2demos-%{version}
-%patch47  -p1 -b .more-demos
+%patch2  -p1 -b .more-demos
 popd
 
-%patch88 -p1 -b .multilib
-
-%patch92 -p1 -b .freetype-config-prefix
-
-%patch93 -p1 -b .libtool
+%patch3 -p1 -b .multilib
+%patch4 -p1 -b .freetype-config-prefix
+%patch5 -p1 -b .libtool
+%patch6 -p1 -b .protect-flex-handling
+%patch7 -p1 -b .safety-guard
 
 %build
 
@@ -202,6 +207,17 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-7.R
+- Fix numbers of tracking bugs
+
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-6.R
+- Add safety guard (CVE-2017-8287)
+- Resolves: #1446074
+
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-5.R
+- Better protect `flex' handling (CVE-2017-8105)
+- Resolves: #1446501
+
 * Mon Apr 10 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-4.R
 - https://bugzilla.redhat.com/show_bug.cgi?id=1437999
 - Revert previous commit 
