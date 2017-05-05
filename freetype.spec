@@ -12,7 +12,7 @@ Source1: http://downloads.sourceforge.net/sourceforge/freetype/freetype-doc-%{ve
 Source2: http://downloads.sourceforge.net/sourceforge/freetype/ft2demos-%{version}.tar.bz2
 Source3: ftconfig.h
 
-Patch0:  freetype-2.3.0-enable-spr.patch
+Patch0:  freetype-2.5.2-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
 Patch1:  freetype-2.2.1-enable-valid.patch
