@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.6.5
-Release: 8%{?dist}.R
+Release: 6%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -214,24 +214,16 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
-* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-8
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-6.R
 - Fix numbers of tracking bugs
 
-* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-7
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-5.R
 - Add safety guard (CVE-2017-8287)
 - Resolves: #1446074
 
-* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-6
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-4.R
 - Better protect `flex' handling (CVE-2017-8105)
 - Resolves: #1446501
-
-* Mon Apr 10 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-5
-- Revert previous commit
-- Related: #1437999
-
-* Mon Apr  3 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-4
-- Allow linear scaling for unhinted rendering
-- Resolves: #1437999
 
 * Thu Mar  9 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-3.R
 - Fix heap buffer overflow
