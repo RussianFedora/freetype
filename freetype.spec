@@ -2,30 +2,24 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.7.1
-Release: 2%{?dist}.R
+Version: 2.8
+Release: 1%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
-Source:  http://downloads.sourceforge.net/sourceforge/freetype/freetype-%{version}.tar.bz2
-Source1: http://downloads.sourceforge.net/sourceforge/freetype/freetype-doc-%{version}.tar.bz2
-Source2: http://downloads.sourceforge.net/sourceforge/freetype/ft2demos-%{version}.tar.bz2
+Source:  http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.tar.bz2
+Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{version}.tar.bz2
+Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 Source3: ftconfig.h
 
-Patch21:  freetype-2.5.2-enable-spr.patch
+Patch0:  freetype-2.5.2-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
-Patch46:  freetype-2.2.1-enable-valid.patch
+Patch1:  freetype-2.2.1-enable-valid.patch
 # Enable additional demos
-Patch47:  freetype-2.5.2-more-demos.patch
+Patch2:  freetype-2.5.2-more-demos.patch
 
-# Fix multilib conflicts
-Patch88:  freetype-multilib.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1161963
-Patch92:  freetype-2.5.3-freetype-config-prefix.patch
-
-Patch93:  freetype-2.6.5-libtool.patch
+Patch3:  freetype-2.6.5-libtool.patch
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
@@ -33,9 +27,7 @@ BuildRequires: zlib-devel
 BuildRequires: bzip2-devel
 
 Provides: %{name}-bytecode
-%if %{?_with_subpixel_rendering:1}%{!?_with_subpixel_rendering:0}
 Provides: %{name}-subpixel
-%endif
 
 %description
 The FreeType engine is a free and portable font rendering
@@ -72,21 +64,17 @@ FreeType.
 
 
 %prep
-%setup -q -b 1 -a 2 -n %{name}-%{version}
+%setup -q -b 1 -a 2
 
-%patch21  -p1 -b .enable-spr
+%patch0  -p1 -b .enable-spr
 
-%patch46  -p1 -b .enable-valid
+%patch1  -p1 -b .enable-valid
 
 pushd ft2demos-%{version}
-%patch47  -p1 -b .more-demos
+%patch2  -p1 -b .more-demos
 popd
 
-%patch88 -p1 -b .multilib
-
-%patch92 -p1 -b .freetype-config-prefix
-
-%patch93 -p1 -b .libtool
+%patch3 -p1 -b .libtool
 
 %build
 
@@ -120,7 +108,7 @@ popd
 
 %install
 
-%makeinstall gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
+%make_install gnulocaledir=$RPM_BUILD_ROOT%{_datadir}/locale
 
 {
   for ftdemo in ftbench ftchkwd ftmemchk ftpatchk fttimer ftdump ftlint ftmemchk ftvalid ; do
@@ -174,7 +162,6 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_bindir}/fttimer
 %{_bindir}/ftdump
 %{_bindir}/ftlint
-%{_bindir}/ftmemchk
 %{_bindir}/ftvalid
 %if %{with_xfree86}
 %{_bindir}/ftdiff
@@ -182,13 +169,12 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_bindir}/ftgrid
 %{_bindir}/ftmulti
 %{_bindir}/ftstring
-%{_bindir}/fttimer
 %{_bindir}/ftview
 %endif
 %doc ChangeLog README
 
 %files devel
-%defattr(-,root,root)
+%doc docs/CHANGES docs/formats.txt docs/ft2faq.html
 %dir %{_includedir}/freetype2
 %{_datadir}/aclocal/freetype2.m4
 %{_includedir}/freetype2/*
@@ -202,38 +188,72 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
-* Tue Mar 14 2017 Arkady L. Shane <ashejn@russianfedora.pro> - 2.7.1-2.R
-- rebuilt
+* Fri May 19 2017 Arkady L. Shane <ashejn@russianfedora.pro> - 2.8-1.R
+- enable subpixel rendering
 
-* Tue Jan  3 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-1.R
+* Wed May 17 2017 Marek Kasik <mkasik@redhat.com> - 2.8-1
+- Update to 2.8
+- Modify/remove patches as needed
+- Resolves: #1450581
+
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-7
+- Fix numbers of tracking bugs
+
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-6
+- Add safety guard (CVE-2017-8287)
+- Resolves: #1446074
+
+* Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-5
+- Better protect `flex' handling (CVE-2017-8105)
+- Resolves: #1446501
+
+* Mon Apr 10 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-4
+- Revert previous commit
+- Related: #1437999
+
+* Mon Apr  3 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-3
+- Allow linear scaling for unhinted rendering
+- Resolves: #1437999
+
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.7.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
+* Tue Jan  3 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-1
 - Update to 2.7.1
 - Resolves: #1409271
 
-* Mon Nov 21 2016 Marek Kasik <mkasik@redhat.com> - 2.7-2.R
+* Mon Nov 21 2016 Marek Kasik <mkasik@redhat.com> - 2.7-2
 - Fix a valgrind warning
 - Resolves: #1395915
 
-* Sat Sep 24 2016 Arkady L. Shane <ashejn@russianfedora.pro> - 2.7-1.R
-- update to 2.7
+* Mon Sep 12 2016 Marek Kasik <mkasik@redhat.com> - 2.7-1
+- Update to 2.7
 - Resolves: #1374305
-- drop subpixel hinting patch
 
-* Mon Aug 22 2016 Marek Kasik <mkasik@redhat.com> - 2.6.5-2.R
+* Mon Aug 22 2016 Marek Kasik <mkasik@redhat.com> - 2.6.5-2
 - Don't show path of non-existing libtool file
 
-* Wed Jul 13 2016 Marek Kasik <mkasik@redhat.com> - 2.6.5-1.R
+* Wed Jul 13 2016 Marek Kasik <mkasik@redhat.com> - 2.6.5-1
 - Update to 2.6.5
 - Resolves: #1355743
 
-* Sat Mar  5 2016 Peter Robinson <pbrobinson@fedoraproject.org> 2.6.3-2.R
+* Sat Mar  5 2016 Peter Robinson <pbrobinson@fedoraproject.org> 2.6.3-2
 - Use %%license and cleanup spec
 - Move dev docs to devel package
 
-* Thu Dec  3 2015 Tom Callaway <spot@fedoraproject.org> - 2.6.2-1.R
+* Wed Feb 10 2016 Marek Kasik <mkasik@redhat.com> - 2.6.3-1
+- Update to 2.6.3
+
+* Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2.6.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
+* Thu Dec  3 2015 Tom Callaway <spot@fedoraproject.org> - 2.6.2-1
 - update to 2.6.2
 
-* Thu Sep 24 2015 Arkady L. Shane <ashejn@russianfedora.pro> - 2.6.0-3.R
-- enable subpixel rendering and subpixel hinting
+* Mon Oct 12 2015 Marek Kasik <mkasik@redhat.com> - 2.6.1-1
+- Update to 2.6.1
+- Adapt to the new header structure
+- Resolves: #1268661
 
 * Tue Jul 28 2015 Marek Kasik <mkasik@redhat.com> - 2.6.0-3
 - Don't use `hmtx' table for LSB
