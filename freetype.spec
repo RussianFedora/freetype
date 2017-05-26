@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.6.5
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -36,6 +36,9 @@ Patch95:  freetype-2.6.5-protect-flex-handling.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1446073
 Patch96:  freetype-2.6.5-safety-guard.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1451795
+Patch97:  freetype-2.6.5-pcf-encoding.patch
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
@@ -99,6 +102,7 @@ popd
 %patch94 -p1 -b .heap-buffer-overflow
 %patch95 -p1 -b .protect-flex-handling
 %patch96 -p1 -b .safety-guard
+%patch97 -p1 -b .pcf-encoding
 
 %build
 
@@ -214,6 +218,10 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Wed May 24 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-7.R
+- Accept ISO646.1991-IRV as a Unicode charmap in PCF and BDF drivers
+- Resolves: #1451795
+
 * Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.6.5-6.R
 - Fix numbers of tracking bugs
 
