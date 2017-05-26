@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.7.1
-Release: 7%{?dist}.R
+Release: 8%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -12,26 +12,29 @@ Source1: http://downloads.sourceforge.net/sourceforge/freetype/freetype-doc-%{ve
 Source2: http://downloads.sourceforge.net/sourceforge/freetype/ft2demos-%{version}.tar.bz2
 Source3: ftconfig.h
 
-Patch0:  freetype-2.5.2-enable-spr.patch
+Patch21:  freetype-2.5.2-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
-Patch1:  freetype-2.2.1-enable-valid.patch
+Patch46:  freetype-2.2.1-enable-valid.patch
 # Enable additional demos
-Patch2:  freetype-2.5.2-more-demos.patch
+Patch47:  freetype-2.5.2-more-demos.patch
 
 # Fix multilib conflicts
-Patch3:  freetype-multilib.patch
+Patch88:  freetype-multilib.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1161963
-Patch4:  freetype-2.5.3-freetype-config-prefix.patch
+Patch92:  freetype-2.5.3-freetype-config-prefix.patch
 
-Patch5:  freetype-2.6.5-libtool.patch
+Patch93:  freetype-2.6.5-libtool.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1446500
-Patch6:  freetype-2.7.1-protect-flex-handling.patch
+Patch94:  freetype-2.7.1-protect-flex-handling.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1446073
-Patch7:  freetype-2.7.1-safety-guard.patch
+Patch95:  freetype-2.7.1-safety-guard.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1451795
+Patch96:  freetype-2.7.1-pcf-encoding.patch
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
@@ -80,18 +83,20 @@ FreeType.
 %prep
 %setup -q -b 1 -a 2 -n %{name}-%{version}
 
-%patch0  -p1 -b .enable-spr
-%patch1  -p1 -b .enable-valid
+%patch21  -p1 -b .enable-spr
+
+%patch46  -p1 -b .enable-valid
 
 pushd ft2demos-%{version}
-%patch2  -p1 -b .more-demos
+%patch47  -p1 -b .more-demos
 popd
 
-%patch3 -p1 -b .multilib
-%patch4 -p1 -b .freetype-config-prefix
-%patch5 -p1 -b .libtool
-%patch6 -p1 -b .protect-flex-handling
-%patch7 -p1 -b .safety-guard
+%patch88 -p1 -b .multilib
+%patch92 -p1 -b .freetype-config-prefix
+%patch93 -p1 -b .libtool
+%patch94 -p1 -b .protect-flex-handling
+%patch95 -p1 -b .safety-guard
+%patch96 -p1 -b .pcf-encoding
 
 %build
 
@@ -207,6 +212,10 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Wed May 24 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-8.R
+- Accept ISO646.1991-IRV as a Unicode charmap in PCF and BDF drivers
+- Resolves: #1451795
+
 * Tue May  2 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-7.R
 - Fix numbers of tracking bugs
 
