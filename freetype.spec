@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.8
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -20,6 +20,8 @@ Patch1:  freetype-2.2.1-enable-valid.patch
 Patch2:  freetype-2.5.2-more-demos.patch
 
 Patch3:  freetype-2.6.5-libtool.patch
+
+Patch4:  freetype-2.8-pcf-encoding.patch
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
@@ -75,6 +77,7 @@ pushd ft2demos-%{version}
 popd
 
 %patch3 -p1 -b .libtool
+%patch4 -p1 -b .pcf-encoding
 
 %build
 
@@ -188,6 +191,10 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Wed May 24 2017 Marek Kasik <mkasik@redhat.com> - 2.8-2.R
+- Accept ISO646.1991-IRV as a Unicode charmap in PCF and BDF drivers
+- Resolves: #1451795
+
 * Fri May 19 2017 Arkady L. Shane <ashejn@russianfedora.pro> - 2.8-1.R
 - enable subpixel rendering
 
