@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.7.1
-Release: 8%{?dist}.R
+Release: 9%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -35,6 +35,9 @@ Patch95:  freetype-2.7.1-safety-guard.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1451795
 Patch96:  freetype-2.7.1-pcf-encoding.patch
+
+#https://bugzilla.redhat.com/show_bug.cgi?id=1456585
+Patch97:  freetype-2.7.1-loop-counter.patch
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
@@ -97,6 +100,7 @@ popd
 %patch94 -p1 -b .protect-flex-handling
 %patch95 -p1 -b .safety-guard
 %patch96 -p1 -b .pcf-encoding
+%patch97 -p1 -b .loop-counter
 
 %build
 
@@ -212,6 +216,10 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Thu Jun  1 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-9.R
+- Adjust loop counter maximum for TrueType fonts
+- Resolves: #1456585
+
 * Wed May 24 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-8.R
 - Accept ISO646.1991-IRV as a Unicode charmap in PCF and BDF drivers
 - Resolves: #1451795
