@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.8
-Release: 5%{?dist}.R
+Release: 7%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -24,6 +24,11 @@ Patch3:  freetype-2.6.5-libtool.patch
 Patch4:  freetype-2.8-pcf-encoding.patch
 
 Patch5:  freetype-2.8-loop-counter.patch
+
+Patch6:  0077-truetype-Fix-loading-of-named-instances.patch
+Patch7:  0079-src-truetype-ttgxvar.c-TT_Get_MM_Var-Fix-thinko.patch
+
+Patch8:  freetype-2.8-multilib.patch
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
@@ -58,6 +63,7 @@ small utilities showing various capabilities of the FreeType library.
 Summary: FreeType development libraries and header files
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
+Requires: pkgconf%{?_isa}
 
 %description devel
 The freetype-devel package includes the static libraries and header files
@@ -81,6 +87,10 @@ popd
 %patch3 -p1 -b .libtool
 %patch4 -p1 -b .pcf-encoding
 %patch5 -p1 -b .loop-counter
+%patch6 -p1 -b .named-instances
+%patch7 -p1 -b .named-instances2
+%patch8 -p1 -b .multilib
+
 
 %build
 
@@ -194,6 +204,13 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Mon Oct  9 2017 Marek Kasik <mkasik@redhat.com> - 2.8-7.R
+- Require pkgconf so we can make freetype-config multilib compatible again
+- Resolves: #1497443
+
+* Thu Sep 21 2017 Marek Kasik <mkasik@redhat.com> - 2.8-6.R
+- Fix loading of named instances (TrueType)
+
 * Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.8-5.R
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
@@ -667,7 +684,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 - Switch requires to modular X
 
 * Fri Oct 21 2005 Matthias Clasen  <mclasen@redhat.com> 2.1.10-3
-- BuildRequire gettext 
+- BuildRequire gettext
 
 * Wed Oct 12 2005 Jason Vas Dias <jvdias@redhat.com> 2.1.10-2
 - fix 'without_bytecode_interpreter 0' build: freetype-2.1.10-enable-ft2-bci.patch
@@ -729,7 +746,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 - Version 2.1.4
 - Relibtoolize to get deplibs right for x86_64
 - Use autoconf-2.5x for freetype-1.4 to fix libtool-1.5 compat problem (#91781)
-- Relativize absolute symlinks to fix the -debuginfo package 
+- Relativize absolute symlinks to fix the -debuginfo package
   (#83521, Mike Harris)
 
 * Wed Jun 04 2003 Elliot Lee <sopwith@redhat.com>
@@ -742,7 +759,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 - Add a memleak fix for the gzip backend from Federic Crozat
 
 * Thu Feb 13 2003 Elliot Lee <sopwith@redhat.com> 2.1.3-7
-- Run libtoolize/aclocal/autoconf so that libtool knows to generate shared libraries 
+- Run libtoolize/aclocal/autoconf so that libtool knows to generate shared libraries
   on ppc64.
 - Use _smp_mflags (for freetype 2.x only)
 
@@ -753,12 +770,12 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 - rebuilt
 
 * Mon Jan  6 2003 Owen Taylor <otaylor@redhat.com> 2.1.3-4
-- Make FreeType robust against corrupt fonts with recursive composite 
+- Make FreeType robust against corrupt fonts with recursive composite
   glyphs (#74782, James Antill)
 
 * Thu Jan  2 2003 Owen Taylor <otaylor@redhat.com> 2.1.3-3
 - Add a patch to implement FT_LOAD_TARGET_LIGHT
-- Fix up freetype-1.4-libtool.patch 
+- Fix up freetype-1.4-libtool.patch
 
 * Thu Dec 12 2002 Mike A. Harris <mharris@redhat.com> 2.1.3-2
 - Update to freetype 2.1.3
@@ -798,7 +815,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 - Add another bugfix for the postscript hinter
 
 * Mon Jul  8 2002 Owen Taylor <otaylor@redhat.com>
-- Add support for BlueFuzz private dict value, fixing rendering 
+- Add support for BlueFuzz private dict value, fixing rendering
   glitch for Luxi Mono.
 
 * Wed Jul  3 2002 Owen Taylor <otaylor@redhat.com>
@@ -955,7 +972,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 * Mon Mar 22 1999 Preston Brown <pbrown@redhat.com>
 - strip binaries
 
-* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
+* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com>
 - auto rebuild in the new build environment (release 5)
 
 * Thu Mar 18 1999 Cristian Gafton <gafton@redhat.com>

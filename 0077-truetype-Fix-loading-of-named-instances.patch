@@ -1,0 +1,67 @@
+From 55bbb98f5c5a89230127d6b998a6e23e634b5d0e Mon Sep 17 00:00:00 2001
+From: Behdad Esfahbod <behdad@behdad.org>
+Date: Tue, 1 Aug 2017 09:17:02 +0200
+Subject: [PATCH 077/132] [truetype] Fix loading of named instances.
+
+* src/truetype/ttgxvar.c (TT_Get_MM_Var): Preserve file position
+while loading the `avar' table.
+---
+ ChangeLog               |  7 +++++++
+ include/freetype/ftmm.h |  2 +-
+ src/truetype/ttgxvar.c  | 11 ++++++++++-
+ 3 files changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/include/freetype/ftmm.h b/include/freetype/ftmm.h
+index c41b80ea6..1f48a4945 100644
+--- a/include/freetype/ftmm.h
++++ b/include/freetype/ftmm.h
+@@ -178,7 +178,7 @@ FT_BEGIN_HEADER
+   /*    strid  :: The entry in `name' table identifying this instance.     */
+   /*                                                                       */
+   /*    psid   :: The entry in `name' table identifying a PostScript name  */
+-  /*              for this instance.                                       */
++  /*              for this instance.  Value 0 indicates a missing entry.   */
+   /*                                                                       */
+   typedef struct  FT_Var_Named_Style_
+   {
+diff --git a/src/truetype/ttgxvar.c b/src/truetype/ttgxvar.c
+index 68458362e..df42b3bfd 100644
+--- a/src/truetype/ttgxvar.c
++++ b/src/truetype/ttgxvar.c
+@@ -2139,8 +2139,16 @@
+         goto Exit;
+ 
+       if ( fvar_head.instanceCount && !face->blend->avar_loaded )
++      {
++        FT_ULong  offset = FT_STREAM_POS();
++
++
+         ft_var_load_avar( face );
+ 
++        if ( FT_STREAM_SEEK( offset ) )
++          goto Exit;
++      }
++
+       ns  = mmvar->namedstyle;
+       nsc = face->blend->normalized_stylecoords;
+       for ( i = 0; i < fvar_head.instanceCount; i++, ns++ )
+@@ -2157,6 +2165,7 @@
+         for ( j = 0; j < fvar_head.axisCount; j++, c++ )
+           *c = FT_GET_LONG();
+ 
++        /* valid psid values are 6 and [256;32767] */
+         if ( usePsName )
+           ns->psid = FT_GET_USHORT();
+ 
+@@ -2174,7 +2183,7 @@
+         SFNT_Service  sfnt = (SFNT_Service)face->sfnt;
+ 
+         FT_Int   found, dummy1, dummy2;
+-        FT_UInt  strid = 0xFFFFFFFFUL;
++        FT_UInt  strid = ~0U;
+ 
+ 
+         /* the default instance is missing in array the   */
+-- 
+2.13.5
+

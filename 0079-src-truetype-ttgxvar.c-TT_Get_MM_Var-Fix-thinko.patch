@@ -1,0 +1,45 @@
+From 7e50824288fac5a36c2938fdb3e1c949ea53f982 Mon Sep 17 00:00:00 2001
+From: Werner Lemberg <wl@gnu.org>
+Date: Tue, 1 Aug 2017 12:44:35 +0200
+Subject: [PATCH 079/132] * src/truetype/ttgxvar.c (TT_Get_MM_Var): Fix thinko.
+
+---
+ ChangeLog               | 4 ++++
+ include/freetype/ftmm.h | 3 ++-
+ src/truetype/ttgxvar.c  | 4 +++-
+ 3 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/include/freetype/ftmm.h b/include/freetype/ftmm.h
+index 1f48a4945..b1bc1ed82 100644
+--- a/include/freetype/ftmm.h
++++ b/include/freetype/ftmm.h
+@@ -178,7 +178,8 @@ FT_BEGIN_HEADER
+   /*    strid  :: The entry in `name' table identifying this instance.     */
+   /*                                                                       */
+   /*    psid   :: The entry in `name' table identifying a PostScript name  */
+-  /*              for this instance.  Value 0 indicates a missing entry.   */
++  /*              for this instance.  Value 0xFFFF indicates a missing     */
++  /*              entry.                                                   */
+   /*                                                                       */
+   typedef struct  FT_Var_Named_Style_
+   {
+diff --git a/src/truetype/ttgxvar.c b/src/truetype/ttgxvar.c
+index df42b3bfd..5a87df139 100644
+--- a/src/truetype/ttgxvar.c
++++ b/src/truetype/ttgxvar.c
+@@ -2165,9 +2165,11 @@
+         for ( j = 0; j < fvar_head.axisCount; j++, c++ )
+           *c = FT_GET_LONG();
+ 
+-        /* valid psid values are 6 and [256;32767] */
++        /* valid psid values are 6, [256;32767], and 0xFFFF */
+         if ( usePsName )
+           ns->psid = FT_GET_USHORT();
++        else
++          ns->psid = 0xFFFF;
+ 
+         ft_var_to_normalized( face,
+                               fvar_head.axisCount,
+-- 
+2.13.5
+
