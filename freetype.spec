@@ -61,6 +61,7 @@ small utilities showing various capabilities of the FreeType library.
 Summary: FreeType development libraries and header files
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
+Requires: pkgconf%{?_isa}
 
 %description devel
 The freetype-devel package includes the static libraries and header files
