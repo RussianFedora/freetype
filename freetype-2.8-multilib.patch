@@ -1,0 +1,65 @@
+--- freetype-2.8/builds/unix/freetype-config.in
++++ freetype-2.8/builds/unix/freetype-config.in
+@@ -13,45 +13,25 @@ LC_ALL=C
+ export LC_ALL
+ 
+ 
+-# if `pkg-config' is available, use values from `freetype2.pc'
+-pkg-config --version >/dev/null 2>&1
+-if test $? -eq 0 ; then
+-  # note that option `--variable' is not affected by the
+-  # PKG_CONFIG_SYSROOT_DIR environment variable
+-  if test "x$SYSROOT" != "x" ; then
+-    PKG_CONFIG_SYSROOT_DIR="$SYSROOT"
+-    export PKG_CONFIG_SYSROOT_DIR
+-  fi
+-
+-  prefix=`pkg-config --variable prefix freetype2`
+-  exec_prefix=`pkg-config --variable exec_prefix freetype2`
+-
+-  includedir=`pkg-config --variable includedir freetype2`
+-  libdir=`pkg-config --variable libdir freetype2`
+-
+-  version=`pkg-config --modversion freetype2`
+-
+-  cflags=`pkg-config --cflags freetype2`
+-  dynamic_libs=`pkg-config --libs freetype2`
+-  static_libs=`pkg-config --static --libs freetype2`
+-else
+-  prefix="%prefix%"
+-  exec_prefix="%exec_prefix%"
+-
+-  includedir="%includedir%"
+-  libdir="%libdir%"
+-
+-  version=%ft_version%
+-
+-  cflags="-I${SYSROOT}$includedir/freetype2"
+-  dynamic_libs="-lfreetype"
+-  static_libs="%LIBSSTATIC_CONFIG%"
+-  if test "${SYSROOT}$libdir" != "/usr/lib"   &&
+-     test "${SYSROOT}$libdir" != "/usr/lib64" ; then
+-    libs_L="-L${SYSROOT}$libdir"
+-  fi
++# note that option `--variable' is not affected by the
++# PKG_CONFIG_SYSROOT_DIR environment variable
++if test "x$SYSROOT" != "x" ; then
++  PKG_CONFIG_SYSROOT_DIR="$SYSROOT"
++  export PKG_CONFIG_SYSROOT_DIR
+ fi
+ 
++prefix=`pkg-config --variable prefix freetype2`
++exec_prefix=`pkg-config --variable exec_prefix freetype2`
++
++includedir=`pkg-config --variable includedir freetype2`
++libdir=`pkg-config --variable libdir freetype2`
++
++version=`pkg-config --modversion freetype2`
++
++cflags=`pkg-config --cflags freetype2`
++dynamic_libs=`pkg-config --libs freetype2`
++static_libs=`pkg-config --static --libs freetype2`
++
+ orig_prefix=$prefix
+ orig_exec_prefix=$exec_prefix
+ 
