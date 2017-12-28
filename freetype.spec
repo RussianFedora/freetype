@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.8
-Release: 6%{?dist}.R
+Release: 7%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -27,6 +27,9 @@ Patch5:  freetype-2.8-loop-counter.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1497443
 Patch6:  freetype-2.8-multilib.patch
+
+Patch7:  0077-truetype-Fix-loading-of-named-instances.patch
+Patch8:  0079-src-truetype-ttgxvar.c-TT_Get_MM_Var-Fix-thinko.patch
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
@@ -86,6 +89,9 @@ popd
 %patch4 -p1 -b .pcf-encoding
 %patch5 -p1 -b .loop-counter
 %patch6 -p1 -b .multilib
+
+%patch7 -p1 -b .named-instances
+%patch8 -p1 -b .named-instances2
 
 %build
 
@@ -199,6 +205,9 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Thu Dec 21 2017 Marek Kasik <mkasik@redhat.com> - 2.8-7.R
+- Fix loading of named instances (TrueType)
+
 * Mon Oct  9 2017 Marek Kasik <mkasik@redhat.com> - 2.8-6.R
 - Require pkgconf so we can make freetype-config multilib compatible again
 - Resolves: #1497443
