@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.8
-Release: 8%{?dist}.R
+Release: 10%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -161,9 +161,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
   exit 0
 }
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
+%ldconfig_scriptlets
 
 %files
 %{!?_licensedir:%global license %%doc}
@@ -205,6 +203,9 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Sun Feb 25 2018 Arkady L. Shane <ashejn@russianfedora.pro> - 2.8-10.R
+- sync with upstream
+
 * Fri Feb 16 2018 Marek Kasik <mkasik@redhat.com> - 2.8-8.R
 - Avoid NULL reference
 - Resolves: #1544776
