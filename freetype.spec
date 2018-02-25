@@ -3,7 +3,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.7.1
-Release: 9%{?dist}.R
+Release: 10%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -38,6 +38,9 @@ Patch96:  freetype-2.7.1-pcf-encoding.patch
 
 #https://bugzilla.redhat.com/show_bug.cgi?id=1456585
 Patch97:  freetype-2.7.1-loop-counter.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1544776
+Patch98:  freetype-2.7.1-getvariation.patch
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
@@ -101,6 +104,7 @@ popd
 %patch95 -p1 -b .safety-guard
 %patch96 -p1 -b .pcf-encoding
 %patch97 -p1 -b .loop-counter
+%patch98 -p1 -b .getvariation
 
 %build
 
@@ -216,6 +220,10 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Fri Feb 16 2018 Marek Kasik <mkasik@redhat.com> - 2.7.1-10.R
+- Avoid NULL reference
+- Resolves: #1544776
+
 * Thu Jun  1 2017 Marek Kasik <mkasik@redhat.com> - 2.7.1-9.R
 - Adjust loop counter maximum for TrueType fonts
 - Resolves: #1456585
