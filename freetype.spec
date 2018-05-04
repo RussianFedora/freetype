@@ -1,9 +1,11 @@
+# Patented subpixel rendering disabled by default.
+# Pass '--with subpixel_rendering' on rpmbuild command-line to enable.
 %{!?with_xfree86:%define with_xfree86 1}
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.8
-Release: 10%{?dist}.R
+Version: 2.9
+Release: 1%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -12,7 +14,7 @@ Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{versi
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 Source3: ftconfig.h
 
-Patch0:  freetype-2.5.2-enable-spr.patch
+Patch0:  freetype-2.9-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
 Patch1:  freetype-2.2.1-enable-valid.patch
@@ -21,15 +23,13 @@ Patch2:  freetype-2.5.2-more-demos.patch
 
 Patch3:  freetype-2.6.5-libtool.patch
 
-Patch4:  freetype-2.8-pcf-encoding.patch
+Patch4:  freetype-2.8-multilib.patch
 
-Patch5:  freetype-2.8-loop-counter.patch
+Patch5:  freetype-2.8-getvariation.patch
 
-Patch6:  0077-truetype-Fix-loading-of-named-instances.patch
-Patch7:  0079-src-truetype-ttgxvar.c-TT_Get_MM_Var-Fix-thinko.patch
+Patch6:  freetype-2.9-ftsmooth.patch
 
-Patch8:  freetype-2.8-multilib.patch
-Patch9:  freetype-2.8-getvariation.patch
+Patch100: freetype-2.9-enable-cff-old-engine.patch
 
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
@@ -86,13 +86,10 @@ pushd ft2demos-%{version}
 popd
 
 %patch3 -p1 -b .libtool
-%patch4 -p1 -b .pcf-encoding
-%patch5 -p1 -b .loop-counter
-%patch6 -p1 -b .named-instances
-%patch7 -p1 -b .named-instances2
-%patch8 -p1 -b .multilib
-%patch9 -p1 -b .getvariation
-
+%patch4 -p1 -b .multilib
+%patch5 -p1 -b .getvariation
+%patch6 -p1 -b .ftsmooth
+%patch100 -p1 -b .cff-old-engine
 %build
 
 %configure --disable-static \
@@ -203,36 +200,45 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
-* Sun Feb 25 2018 Arkady L. Shane <ashejn@russianfedora.pro> - 2.8-10.R
-- sync with upstream
+* Fri May  4 2018 Arkady L. Shane <ashejn@russianfedora.pro> - 2.9.1.R
+- enable subpixel rendering
+- enable cff old engine
 
-* Fri Feb 16 2018 Marek Kasik <mkasik@redhat.com> - 2.8-8.R
+* Tue Mar 20 2018 Marek Kasik <mkasik@redhat.com> - 2.9-1
+- Update to 2.9
+- Add/modify/remove patches as needed
+- Resolves: #1492372
+
+* Fri Feb 16 2018 Marek Kasik <mkasik@redhat.com> - 2.8-10
 - Avoid NULL reference
 - Resolves: #1544776
 
-* Thu Dec 21 2017 Marek Kasik <mkasik@redhat.com> - 2.8-7.R
-- Fix loading of named instances (TrueType)
+* Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.8-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
-* Mon Oct  9 2017 Marek Kasik <mkasik@redhat.com> - 2.8-6.R
+* Fri Feb 02 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2.8-8
+- Switch to %%ldconfig_scriptlets
+
+* Mon Oct  9 2017 Marek Kasik <mkasik@redhat.com> - 2.8-7
 - Require pkgconf so we can make freetype-config multilib compatible again
 - Resolves: #1497443
 
-* Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.8-5.R
+* Thu Sep 21 2017 Marek Kasik <mkasik@redhat.com> - 2.8-6
+- Fix loading of named instances (TrueType)
+
+* Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.8-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
-* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.8-4.R
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.8-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
-* Thu Jun  1 2017 Marek Kasik <mkasik@redhat.com> - 2.8-3.R
+* Thu Jun  1 2017 Marek Kasik <mkasik@redhat.com> - 2.8-3
 - Adjust loop counter maximum for TrueType fonts
 - Resolves: #1456585
 
-* Wed May 24 2017 Marek Kasik <mkasik@redhat.com> - 2.8-2.R
+* Wed May 24 2017 Marek Kasik <mkasik@redhat.com> - 2.8-2
 - Accept ISO646.1991-IRV as a Unicode charmap in PCF and BDF drivers
 - Resolves: #1451795
-
-* Fri May 19 2017 Arkady L. Shane <ashejn@russianfedora.pro> - 2.8-1.R
-- enable subpixel rendering
 
 * Wed May 17 2017 Marek Kasik <mkasik@redhat.com> - 2.8-1
 - Update to 2.8
@@ -690,7 +696,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 - Switch requires to modular X
 
 * Fri Oct 21 2005 Matthias Clasen  <mclasen@redhat.com> 2.1.10-3
-- BuildRequire gettext
+- BuildRequire gettext 
 
 * Wed Oct 12 2005 Jason Vas Dias <jvdias@redhat.com> 2.1.10-2
 - fix 'without_bytecode_interpreter 0' build: freetype-2.1.10-enable-ft2-bci.patch
@@ -752,7 +758,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 - Version 2.1.4
 - Relibtoolize to get deplibs right for x86_64
 - Use autoconf-2.5x for freetype-1.4 to fix libtool-1.5 compat problem (#91781)
-- Relativize absolute symlinks to fix the -debuginfo package
+- Relativize absolute symlinks to fix the -debuginfo package 
   (#83521, Mike Harris)
 
 * Wed Jun 04 2003 Elliot Lee <sopwith@redhat.com>
@@ -765,7 +771,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 - Add a memleak fix for the gzip backend from Federic Crozat
 
 * Thu Feb 13 2003 Elliot Lee <sopwith@redhat.com> 2.1.3-7
-- Run libtoolize/aclocal/autoconf so that libtool knows to generate shared libraries
+- Run libtoolize/aclocal/autoconf so that libtool knows to generate shared libraries 
   on ppc64.
 - Use _smp_mflags (for freetype 2.x only)
 
@@ -776,12 +782,12 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 - rebuilt
 
 * Mon Jan  6 2003 Owen Taylor <otaylor@redhat.com> 2.1.3-4
-- Make FreeType robust against corrupt fonts with recursive composite
+- Make FreeType robust against corrupt fonts with recursive composite 
   glyphs (#74782, James Antill)
 
 * Thu Jan  2 2003 Owen Taylor <otaylor@redhat.com> 2.1.3-3
 - Add a patch to implement FT_LOAD_TARGET_LIGHT
-- Fix up freetype-1.4-libtool.patch
+- Fix up freetype-1.4-libtool.patch 
 
 * Thu Dec 12 2002 Mike A. Harris <mharris@redhat.com> 2.1.3-2
 - Update to freetype 2.1.3
@@ -821,7 +827,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 - Add another bugfix for the postscript hinter
 
 * Mon Jul  8 2002 Owen Taylor <otaylor@redhat.com>
-- Add support for BlueFuzz private dict value, fixing rendering
+- Add support for BlueFuzz private dict value, fixing rendering 
   glitch for Luxi Mono.
 
 * Wed Jul  3 2002 Owen Taylor <otaylor@redhat.com>
@@ -978,7 +984,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 * Mon Mar 22 1999 Preston Brown <pbrown@redhat.com>
 - strip binaries
 
-* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com>
+* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
 - auto rebuild in the new build environment (release 5)
 
 * Thu Mar 18 1999 Cristian Gafton <gafton@redhat.com>
