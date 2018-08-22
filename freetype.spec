@@ -27,8 +27,6 @@ Patch4:  freetype-2.8-multilib.patch
 
 Patch5:  freetype-2.9-ftsmooth.patch
 
-Patch100: freetype-2.9-enable-cff-old-engine.patch
-
 BuildRequires: gcc
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
