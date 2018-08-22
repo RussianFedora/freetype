@@ -4,7 +4,7 @@
 
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.9
+Version: 2.9.1
 Release: 2%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
@@ -25,12 +25,11 @@ Patch3:  freetype-2.6.5-libtool.patch
 
 Patch4:  freetype-2.8-multilib.patch
 
-Patch5:  freetype-2.8-getvariation.patch
-
-Patch6:  freetype-2.9-ftsmooth.patch
+Patch5:  freetype-2.9-ftsmooth.patch
 
 Patch100: freetype-2.9-enable-cff-old-engine.patch
 
+BuildRequires: gcc
 BuildRequires: libX11-devel
 BuildRequires: libpng-devel
 BuildRequires: zlib-devel
@@ -87,15 +86,14 @@ popd
 
 %patch3 -p1 -b .libtool
 %patch4 -p1 -b .multilib
-%patch5 -p1 -b .getvariation
-%patch6 -p1 -b .ftsmooth
-%patch100 -p1 -b .cff-old-engine
+%patch5 -p1 -b .ftsmooth
 %build
 
 %configure --disable-static \
            --with-zlib=yes \
            --with-bzip2=yes \
            --with-png=yes \
+           --enable-freetype-config \
            --with-harfbuzz=no
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' builds/unix/libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' builds/unix/libtool
@@ -144,7 +142,7 @@ mv $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h \
    $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig-%{wordsize}.h
 install -p -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_includedir}/freetype2/freetype/config/ftconfig.h
 
-# Don't package static a or .la files
+# Don't package static .a or .la files
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 
 
@@ -200,6 +198,9 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
+* Wed Aug 22 2018 Arkady L. Shane <ashejn@russianfedora.pro> - 2.9.1-2.R
+- update to 2.9.1
+
 * Wed Aug 22 2018 Arkady L. Shane <ashejn@russianfedora.pro> - 2.9-2.R
 - just rebuilt
 
