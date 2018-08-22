@@ -5,7 +5,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
 Version: 2.9
-Release: 1%{?dist}.R
+Release: 2%{?dist}.R
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -200,7 +200,10 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 %{_mandir}/man1/*
 
 %changelog
-* Fri May  4 2018 Arkady L. Shane <ashejn@russianfedora.pro> - 2.9.1.R
+* Wed Aug 22 2018 Arkady L. Shane <ashejn@russianfedora.pro> - 2.9-2.R
+- just rebuilt
+
+* Fri May  4 2018 Arkady L. Shane <ashejn@russianfedora.pro> - 2.9-1.R
 - enable subpixel rendering
 - enable cff old engine
 
