@@ -48,17 +48,17 @@
 +  export PKG_CONFIG_SYSROOT_DIR
  fi
  
-+prefix=`%PKG_CONFIG% --variable prefix freetype2`
-+exec_prefix=`%PKG_CONFIG% --variable exec_prefix freetype2`
++prefix=`pkgconf --variable prefix freetype2`
++exec_prefix=`pkgconf --variable exec_prefix freetype2`
 +
-+includedir=`%PKG_CONFIG% --variable includedir freetype2`
-+libdir=`%PKG_CONFIG% --variable libdir freetype2`
++includedir=`pkgconf --variable includedir freetype2`
++libdir=`pkgconf --variable libdir freetype2`
 +
-+version=`%PKG_CONFIG% --modversion freetype2`
++version=`pkgconf --modversion freetype2`
 +
-+cflags=`%PKG_CONFIG% --cflags freetype2`
-+dynamic_libs=`%PKG_CONFIG% --libs freetype2`
-+static_libs=`%PKG_CONFIG% --static --libs freetype2`
++cflags=`pkgconf --cflags freetype2`
++dynamic_libs=`pkgconf --libs freetype2`
++static_libs=`pkgconf --static --libs freetype2`
 +
  orig_prefix=$prefix
  orig_exec_prefix=$exec_prefix
